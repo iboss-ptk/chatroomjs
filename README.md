@@ -17,4 +17,3 @@
 
 * [Docker and deployment](https://www.amon.cx/blog/deploying-web-apps-docker/)
 * [python-redis chatroom using pub/sub](http://programeveryday.com/post/create-a-simple-chat-room-with-redis-pubsub/)
-* 
