@@ -16,4 +16,5 @@
 ### Additional resources
 
 * [Docker and deployment](https://www.amon.cx/blog/deploying-web-apps-docker/)
+* [Docker dev env](http://matthewminer.com/2015/01/25/docker-dev-environment-for-web-app.html)
 * [python-redis chatroom using pub/sub](http://programeveryday.com/post/create-a-simple-chat-room-with-redis-pubsub/)
