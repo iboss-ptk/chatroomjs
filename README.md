@@ -12,6 +12,7 @@
 * [Nginx](http://nginx.com/) : a webserver
 * [Tornado](http://www.tornadoweb.org/en/stable/) : a Python web framework and asynchronous networking library
 * [Riot](https://muut.com/riotjs/) : A REACT- LIKE, 3.5KB USER INTERFACE LIBRARY
+* [Q](https://github.com/kriskowal/q) : js lib for handling too much async callback
 
 ### Additional resources
 
