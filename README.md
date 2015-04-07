@@ -2,7 +2,7 @@
 
 ### Tools and libraries
 
-* [Docker](https://www.docker.com/) : using container technology to share the same development environment together
+* [Docker](https://www.docker.com/) : using container technology to share the same development environment with the team
 * [Docker-compose](https://docs.docker.com/compose/) : define a multi-container application in a single file (Sure, we're going to use multi-container)
 * [redis](http://redis.io/) : a data structure server which havepub/sub feature
 * [redis-py](https://github.com/andymccurdy/redis-py) : python client library for redis
