@@ -7,7 +7,7 @@
 * [Docker-compose](https://docs.docker.com/compose/) : define a multi-container application in a single file (Sure, we're going to use multi-container)
 
 **Stack**
-* [redis](http://redis.io/) : a data structure server which havepub/sub feature
+* [Redis](http://redis.io/) : a data structure server which has pub/sub feature
 * [MongoDB](http://www.mongodb.com/) : as the primary storage
 * [Flask](http://flask.pocoo.org/) : a microframework for Python
 
