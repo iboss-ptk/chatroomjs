@@ -18,6 +18,8 @@
 
 * [socket.io](http://socket.io/) : for handling client-side websocket (javascript)
 
+> * [redis-socketio](https://github.com/automattic/socket.io-redis) : alternative way to redis-py
+
 ### Additional resources
 
 * [Docker and deployment](https://www.amon.cx/blog/deploying-web-apps-docker/)
