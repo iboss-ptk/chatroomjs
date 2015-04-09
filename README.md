@@ -10,10 +10,11 @@
 * [redis](http://redis.io/) : a data structure server which havepub/sub feature
 * [MongoDB](http://www.mongodb.com/) : as the primary storage
 * [Flask](http://flask.pocoo.org/) : a microframework for Python
-** [redis-py](https://github.com/andymccurdy/redis-py) : python client library for redis
-** [Flask-security](https://pythonhosted.org/Flask-Security/) : authentication, support mongoengine
-** [mongoengine](http://mongoengine.org/) : a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.
-** [Flask-socketio](https://flask-socketio.readthedocs.org/en/latest/) : The client-side application can use the SocketIO to establish a permanent connection to the server.
+
+> * [redis-py](https://github.com/andymccurdy/redis-py) : python client library for redis
+> * [Flask-security](https://pythonhosted.org/Flask-Security/) : authentication, support mongoengine
+> * [mongoengine](http://mongoengine.org/) : a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.
+> * [Flask-socketio](https://flask-socketio.readthedocs.org/en/latest/) : The client-side application can use the SocketIO to establish a permanent connection to the server.
 * [socket.io](http://socket.io/) : for handling client-side websocket (javascript)
 
 ### Additional resources
