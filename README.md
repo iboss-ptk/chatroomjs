@@ -1,28 +1,22 @@
-# py-chatroom
+# chatroomjs
 
 ### Tools and libraries
 
-**Infrastructure**
+**Docker**
 * [Docker](https://www.docker.com/) : using container technology to share the same development environment with the team
 * [Docker-compose](https://docs.docker.com/compose/) : define a multi-container application in a single file (Sure, we're going to use multi-container)
 
-**Stack**
-* [Redis](http://redis.io/) : a data structure server which has pub/sub feature
-* [MongoDB](http://www.mongodb.com/) : as the primary storage
-* [Flask](http://flask.pocoo.org/) : a microframework for Python
+**Application Stack**
++ [Redis](http://redis.io/) : a data structure server which has pub/sub feature
++ [MongoDB](http://www.mongodb.com/) : as the primary storage
++ [Nodejs](https://nodejs.org/) : just nodejs
+   - [Express](http://expressjs.com/) : web framework for Node.js
+   - [mongoose](http://mongoosejs.com/) : mongodb object modeling for node.js
+   - [socket.io](http://socket.io/) : real-time bidirectional event-based communication.
 
-> * [redis-py](https://github.com/andymccurdy/redis-py) : python client library for redis
-> * [Flask-security](https://pythonhosted.org/Flask-Security/) : authentication, support mongoengine
-> * [mongoengine](http://mongoengine.org/) : a Document-Object Mapper (think ORM, but for document databases) for working with MongoDB from Python.
-> * [Flask-socketio](https://flask-socketio.readthedocs.org/en/latest/) : The client-side application can use the SocketIO to establish a permanent connection to the server.
-
-* [socket.io](http://socket.io/) : for handling client-side websocket (javascript)
-
-> * [redis-socketio](https://github.com/automattic/socket.io-redis) : alternative way to redis-py
 
 ### Additional resources
 
 * [Docker and deployment](https://www.amon.cx/blog/deploying-web-apps-docker/)
 * [Docker dev env](http://matthewminer.com/2015/01/25/docker-dev-environment-for-web-app.html)
-* [python-redis chatroom using pub/sub](http://programeveryday.com/post/create-a-simple-chat-room-with-redis-pubsub/)
-* [flask redis](http://flask.pocoo.org/snippets/71/)
+* [Multi chatroom tutorial](http://psitsmike.com/2011/10/node-js-and-socket-io-multiroom-chat-tutorial/)
