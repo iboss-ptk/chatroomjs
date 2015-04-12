@@ -1,0 +1,18 @@
+web:
+  build: .
+  command: node app.js
+  ports:
+   - "8888:8888"
+  volumes:
+   - .:/src
+  links:
+   - redis
+   - mongo
+redis:
+  image: redis:3.0
+mongo:
+  image: mongo:3.0.1
+  ports:
+   - "27017:27017"
+  volumes:
+   - .:/data

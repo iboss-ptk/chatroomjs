@@ -1,0 +1,40 @@
+* {
+  font-family: 'Lato', sans-serif;
+  font-size: 1em;
+}
+
+body {
+  /*padding-bottom: 10%;*/
+}
+
+#type-space {
+  position: fixed;
+  bottom: 5%;
+  padding-top: 3%;
+  /*border-top: 1px solid rgba(0, 181, 173, 0.4);*/
+  width: 100%;
+}
+
+#msgpane {
+  margin-top: 1%;
+  padding: 0 0;
+  overflow: scroll;
+  height: 87%;
+}
+
+#messages div {
+  padding: 10px 10px;
+  margin-bottom: 10px;
+  display: inline-block;
+  vertical-align: center;
+  background-color: white;
+  border-radius: 5px;
+  float: left;
+  clear: both;
+}
+
+#messages div.mymsg{
+  background-color: #C8F7C5;
+  float: right;
+  clear: both;
+}
