@@ -45,7 +45,9 @@ And run this command from the root directory of this repo.
    $ docker-compose up
 ```
 
-Every component should work at this point. If you have any issue, feel free to ask me. If you're using windows, I can't help you much so I'd like to suggest you to use any Linux distro or OSX.
+Normally, boot2docker's ip is 192.168.59.103 so the application will be on http://192.168.59.103:8888. If this doesn't show anything, try running `` boot2docker ip `` to see your vm's ip. If you're on Linux, just http://localhost:8888.
+
+Every component should work fine at this point. If you have any issue, feel free to ask me. If you're using windows, I can't help you much so I'd like to suggest you to use any Linux distro or OSX.
 
 ### Additional resources
 
