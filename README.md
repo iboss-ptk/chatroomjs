@@ -40,7 +40,7 @@ Then install the dependencies.
 > ```
 > Then export DOCKER_HOST, DOCKER_CERT_PATH and DOCKER_TLS_VERIFY as it's shown after boot2docker up.
 
-And execute this command from the root directory of this repo.
+And run this command from the root directory of this repo.
 ```sh
    $ docker-compose up
 ```
