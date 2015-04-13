@@ -13,6 +13,7 @@
    - [Express](http://expressjs.com/) : web framework for Node.js
    - [mongoose](http://mongoosejs.com/) : mongodb object modeling for node.js
    - [socket.io](http://socket.io/) : real-time bidirectional event-based communication.
+   - [noderedis](https://github.com/mranney/node_redis) : redis client
 
 
 ### Additional resources
