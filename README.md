@@ -19,8 +19,6 @@
 
 This project use Docker and Compose to orchestrate the application's infrastructure and Git to manage the code. So, you have to install all of those first. You can choose any git client as you prefer. [npm](https://www.npmjs.com/) is also needed in order to manage nodejs dependencies.
 
-Breifly, the idea is Docker&Compose for infrastructure; Git for source code; npm for js dependencies.
-
 After you have downloaded all of the tools, it's time to begin.
 
 First, you have to clone this repo into your computer.
@@ -29,7 +27,7 @@ First, you have to clone this repo into your computer.
    $ git clone https://github.com/iboss-ptk/chatroomjs.git
 ```
 
-Then run install the dependencies.
+Then install the dependencies.
 ```sh 
    $ cd chatroomjs
    $ sudo npm install
