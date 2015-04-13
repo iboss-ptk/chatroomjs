@@ -3,6 +3,10 @@ var offset = 0;
 var h = 0;
 var sentmsg = ''; // to be change later
 
+
+var name = prompt("your name");
+socket.emit('addUser', name);
+
 var room = prompt("select room");
 socket.emit('addRoom', room);
 

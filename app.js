@@ -3,16 +3,11 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis');
-// var mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
-// db = mongoose.createConnection('mongo', 'test', 27017)
+mongoose.connect('mongodb://mongo/chat');
 
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', function (callback) {
-//   console.log('yay!');
-// });
-
-// var clientList = []
+var User = require("./models/user").User;
 
 function createPubSubClient(){
 	var psClient = clientList.push( redis.createClient(6379, 'redis')-1 );
@@ -22,8 +17,6 @@ function createPubSubClient(){
 app.use(express.static('assets'));
 
 app.get('/', function(req, res){
-	// var room = req.param('room');
-
 	res.sendFile(__dirname + '/index.html');
 	console.log('successfuly request');
 });
@@ -34,7 +27,22 @@ io.on('connection', function(socket){
 		socket.room = room;
 	});
 
+	socket.on('addUser', function(name){
+		user = new User({ name: name, pic: 'pic' });
+		console.log('add user')
+		user.save(function (err, user) {
+			if (err) return console.error(err);
+			console.log("user is saved");
+		});
+
+		socket.name = name;
+	});
+
 	socket.on('chatmsg', function(msg){
+		User.find(function(err, user){
+			if (err) return console.error(err);
+			console.log(user)
+		});
 		io.to(socket.room).emit('chatmsg', msg);
 	});
 });
