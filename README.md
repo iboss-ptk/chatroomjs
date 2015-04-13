@@ -32,13 +32,13 @@ Then install the dependencies.
    $ cd chatroomjs
    $ sudo npm install
 ```
-> We might need to run docker command on the host os because it's easier to manage. If you're not on Linux, you need to run the following commands.
-> ```sh 
->    $ boot2docker init # only for the first time
->    $ boot2docker up
->    $ boot2docker shellinit
-> ```
-> Then export DOCKER_HOST, DOCKER_CERT_PATH and DOCKER_TLS_VERIFY as it's shown after boot2docker up.
+We might need to run docker command on the host os because it's easier to manage. If you're not on Linux, you need to run the following commands.
+```sh 
+   $ boot2docker init # only for the first time
+   $ boot2docker up
+   $ boot2docker shellinit
+```
+Then export DOCKER_HOST, DOCKER_CERT_PATH and DOCKER_TLS_VERIFY as it's shown after boot2docker up.
 
 And run this command from the root directory of this repo.
 ```sh
