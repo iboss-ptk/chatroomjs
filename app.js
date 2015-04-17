@@ -9,7 +9,9 @@ mongoose.connect('mongodb://mongo/chat');
 
 var models = {
 	User: require("./models/user").User
-} 
+, GroupMember : require("./models/group_member").GroupMember
+, Group : require("./models/group").Group
+}
 
 function createPubSubClient(){
 	var psClient = clientList.push( redis.createClient(6379, 'redis')-1 );
@@ -110,7 +112,7 @@ io.on('connection', function(socket){
 		}
 
 		io.emit(data._event, res)
-	});	
+	});
 
 
 	//message handler
@@ -123,7 +125,7 @@ io.on('connection', function(socket){
 		}
 
 		io.emit(data._event, res)
-	});	
+	});
 
 	socket.on('message.get_unread', function(data){
 
@@ -134,8 +136,8 @@ io.on('connection', function(socket){
 		}
 
 		io.emit(data._event, res)
-	});	
-		
+	});
+
 
 });
 
