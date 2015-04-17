@@ -3,12 +3,14 @@ var offset = 0;
 var h = 0;
 var sentmsg = ''; // to be change later
 
+var login = {}
+login.username = prompt("username");
+login.password = prompt("password");
+login._event = "LKMLDKFMGNSPP"
+socket.emit('user.login', login);
 
-var name = prompt("your name");
-socket.emit('addUser', name);
-
-var room = prompt("select room");
-socket.emit('addRoom', room);
+// var room = prompt("select room");
+// socket.emit('addRoom', room);
 
 function scrollToBottom() {
   var h = $('#msgpane')[0].scrollHeight;
@@ -16,6 +18,7 @@ function scrollToBottom() {
 }
 
 $('form').submit(function(){
+  socket.emit('user.join', {_event: "clxknfvld"});
   if (!$('#m').val().trim()){
     return false;
   }

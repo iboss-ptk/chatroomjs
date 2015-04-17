@@ -4,16 +4,13 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis');
 var mongoose = require('mongoose');
+var jwt = require('jsonwebtoken');
 
 mongoose.connect('mongodb://mongo/chat');
 
+var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
 	User: require("./models/user").User
-} 
-
-function createPubSubClient(){
-	var psClient = clientList.push( redis.createClient(6379, 'redis')-1 );
-	return clientList[psClient]
 }
 
 app.use(express.static('assets'));
@@ -25,78 +22,95 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
 
+	var redis_client = redis.createClient(6379, 'redis');
+
+	var validateToken = function(callback){
+		redis_client.get(socket.username + ":token", function(err, user_token){
+			jwt.verify(user_token, secret, function(err, decoded) {
+				redis_client
+				if (err) return console.log(err);
+				callback(err, decoded);
+			});
+		})
+	}
+
 	//user handler
 
 	socket.on('user.login', function(data){
 
-		res = {
-			_token: 'JNU^TFYTHGJNKHVKGC',
-			success: true,
-			err_msg: null,
-			UserObj: 'obj'
-		}
+		var token = jwt.sign(data, secret, { expiresInMinutes: 60*24*2 });
+		redis_client.set( data.username + ":token",token , function(err, res) {
 
-		io.emit(data._event, res)
+			socket.username = data.username
+
+			var returnObj = {
+				_token: token,
+				success: err ? false : true,
+				err_msg: err,
+				UserObj: 'obj'
+			}
+
+			console.log(returnObj);
+			redis_client.get(data.username + ":token", function(err, res){
+				console.log(res);
+			});
+			io.emit(data._event, returnObj)
+		})
 	});
 
 	socket.on('user.register', function(data){
 
-		res = {
+		var returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
-	});
-
-	socket.on('user.login', function(data){
-
-		res = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});
 
 	socket.on('user.join', function(data){
 
-		res = {
-			success: true,
-			err_msg: null
-		}
+		validateToken(function(err, decoded){
 
-		io.emit(data._event, res)
+			var returnObj = {
+				success: err ? false : true,
+				err_msg: err
+			}
+
+			console.log(returnObj);
+			io.emit(data._event, returnObj)
+		})
+		
 	});
 
 	socket.on('user.leave', function(data){
 
-		res = {
+		returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});
 
 	socket.on('user.pause', function(data){
 
-		res = {
+		returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});
 
 	socket.on('user.logout', function(data){
 
-		res = {
+		returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});
 
 
@@ -104,12 +118,12 @@ io.on('connection', function(socket){
 
 	socket.on('group.create', function(data){
 
-		res = {
+		returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});	
 
 
@@ -117,23 +131,23 @@ io.on('connection', function(socket){
 
 	socket.on('message.send', function(data){
 
-		res = {
+		returnObj = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});	
 
 	socket.on('message.get_unread', function(data){
 
-		res = {
+		returnObj = {
 			unread_msg: [],
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		io.emit(data._event, returnObj)
 	});	
 		
 
