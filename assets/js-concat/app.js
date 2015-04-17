@@ -37,7 +37,6 @@ angular.module('GroupsCtrl', [])
 
     s.err = {}
 
-
   }
 )
 
@@ -336,11 +335,55 @@ angular.module('app', [
   'GroupsCtrl',
 ])
 
+.run(
+  function (
+    $rootScope,
+    $state,
+    ROLES,
+    User
+  ) {
+
+    // this block of code controls the routing's permission
+    $rootScope.$on('$stateChangeStart', function (event, next, current) {
+      // no authorization section mentioned
+      if (!next.authorized) {
+        return;
+      }
+
+      // read each restriction of the next page
+      var myRole = User.GetToken() === null ? ROLES.guest : ROLES.member;
+      next.restrictions.forEach(function (each) {
+        if ((each.authorized & myRole) === 0) {
+          // access denied
+          // follow the 'no' part (if any)
+          if (each.no) {
+            // stop going
+            event.preventDefault();
+            // change to this route
+            $state.go(each.no);
+          }
+        }
+        else {
+          // access granted
+          // follow the 'yes' part (if any)
+          if (each.yes) {
+            // stop going
+            event.preventDefault();
+            // change to this route
+            $state.go(each.yes);
+          }
+        }
+      });
+    });
+  }
+)
+
 .factory('socket', function (socketFactory) {
   return socketFactory();
 })
 
 .factory('Caller', function (socket) {
+  // create a unique string by keeping adding up the running_id
   var runningId = 0;
   function GetUniqueId() {
     runningId += 1;
@@ -348,6 +391,8 @@ angular.module('app', [
   }
 
   return {
+    // this method automate socket emit and socket once
+    // for requesting
     Call: function (event, data, callback) {
       var returnEvent = GetUniqueId();
       // append _event to the request
@@ -459,28 +504,47 @@ angular.module('directives', [])
 
 angular.module('routing', [])
 
-.config(function ($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.otherwise('/login');
-
-  $stateProvider
-    .state('login', {
-      url: '/login',
-      templateUrl: 'html/login.html',
-      controller: 'LoginCtrl'
-    })
-    .state('register', {
-      url: '/register',
-      templateUrl: 'html/register.html',
-      controller: 'RegisterCtrl'
-    })
-    .state('groups', {
-      url: '/groups',
-      templateUrl: 'html/groups.html',
-      controller: 'GroupsCtrl'
-    })
-    .state('chat', {
-      url: '/chat/:groupId',
-      templateUrl: 'html/chat.html',
-      controller: 'ChatCtrl'
-    })
+.constant('ROLES', {
+  guest: parseInt('01', 2),
+  member: parseInt('10', 2),
 })
+
+.config(
+  function (
+    $stateProvider,
+    $urlRouterProvider,
+    ROLES
+  ) {
+
+    $urlRouterProvider.otherwise('/login');
+
+    $stateProvider
+      .state('login', {
+        url: '/login',
+        templateUrl: 'html/login.html',
+        controller: 'LoginCtrl',
+      })
+      .state('register', {
+        url: '/register',
+        templateUrl: 'html/register.html',
+        controller: 'RegisterCtrl',
+      })
+      .state('groups', {
+        url: '/groups',
+        templateUrl: 'html/groups.html',
+        controller: 'GroupsCtrl',
+        // restrict that only members can get access
+        // to this page
+        // restrictions: [
+        //   { authorized: ROLES.member,
+        //     // if the user is not member, go to 'login' state
+        //     no: 'login' }
+        // ]
+      })
+      .state('chat', {
+        url: '/chat/:groupId',
+        templateUrl: 'html/chat.html',
+        controller: 'ChatCtrl',
+      })
+  }
+)

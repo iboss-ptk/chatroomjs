@@ -58,7 +58,8 @@
         text-align: center; }
 
 #login-wrapper {
-  text-align: center; }
+  text-align: center;
+  height: 100%; }
   #login-wrapper .wrapper {
     display: inline-block; }
     #login-wrapper .wrapper .login-panel {
@@ -73,7 +74,8 @@
         margin: 0px 3px; }
 
 #register-wrapper {
-  text-align: center; }
+  text-align: center;
+  height: 100%; }
   #register-wrapper .wrapper {
     display: inline-block; }
     #register-wrapper .wrapper .register-panel {
