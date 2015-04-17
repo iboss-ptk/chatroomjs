@@ -1,0 +1,21 @@
+doctype html
+html(ng-app="app", lang="th")
+  head
+    meta(charset="utf-8")
+    title Chatroomjs.io
+
+    //- Jquery Core
+    script(src="bower/jquery/dist/jquery.min.js")
+    script(src="/socket.io/socket.io.js")
+  body
+    | aoeu
+    div(ng-controller="TestCtrl")
+      span(ng-bind="test")
+
+
+    //- Angular things
+    script(src="bower/angular/angular.min.js")
+
+    //- app.js
+    script(src="js/app.js")
+
