@@ -14,7 +14,6 @@ var gulp = require('gulp'),
     // JADE
     jade = require('gulp-jade'),
     // COFFEESCRIPT
-    coffee = require('gulp-coffee'),
     uglify = require('gulp-uglify'),
     concat = require('gulp-concat')
 
@@ -22,7 +21,7 @@ var root = './assets/';
 var src = {
   sass: root + 'sass/*.sass',
   jade: root + 'jade/*.jade',
-  coffee: root + 'coffee/*.coffee'
+  js: root + 'js/*.js'
 };
 
 gulp.task('default', function() {
@@ -34,30 +33,30 @@ gulp.task('default', function() {
     gulp.start('jade');
   });
 
-  watch(src.coffee, { ignoreInitial: false }, function (files) {
-    gulp.start('coffee');
+  watch(src.js, { ignoreInitial: false }, function (files) {
+    gulp.start('js');
   });
 });
 
 gulp.task('min', function () {
   gulp.start('sass-min');
   gulp.start('jade');
-  gulp.start('coffee-min');
+  gulp.start('js-min');
 });
 
 gulp.task('sass', function() {
-  var dest = root + 'css/';
+  var dest = root + 'css-concat/';
   var once = true;
   return gulp.src(src.sass)
-    .pipe(cache('sass'))
-    .pipe(sourcemaps.init())
+    // .pipe(cache('sass'))
+    // .pipe(sourcemaps.init())
     .pipe(plumber({ errorHandler: function (err) {
       console.log(err.toString());
       this.emit('end');
     } }))
     .pipe(sass({ indentedSyntax: true }))
     .pipe(autoprefixer())
-    .pipe(sourcemaps.write('./maps'))
+    .pipe(concat('app.css'))
     .pipe(gulp.dest(dest))
     .pipe(plumber.stop())
     .pipe(notify(function () {
@@ -120,48 +119,22 @@ gulp.task('jade', function () {
     }));
 });
 
-gulp.task('coffee', function () {
-  var dest = root + 'js/';
+gulp.task('js', function () {
+  var dest = root + 'js-concat/';
   var once = true;
-  return gulp.src(src.coffee)
-    .pipe(sourcemaps.init())
+  return gulp.src(src.js)
     .pipe(plumber({ errorHandler: function (err) {
       console.log(err.toString());
       this.emit('end');
     } }))
-    .pipe(coffee({ bare: true }))
     .pipe(concat('app.js'))
     // .pipe(uglify())
-    .pipe(sourcemaps.write('./maps'))
     .pipe(gulp.dest(dest))
     .pipe(plumber.stop())
     .pipe(notify(function () {
       if (once) {
         once = false;
-        return 'Coffee Finished..';
-      }
-      return null;
-    }));
-});
-
-// coffee min without source maps
-gulp.task('coffee-min', function () {
-  var dest = root + 'js/';
-  var once = true;
-  return gulp.src(src.coffee)
-    .pipe(plumber({ errorHandler: function (err) {
-      console.log(err.toString());
-      this.emit('end');
-    } }))
-    .pipe(coffee({ bare: true }))
-    .pipe(concat('app.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest(dest))
-    .pipe(plumber.stop())
-    .pipe(notify(function () {
-      if (once) {
-        once = false;
-        return 'Coffee-min Finished..';
+        return 'JS Finished..';
       }
       return null;
     }));

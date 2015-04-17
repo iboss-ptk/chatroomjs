@@ -1,3 +1,4 @@
 # Dependency directory
 node_modules
 assets/bower
+assets/sass/bourbon
