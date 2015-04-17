@@ -43,12 +43,23 @@ io.on('connection', function(socket){
 
 	socket.on('user.register', function(data){
 
-		res = {
+		returnObject = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		user = new models.User({ name: data.name, disp_name: data.name ,password: data.password});
+		user.save(function (err, user) {
+				if (err){
+						returnObject.success = false,
+						returnObject.err_msg = err
+				}else{
+						console.log("New User %s is CREATED", user.name);
+					//	returnObject.err_msg = "New User"+ user.name +"is CREATED";
+				}
+		});
+
+		io.emit(data._event, returnObject)
 	});
 
 	socket.on('user.login', function(data){
@@ -68,6 +79,8 @@ io.on('connection', function(socket){
 			err_msg: null
 		}
 
+		//CREATE GROUPMEMBER ENTITY HERE
+
 		io.emit(data._event, res)
 	});
 
@@ -77,6 +90,8 @@ io.on('connection', function(socket){
 			success: true,
 			err_msg: null
 		}
+
+		//DELETE GROUPMEMBER ENTITY
 
 		io.emit(data._event, res)
 	});
@@ -106,12 +121,24 @@ io.on('connection', function(socket){
 
 	socket.on('group.create', function(data){
 
-		res = {
+		returnObject = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		group = new models.Group({name:data.name});
+		group.save(function (err, room) {
+							if (err){
+								returnObject.success = fault;
+								returnObject.err_msg = err;
+							}
+							else{
+								console.log("New Group %s is CREATED",room.name);
+								//returnObject.err_msg = "New Group" + room.name+"is CREATED";
+							}
+		});
+
+		io.emit(data._event, returnObject)
 	});
 
 

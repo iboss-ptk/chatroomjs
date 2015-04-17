@@ -14,7 +14,6 @@ GroupSchema.pre("save", function(next) {
             next(err);
         } else if(results) {
             //IF ROOM IS ALREADY CREATED
-
 						next(new Error("Group Already Exists : Joining Group " + results.name));
         } else {
 						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM

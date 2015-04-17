@@ -13,7 +13,7 @@ var User = mongoose.model('User', UserSchema);
 
 UserSchema.pre("save", function(next) {
     //var self = this;
-    User.findOne({name : this.name}, 'name', function(err, results) {
+    User.findOne({name : this.name},'name', function(err, results) {
         if(err) {
 					 //Another Error
             next(err);
