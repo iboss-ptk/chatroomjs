@@ -7,7 +7,9 @@ var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://mongo/chat');
 
-var User = require("./models/user").User;
+var models = {
+	User: require("./models/user").User
+} 
 
 function createPubSubClient(){
 	var psClient = clientList.push( redis.createClient(6379, 'redis')-1 );
@@ -28,7 +30,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('addUser', function(name){
-		user = new User({ name: name, pic: 'pic' });
+		user = new models.User({ name: name, pic: 'pic' });
 		console.log('add user')
 		user.save(function (err, user) {
 			if (err) return console.error(err);
