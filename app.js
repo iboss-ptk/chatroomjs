@@ -24,29 +24,119 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket){
-	socket.on('addRoom', function(room){
-		socket.join(room);
-		socket.room = room;
+
+	//user handler
+
+	socket.on('user.login', function(data){
+
+		res = {
+			_token: 'JNU^TFYTHGJNKHVKGC',
+			success: true,
+			err_msg: null,
+			UserObj: 'obj'
+		}
+
+		io.emit(data._event, res)
 	});
 
-	socket.on('addUser', function(name){
-		user = new models.User({ name: name, pic: 'pic' });
-		console.log('add user')
-		user.save(function (err, user) {
-			if (err) return console.error(err);
-			console.log("user is saved");
-		});
+	socket.on('user.register', function(data){
 
-		socket.name = name;
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
 	});
 
-	socket.on('chatmsg', function(msg){
-		User.find(function(err, user){
-			if (err) return console.error(err);
-			console.log(user)
-		});
-		io.to(socket.room).emit('chatmsg', msg);
+	socket.on('user.login', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
 	});
+
+	socket.on('user.join', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});
+
+	socket.on('user.leave', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});
+
+	socket.on('user.pause', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});
+
+	socket.on('user.logout', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});
+
+
+	//group handler
+
+	socket.on('group.create', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});	
+
+
+	//message handler
+
+	socket.on('message.send', function(data){
+
+		res = {
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});	
+
+	socket.on('message.get_unread', function(data){
+
+		res = {
+			unread_msg: [],
+			success: true,
+			err_msg: null
+		}
+
+		io.emit(data._event, res)
+	});	
+		
+
 });
 
 
