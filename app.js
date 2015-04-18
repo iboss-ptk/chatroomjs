@@ -30,32 +30,42 @@ io.on('connection', function(socket){
 	//user handler
 
 	socket.on('user.login', function(data){
-		console.log("USER LOGIN CALLED");
+
 		res = {
 			_token: 'JNU^TFYTHGJNKHVKGC',
 			success: true,
 			err_msg: null,
 			UserObj: 'obj'
 		}
-		models.User.login(data,function(err,res){
-			console.log(res);
+		models.User.login(data,function(err,loginResult){
+			if(loginResult == 'username found'){
+				res.success = true;
+			}else if(loginResult == 'username not found'){
+				res.success = false;
+				res.err_msg = err;
+			}
 			io.emit(data._event, res)
 		});
-		// io.emit(data._event, res)
 
 	});
 
 	socket.on('user.register', function(data){
-		console.log("USER REGISTER CALLED");
 
 			res = {
 				success: true,
 				err_msg: null
 			}
-				models.User.register(data,function(err,res){
+				models.User.register(data,function(err,registerResult){
+					if(registerResult == 'error'){
+						res.success = false;
+						res.err_msg = err;
+						console.log("Failed To Register");
+					}else if(registerResult == 'success'){
+						res.success = true;
+						console.log("User Register success");
+					}
 					io.emit(data._event, res)
 				});
-
 		});
 
 
@@ -107,14 +117,20 @@ io.on('connection', function(socket){
 	//group handler
 
 	socket.on('group.create', function(data){
-		console.log(data)
 		res = {
 			success: true,
 			err_msg: null
 		}
 
-		console.log("GROUP REGISTER CALLED");
-		models.Group.create(data,function(err,res){
+		models.Group.create(data,function(err,groupCreateResult){
+			if(groupCreateResult == 'success'){
+				res.success = true;
+				console.log("New Group is Create name : "+data.group_name)
+			}else if(groupCreateResult == 'failed'){
+				res.success = false;
+				res.err_msg = err;
+				console.log("Cant Create Group :"+data.group_name+" "+err);
+			}
 			io.emit(data._event, res)
 		});
 
