@@ -10,7 +10,9 @@ mongoose.connect('mongodb://mongo/chat');
 
 var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
-	User: require("./models/user").User
+	User: require("./models/user").User,
+	GroupMember : require("./models/group_member").GroupMember,
+ 	Group : require("./models/group").Group
 }
 
 app.use(express.static('assets'));
@@ -69,18 +71,19 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.join', function(data){
-
 		validateToken(function(err, decoded){
-
+			socket.join(data.group_name);
+			console.log('join ' + data.group_name);
 			var returnObj = {
 				success: err ? false : true,
 				err_msg: err
 			}
 
-			console.log(returnObj);
+			// console.log(returnObj);
 			io.emit(data._event, returnObj)
 		})
 		
+
 	});
 
 	socket.on('user.leave', function(data){
@@ -90,7 +93,9 @@ io.on('connection', function(socket){
 			err_msg: null
 		}
 
+
 		io.emit(data._event, returnObj)
+
 	});
 
 	socket.on('user.pause', function(data){
@@ -118,7 +123,9 @@ io.on('connection', function(socket){
 
 	socket.on('group.create', function(data){
 
+
 		returnObj = {
+
 			success: true,
 			err_msg: null
 		}
@@ -130,13 +137,18 @@ io.on('connection', function(socket){
 	//message handler
 
 	socket.on('message.send', function(data){
-
-		returnObj = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, returnObj)
+		validateToken(function(err, decoded){
+			var returnObj = {
+				success: true,
+				user: decoded.username,
+				_event: data._event,
+				content: data.content,
+				group_name: data.group_name,
+				err_msg: null
+			}
+			console.log(returnObj);
+			io.to(data.group_name).emit(data._event, returnObj)
+		});
 	});	
 
 	socket.on('message.get_unread', function(data){
@@ -150,7 +162,6 @@ io.on('connection', function(socket){
 		io.emit(data._event, returnObj)
 	});	
 		
-
 });
 
 

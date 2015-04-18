@@ -1,23 +1,31 @@
 var mongoose = require("mongoose");
 
 var UserSchema = new mongoose.Schema({
-	_id: String
-	// password: String,
-	// disp_name: String,
-	// pic_path: String,
-	// group_id: String
+	name: {
+		type: String,
+		index: true
+	},
+	disp_name : String ,
+	password : String
 });
 
 var User = mongoose.model('User', UserSchema);
 
-// instaces method
-// UserSchema.methods.authenticate = function (callback) {
-
-// }
-
-// UserSchema.statics.authenticate = function (callback) {
-// 	return 
-// }
+UserSchema.pre("save", function(next) {
+    //var self = this;
+    User.findOne({name : this.name},'name', function(err, results) {
+        if(err) {
+					 //Another Error
+            next(err);
+        } else if(results) {
+            //IF USER IS ALREADY CREATED
+						next(new Error("User Already Exists : Logged in as " + results.name));
+        } else {
+						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
+            next();
+        }
+    });
+});
 
 module.exports = {
 	User: User
