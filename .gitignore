@@ -1,3 +1,8 @@
 # Dependency directory
 node_modules
+<<<<<<< HEAD
 /.project
+=======
+assets/bower
+assets/sass/bourbon
+>>>>>>> refs/remotes/origin/frontend_by_Ta

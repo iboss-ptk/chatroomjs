@@ -1,0 +1,31 @@
+doctype html
+html(ng-app="app", lang="th")
+  head
+    meta(charset="utf-8")
+    title Chatroomjs.io
+
+    //- CSS
+    link(rel="stylesheet" href="bower/semantic/dist/semantic.min.css")
+    link(rel="stylesheet" href="bower/animate.css/animate.min.css")
+    link(rel="stylesheet" href="css-concat/app.css")
+
+    //- Jquery Core
+    script(src="bower/jquery/dist/jquery.min.js")
+    script(src="/socket.io/socket.io.js")
+
+    //- Semantic UI
+    script(src="bower/semantic/dist/semantic.min.js")
+
+    //- jsHashes
+    script(src="bower/jshashes/hashes.min.js")
+  body
+    div.view-wrapper(ui-view="")
+
+    //- Angular things
+    script(src="bower/angular/angular.min.js")
+    script(src="bower/angular-socket-io/socket.min.js")
+    script(src="bower/angular-ui-router/release/angular-ui-router.min.js")
+
+    //- app.js
+    script(src="js-concat/app.js")
+

@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <title>Socket.IO chat</title>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.4/semantic.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.4/semantic.min.css">
+  <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
+  <link href='/css/room.css' rel='stylesheet'>
+</head>
+<body>
+  <div class="ui grid" id="msgpane">
+    <div class="thirteen wide centered column">
+      <div id="messages"></div>
+    </div>
+  </div>
+
+  <div id="type-space">
+    <div class="ui grid">
+      <form action="" class="thirteen wide centered column">
+        <div class="ui action fluid input">
+          <input id="m" autocomplete="off" /><button class="ui teal button">Send</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+<script src="/js/room.js"></script>
+</html>
+

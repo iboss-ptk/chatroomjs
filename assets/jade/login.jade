@@ -1,0 +1,45 @@
+div#login-wrapper.animated.fadeIn(vertical-middle)
+
+  div.wrapper
+    div.login-panel.ui.center.aligned.segment
+      div.ui.grid
+        div.ui.one.column.row
+          div.column
+            h1 Chatroomjs.io
+            p
+              | super fast, super cool web messenger
+
+        form(ng-submit="Login(username, password)")
+          //- username field
+          div.ui.one.column.row
+            div.column
+              div.ui.labeled.input(
+                ng-class="{ \
+                  error: err.username }")
+                label.ui.label
+                  i.user.icon
+                input(
+                  ng-model="username"
+                  type="text"
+                  placeholder="Username..")
+          //- password field
+          div.ui.one.column.row
+            div.column
+              div.ui.labeled.input(
+                ng-class="{ \
+                  error: err.password }")
+                label.ui.label
+                  i.lock.icon
+                input(
+                  ng-model="password"
+                  type="password"
+                  placeholder="Password..")
+          //- buttons field
+          div.ui.one.column.row
+            div.column
+              button.ui.teal.button(type="submit")
+                | Sign In
+              div.ui.horizontal.divider OR
+              button.ui.ui.button(
+                ng-click="Register()")
+                | New ? Sign Up

@@ -1,0 +1,90 @@
+.view-wrapper {
+  min-height: 100%;
+  height: 100%; }
+
+#groups-wrapper {
+  height: 100%;
+  margin: 0px; }
+  #groups-wrapper .main-layout {
+    padding: 0px; }
+  #groups-wrapper .column {
+    height: 100%; }
+  #groups-wrapper .groups-list {
+    padding: 0px 30px;
+    overflow: scroll; }
+    #groups-wrapper .groups-list .content {
+      height: 100%; }
+    #groups-wrapper .groups-list .card:hover {
+      background-color: #fafafa; }
+    #groups-wrapper .groups-list .card {
+      width: 100%;
+      margin: 30px 0px;
+      border-radius: 5px;
+      padding: 2rem;
+      -webkit-transition: background-color 0.2s;
+      transition: background-color 0.2s; }
+      #groups-wrapper .groups-list .card .image {
+        display: inline-block;
+        height: 75px;
+        width: 75px;
+        margin-right: 40px; }
+      #groups-wrapper .groups-list .card .text {
+        display: inline-block; }
+  #groups-wrapper .nav {
+    right: 0px;
+    padding: 0px;
+    height: 100%;
+    border-radius: 0px;
+    border-size: 0px 0px 0px 1px;
+    max-width: 350px;
+    min-width: 200px;
+    float: right; }
+    #groups-wrapper .nav h3 {
+      padding: 1.5rem; }
+    #groups-wrapper .nav .avatar-wrapper {
+      width: 100%;
+      position: absolute;
+      bottom: 0px;
+      padding: 3rem; }
+      #groups-wrapper .nav .avatar-wrapper .avatar {
+        width: 100%;
+        height: auto;
+        max-width: 180px;
+        max-height: 180px;
+        border-radius: 100%;
+        background-color: #fafafa;
+        margin: 1.5rem auto; }
+      #groups-wrapper .nav .avatar-wrapper .name h4 {
+        text-align: center; }
+
+#login-wrapper {
+  text-align: center;
+  height: 100%; }
+  #login-wrapper .wrapper {
+    display: inline-block; }
+    #login-wrapper .wrapper .login-panel {
+      padding: 30px 50px; }
+    #login-wrapper .wrapper .column {
+      text-align: center; }
+    #login-wrapper .wrapper .row {
+      margin: 15px 0px; }
+      #login-wrapper .wrapper .row .error .label {
+        background-color: #dbb1b1; }
+      #login-wrapper .wrapper .row .label .icon {
+        margin: 0px 3px; }
+
+#register-wrapper {
+  text-align: center;
+  height: 100%; }
+  #register-wrapper .wrapper {
+    display: inline-block; }
+    #register-wrapper .wrapper .register-panel {
+      padding: 30px 50px; }
+    #register-wrapper .wrapper .column {
+      text-align: center; }
+    #register-wrapper .wrapper .row {
+      margin: 15px 0px; }
+      #register-wrapper .wrapper .row .error .label {
+        background-color: #dbb1b1; }
+      #register-wrapper .wrapper .row .label .icon {
+        margin: 0px 3px; }
