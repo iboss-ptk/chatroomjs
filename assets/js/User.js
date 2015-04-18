@@ -46,8 +46,6 @@ angular.module('User', [])
 
       Caller.Call('user.register', req, function (res) {
         if (res.success === true) {
-          // clear token
-          token = null;
           deferred.resolve();
         }
         else {
@@ -112,6 +110,8 @@ angular.module('User', [])
       req._token = token;
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
+          // clear token
+          token = null;
           deferred.resolve();
         }
         else {
