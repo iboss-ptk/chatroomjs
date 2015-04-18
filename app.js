@@ -30,47 +30,34 @@ io.on('connection', function(socket){
 	//user handler
 
 	socket.on('user.login', function(data){
-
+		console.log("USER LOGIN CALLED");
 		res = {
 			_token: 'JNU^TFYTHGJNKHVKGC',
 			success: true,
 			err_msg: null,
 			UserObj: 'obj'
 		}
+		models.User.login(data,function(err,res){
+			console.log(res);
+			io.emit(data._event, res)
+		});
+		// io.emit(data._event, res)
 
-		io.emit(data._event, res)
 	});
 
 	socket.on('user.register', function(data){
+		console.log("USER REGISTER CALLED");
 
-		returnObject = {
-			success: true,
-			err_msg: null
-		}
+			res = {
+				success: true,
+				err_msg: null
+			}
+				models.User.register(data,function(err,res){
+					io.emit(data._event, res)
+				});
 
-		user = new models.User({ name: data.name, disp_name: data.name ,password: data.password});
-		user.save(function (err, user) {
-				if (err){
-						returnObject.success = false,
-						returnObject.err_msg = err
-				}else{
-						console.log("New User %s is CREATED", user.name);
-					//	returnObject.err_msg = "New User"+ user.name +"is CREATED";
-				}
 		});
 
-		io.emit(data._event, returnObject)
-	});
-
-	socket.on('user.login', function(data){
-
-		res = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, res)
-	});
 
 	socket.on('user.join', function(data){
 
@@ -120,26 +107,16 @@ io.on('connection', function(socket){
 	//group handler
 
 	socket.on('group.create', function(data){
-
-		returnObject = {
+		console.log(data)
+		res = {
 			success: true,
 			err_msg: null
 		}
 
-		group = new models.Group({name:data.name});
-		group.save(function (err, room) {
-							if (err){
-								returnObject.success = fault;
-								returnObject.err_msg = err;
-							}
-							else{
-								console.log("New Group %s is CREATED",room.name);
-								//returnObject.err_msg = "New Group" + room.name+"is CREATED";
-							}
+		console.log("GROUP REGISTER CALLED");
+		models.Group.create(data,function(err,res){
+			io.emit(data._event, res)
 		});
-
-		io.emit(data._event, returnObject)
-
 
 	});
 
