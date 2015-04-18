@@ -37,6 +37,8 @@ angular.module('GroupsCtrl', [])
 
     s.err = {}
 
+
+
   }
 )
 
@@ -385,6 +387,7 @@ angular.module('User', [])
       // hash the password first!
       // hash with sha256 (sha2)
       var hasher = new Hashes.SHA256
+      // password is hashed in base64 format
       req.password = hasher.b64(req.password)
 
       Caller.Call('user.register', req, function (res) {
@@ -454,6 +457,22 @@ angular.module('User', [])
       // append _token to the request
       req._token = token;
       Caller.Call('user.logout', req, function (res) {
+        if (res.success === true) {
+          deferred.resolve(res);
+        }
+        else {
+          deferred.reject(res);
+        }
+      });
+
+      return deferred.promise;
+    },
+
+    GetGroup: function () {
+      var deferred = $q.defer();
+      // append _token to the request
+      req._token = token;
+      Caller.Call('user.get_group', req, function (res) {
         if (res.success === true) {
           deferred.resolve(res);
         }
