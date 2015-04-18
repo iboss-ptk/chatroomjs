@@ -25,10 +25,10 @@ angular.module('User', [])
         if (res.success === true) {
           // save return token
           token = res._token;
-          deferred.resolve(res);
+          deferred.resolve(res.UserObj);
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -48,10 +48,10 @@ angular.module('User', [])
         if (res.success === true) {
           // clear token
           token = null;
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -64,10 +64,10 @@ angular.module('User', [])
       req._token = token;
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -80,10 +80,10 @@ angular.module('User', [])
       req._token = token;
       Caller.Call('user.leave', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -96,10 +96,10 @@ angular.module('User', [])
       req._token = token;
       Caller.Call('user.pause', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -112,10 +112,10 @@ angular.module('User', [])
       req._token = token;
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -124,14 +124,17 @@ angular.module('User', [])
 
     GetGroup: function () {
       var deferred = $q.defer();
-      // append _token to the request
-      req._token = token;
+      // fabricate the request
+      var req = {
+        _token: token
+      };
+
       Caller.Call('user.get_group', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve(res.GroupObjList);
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 

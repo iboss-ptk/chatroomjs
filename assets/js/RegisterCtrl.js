@@ -20,6 +20,11 @@ angular.module('RegisterCtrl', [])
       // clear error
       s.err = {}
       // validate
+      if (!disp_name) {
+        s.err.disp_name = true;
+        return;
+      }
+
       if (!username) {
         s.err.username = true;
         return;
@@ -30,10 +35,6 @@ angular.module('RegisterCtrl', [])
         return;
       }
 
-      if (!disp_name) {
-        s.err.disp_name = true;
-        return;
-      }
       // make request
       User.Register({
         username: username,
@@ -57,7 +58,7 @@ angular.module('RegisterCtrl', [])
             })
         }, function (err) {
           // register err
-          err.err_msg.forEach(function (val) {
+          err.forEach(function (val) {
             // each err
             switch (val) {
               case 'duplicated_username':
