@@ -24,6 +24,23 @@ angular.module('MessengerCtrl', [])
     // all errors in this page are here
     s.err = {};
 
+    // Check if the user is leaving...
+    $(window).bind('beforeunload', function () {
+      alert('dont goo');
+    });
+
+    // Logout
+    s.Logout = function () {
+      User.Logout()
+        .then(function (res) {
+          // logout success
+          console.log('logout success');
+        }, function (err) {
+          // logout err
+          console.log('logout fail', err);
+        });
+    }
+
     // Creating a new group encapsulation
     (function () {
       var createModal = $('#messenger-create-group');
@@ -89,9 +106,9 @@ angular.module('MessengerCtrl', [])
 
       s.AskLeave = function () {
         // only at 'messenger.chat' can take this action
-        // if ($state.current.name !== 'messenger.chat') {
-        //   return;
-        // }
+        if ($state.current.name !== 'messenger.chat') {
+          return;
+        }
 
         $timeout(function () {
           leaveModal

@@ -198,6 +198,23 @@ angular.module('MessengerCtrl', [])
     // all errors in this page are here
     s.err = {};
 
+    // Check if the user is leaving...
+    $(window).bind('beforeunload', function () {
+      alert('dont goo');
+    });
+
+    // Logout
+    s.Logout = function () {
+      User.Logout()
+        .then(function (res) {
+          // logout success
+          console.log('logout success');
+        }, function (err) {
+          // logout err
+          console.log('logout fail', err);
+        });
+    }
+
     // Creating a new group encapsulation
     (function () {
       var createModal = $('#messenger-create-group');
@@ -263,9 +280,9 @@ angular.module('MessengerCtrl', [])
 
       s.AskLeave = function () {
         // only at 'messenger.chat' can take this action
-        // if ($state.current.name !== 'messenger.chat') {
-        //   return;
-        // }
+        if ($state.current.name !== 'messenger.chat') {
+          return;
+        }
 
         $timeout(function () {
           leaveModal
@@ -399,6 +416,7 @@ angular.module('User', [])
   // even an intruder knows this (and he will)
   // he has no choice but to use brute-force or dictionary attack
   // but not rainbow table :D
+  // ::please don't change this!
   var salt = '927RV6ggf7loy13U';
 
   // Token encapsulation
@@ -467,6 +485,7 @@ angular.module('User', [])
           token.Set(res._token);
           // save return UserObj
           UserObj.Set(res.UserObj);
+
           deferred.resolve(res.UserObj);
         }
         else {
@@ -548,14 +567,19 @@ angular.module('User', [])
       return deferred.promise;
     },
 
-    Logout: function (req) {
+    Logout: function () {
       var deferred = $q.defer();
-      // append _token to the request
-      req._token = token.Get();
+      // fabricate the request
+      var req = {
+        _token: token.Get(),
+      };
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
           // clear token
           token.Set(null);
+          // clear UserObj
+          UserObj.Set(null);
+
           deferred.resolve();
         }
         else {
@@ -570,7 +594,7 @@ angular.module('User', [])
       var deferred = $q.defer();
       // fabricate the request
       var req = {
-        _token: token
+        _token: token.Get(),
       };
 
       Caller.Call('user.get_group', req, function (res) {
@@ -716,6 +740,24 @@ angular.module('directives', [])
         'max-height': '100%'
       });
     }
+  }
+})
+
+.directive('popup', function () {
+  return {
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      var $element = $(element);
+      $element.popup({
+        inline: true,
+        hoverable: true,
+        position: 'bottom center',
+        delay: {
+          show: 300,
+          hide: 800,
+        },
+      });
+    },
   }
 })
 

@@ -13,6 +13,7 @@ angular.module('User', [])
   // even an intruder knows this (and he will)
   // he has no choice but to use brute-force or dictionary attack
   // but not rainbow table :D
+  // ::please don't change this!
   var salt = '927RV6ggf7loy13U';
 
   // Token encapsulation
@@ -81,6 +82,7 @@ angular.module('User', [])
           token.Set(res._token);
           // save return UserObj
           UserObj.Set(res.UserObj);
+
           deferred.resolve(res.UserObj);
         }
         else {
@@ -162,14 +164,19 @@ angular.module('User', [])
       return deferred.promise;
     },
 
-    Logout: function (req) {
+    Logout: function () {
       var deferred = $q.defer();
-      // append _token to the request
-      req._token = token.Get();
+      // fabricate the request
+      var req = {
+        _token: token.Get(),
+      };
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
           // clear token
           token.Set(null);
+          // clear UserObj
+          UserObj.Set(null);
+
           deferred.resolve();
         }
         else {
@@ -184,7 +191,7 @@ angular.module('User', [])
       var deferred = $q.defer();
       // fabricate the request
       var req = {
-        _token: token
+        _token: token.Get(),
       };
 
       Caller.Call('user.get_group', req, function (res) {

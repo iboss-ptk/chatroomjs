@@ -74,8 +74,10 @@
         border-radius: 100%;
         background-color: #fafafa;
         margin: 1.5rem auto; }
-      #messenger-wrapper .nav .avatar-wrapper .name h4 {
+      #messenger-wrapper .nav .avatar-wrapper .name {
         text-align: center; }
+        #messenger-wrapper .nav .avatar-wrapper .name .browse {
+          display: inline-block; }
 
 #register-wrapper {
   text-align: center;
