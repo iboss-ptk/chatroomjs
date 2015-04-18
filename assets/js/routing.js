@@ -41,7 +41,7 @@ angular.module('routing', [])
           { authorized: ROLES.member,
             // if the user is not member, go to 'login' state
             no: 'login' }
-        ]
+        ],
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',
@@ -53,7 +53,7 @@ angular.module('routing', [])
           { authorized: ROLES.member,
             // if the user is not member, go to 'login' state
             no: 'login' }
-        ]
+        ],
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {
