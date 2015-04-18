@@ -10,34 +10,27 @@ var UserSchema = new mongoose.Schema({
 });
 
 //Register Function
-UserSchema.statics.register = function(data,returnObject){
+
+UserSchema.statics.register = function(data,callback){
 	user = new User({ username: data.username, disp_name: data.disp_name ,password: data.password});
 	//Save After UserSchema.pre (please see UserSchema.pre)
 	user.save(function (err, user) {
 			if (err){
-					returnObject.success = false,
-					returnObject.err_msg = err
-					console.error(err);
+					callback(err,'error');
 			}else{
-					console.log("New User %s is CREATED", user.username);
-					returnObject.success = true;
+					callback(err,'success');
 			}
 	});
 }
 
 //Login Function
-UserSchema.statics.login = function(data,returnObject){
-	console.log("USER LOGIN SCHEMA LOGIN!");
+UserSchema.statics.login = function(data,callback){
 	User.findOne({username : data.username},'username', function(err, results) {
 			if(!results){
-				returnObject.success = false;
-				returnObject.err_msg = err;
-				console.log("USERNOTFOUND");
+				callback(err,'username not found');
 			}else{
-				returnObject.success = true;
-				console.log("FOUND");
+				callback(err,'username found');
 			}
-
 });
 }
 

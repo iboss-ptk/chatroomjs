@@ -4,13 +4,10 @@ angular.module('User', [])
 
 .factory('User', function (Caller, $q) {
   // storage namespace
-  var namespace = '_chatroomjs';
-  // if find not .. create one
-  if (!localStorage[namespace]) {
-    localStorage[namespace] = {};
-  }
+  var namespace = '_chatroomjs_';
   // browser's storage
-  var storage = localStorage[namespace];
+  // localStorage is key, value and string based
+  var storage = localStorage;
 
   // password salt
   // even an intruder knows this (and he will)
@@ -25,8 +22,9 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    if (storage.token) {
-      jwtToken = storage.token;
+    var storedToken = storage[namespace + 'token'];
+    if (storedToken) {
+      jwtToken = storedToken;
     }
 
     return {
@@ -34,7 +32,7 @@ angular.module('User', [])
       Set: function (_token) {
         // upadet both jwtToken and Local Storage Token
         jwtToken = _token;
-        storage.token = _token;
+        storage[namespace + 'token'] = _token;
       },
     }
   }());
@@ -42,8 +40,9 @@ angular.module('User', [])
   var UserObj = (function() {
     var UserObj = null;
     // check local storage for old UserObj
-    if (storage.UserObj) {
-      UserObj = storage.UserObj;
+    var storedUserObj = storage[namespace + 'UserObj'];
+    if (storedUserObj) {
+      UserObj = JSON.parse(storedUserObj);
     }
 
     return {
@@ -51,7 +50,7 @@ angular.module('User', [])
       Set: function (_UserObj) {
         // update both in mem and in local storage
         UserObj = _UserObj;
-        storage.UserObj = _UserObj;
+        storage[namespace + 'UserObj'] = JSON.stringify(_UserObj);
       },
     }
   }());
