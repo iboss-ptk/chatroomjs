@@ -27,10 +27,9 @@ angular.module('routing', [])
         templateUrl: 'html/register.html',
         controller: 'RegisterCtrl',
       })
-      .state('groups', {
-        url: '/groups',
-        templateUrl: 'html/groups.html',
-        controller: 'GroupsCtrl',
+      .state('messenger', {
+        templateUrl: 'html/messenger.template.html',
+        controller: 'MessengerCtrl',
         // restrict that only members can get access
         // to this page
         // restrictions: [
@@ -39,7 +38,12 @@ angular.module('routing', [])
         //     no: 'login' }
         // ]
       })
-      .state('chat', {
+      .state('messenger.groups', {
+        url: '/groups',
+        templateUrl: 'html/groups.html',
+        controller: 'GroupsCtrl',
+      })
+      .state('messenger.chat', {
         url: '/chat/:groupId',
         templateUrl: 'html/chat.html',
         controller: 'ChatCtrl',

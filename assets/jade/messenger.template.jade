@@ -1,0 +1,80 @@
+//- create modals
+div#messenger-create-group.ui.modal
+  i.close.icon
+  div.content
+    h1 I wanna join into this group ...
+    div.ui.corner.labeled.input(
+      ng-class="{ error: err.create.group_name }")
+      input(
+        ng-model="create.group_name"
+        style="font-size: 2rem"
+        type="text"
+        placeholder="Group name..")
+      div.ui.corner.label
+        i.asterisk.icon
+  div.actions
+    div.ui.black.button
+      | Nope
+    div.ui.positive.right.labeled.icon.button(
+      ng-click="Create(create.group_name)")
+      | Let me in already :)
+      i.checkmark.icon
+
+//- leave modals
+div#messenger-leave-group.ui.modal
+  i.close.icon
+  div.content
+    h1 I wanna leave this group :(
+  div.actions
+    div.ui.black.button
+      | Nope
+    div.ui.positive.right.labeled.icon.button(
+      ng-click="Leave()")
+      | Let me go!!
+      i.checkmark.icon
+  //- this modal is for when leaving goes wrong :D
+  div#messenger-leave-not-defined-group.ui.modal
+    i.close.icon
+    div.content
+      h1 You want to leave the unspecified group..
+    div.actions
+      div.ui.negative.right.labeled.icon.button
+        | Okay...
+        i.close.icon
+
+//- main body
+div#messenger-wrapper.ui.grid
+  div.main-layout.two.column.row
+    div.messenger-list.column(
+      list-column
+      ui-view="")
+
+    div#main-nav.nav.column.ui.vertical.menu
+
+      a.active.teal.item(
+        ui-sref="messenger.groups")
+        h3
+          i.list.icon
+          | All
+      a.item(
+        ng-click="AskCreate()")
+        h3
+          i.add.icon
+          | Create
+      //- a.item(
+        ng-click="Leave()"
+        ng-class="{ disabled: $state.current.name !== 'messenger.chat' }")
+      a.item(
+        ng-click="AskLeave()")
+        h3
+          i.remove.icon
+          | Leave
+
+      div.avatar-wrapper
+        img.avatar
+
+        div.name
+          h4 Konpat Preechakul
+
+
+

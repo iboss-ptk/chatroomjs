@@ -1,6 +1,8 @@
 "use strict";
 
 angular.module('app', [
+  'ngAnimate',
+  'angular-velocity',
   'ui.router',
   'btford.socket-io',
   // Routing
@@ -14,6 +16,7 @@ angular.module('app', [
   // Pages
   'LoginCtrl',
   'RegisterCtrl',
+  'MessengerCtrl',
   'GroupsCtrl',
 ])
 

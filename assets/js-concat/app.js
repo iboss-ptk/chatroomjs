@@ -37,6 +37,8 @@ angular.module('GroupsCtrl', [])
 
     s.err = {}
 
+
+
   }
 )
 
@@ -74,8 +76,9 @@ angular.module('LoginCtrl', [])
       })
         .then(function (res) {
           // login success
-          // redirect to groups
           console.log('res', res);
+          // redirect to groups
+          $state.go('messenger.groups');
         }, function (err) {
           // login error
           console.log('err', err);
@@ -133,6 +136,143 @@ angular.module('Message', [])
 
 "use strict";
 
+angular.module('MessengerCtrl', [])
+
+.factory('MessengerService',
+  function () {
+    return {
+
+    }
+  })
+
+.controller('MessengerCtrl',
+  function (
+    $scope
+  , $timeout
+  , $state
+  , User
+  , Group) {
+
+    var s = $scope;
+    // expose $state to the view
+    s.$state = $state;
+    // all errors in this page are here
+    s.err = {};
+
+    // Creating a new group encapsulation
+    (function () {
+      var createModal = $('#messenger-create-group');
+      // local errors
+      s.err.create = {};
+      // data models
+      s.craete = {};
+
+      s.AskCreate = function () {
+        // use timeout just get over the angular's warning message
+        $timeout(function () {
+          createModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
+      }
+
+      s.Create = function (group_name) {
+        // clear errors
+        s.err.create = {};
+        // validate
+        if (!group_name) {
+          s.err.create.group_name = true;
+          return;
+        }
+        // make request
+        Group.Create({
+          group_name: group_name
+        })
+          .then(function (res) {
+            // success
+            // make a new group list
+
+            // hide modal
+            createModal.modal('hide');
+          }, function (err) {
+            // err
+            err.err_msg.forEach(function (each) {
+              switch (each) {
+                case 'duplicated_group_name':
+                  s.err.create.group_name = true;
+                  break;
+                default:
+                  console.log('err', each);
+                  break;
+              }
+            });
+          });
+      }
+    }());
+
+    // Leaving a group encapsulation
+    (function () {
+      var leaveModal = $('#messenger-leave-group');
+      var groupNotDefinedModal = $('#messenger-leave-not-defined-group');
+      // local errors
+      s.err.leave = {};
+
+      s.AskLeave = function () {
+        // only at 'messenger.chat' can take this action
+        // if ($state.current.name !== 'messenger.chat') {
+        //   return;
+        // }
+
+        $timeout(function () {
+          leaveModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
+      }
+
+      s.Leave = function (group_name) {
+        // clear errors
+        s.err.leave = {};
+        // validate
+        if (!group_name) {
+          // notice the user
+          // leave modal will be auto hidden by this command
+          groupNotDefinedModal.modal('show');
+          return;
+        }
+        // make request
+        User.leave({
+          group_name: group_name
+        })
+          .then(function (res) {
+            // success
+            // remove this group from the array
+
+            // hide leave modal
+            leaveModal.modal('hide');
+          }, function (err) {
+            // fail
+            err.err_msg.forEach(function (each) {
+              console.log('err', each);
+            })
+          })
+      }
+    }());
+
+  })
+
+"use strict";
+
 angular.module('RegisterCtrl', [])
 
 .controller('RegisterCtrl',
@@ -175,6 +315,19 @@ angular.module('RegisterCtrl', [])
       })
         .then(function (res) {
           // register success
+          console.log('res', res);
+          // take login
+          User.Login({
+            username: username,
+            password: password,
+          })
+            .then(function (res) {
+              // redirect to groups
+              $state.go('messenger.groups');
+            }, function (err) {
+              // login error occured
+              console.log('err', err);
+            })
         }, function (err) {
           // register err
           err.err_msg.forEach(function (val) {
@@ -234,6 +387,7 @@ angular.module('User', [])
       // hash the password first!
       // hash with sha256 (sha2)
       var hasher = new Hashes.SHA256
+      // password is hashed in base64 format
       req.password = hasher.b64(req.password)
 
       Caller.Call('user.register', req, function (res) {
@@ -312,6 +466,22 @@ angular.module('User', [])
       });
 
       return deferred.promise;
+    },
+
+    GetGroup: function () {
+      var deferred = $q.defer();
+      // append _token to the request
+      req._token = token;
+      Caller.Call('user.get_group', req, function (res) {
+        if (res.success === true) {
+          deferred.resolve(res);
+        }
+        else {
+          deferred.reject(res);
+        }
+      });
+
+      return deferred.promise;
     }
   }
 })
@@ -319,6 +489,8 @@ angular.module('User', [])
 "use strict";
 
 angular.module('app', [
+  'ngAnimate',
+  'angular-velocity',
   'ui.router',
   'btford.socket-io',
   // Routing
@@ -332,6 +504,7 @@ angular.module('app', [
   // Pages
   'LoginCtrl',
   'RegisterCtrl',
+  'MessengerCtrl',
   'GroupsCtrl',
 ])
 
@@ -412,6 +585,7 @@ angular.module('app', [
 
 angular.module('directives', [])
 
+// set vertical alignment of items inside a given element to be middle
 .directive('verticalMiddle', function () {
   return {
     restrict: 'EA',
@@ -421,7 +595,6 @@ angular.module('directives', [])
       var $element = $(element);
 
       var height = $element.height() + 'px';
-      console.log('height', height);
       $element.css({
         'line-height': height,
         'height': height
@@ -442,6 +615,7 @@ angular.module('directives', [])
   }
 })
 
+// resize the div in the groups.jade to fit the window
 .directive('listColumn', function () {
   return {
     restrict: 'EA',
@@ -452,7 +626,6 @@ angular.module('directives', [])
 
       $window.resize(function () {
         var availWidth = $window.width() - $mainNav.width();
-        console.log('width', availWidth);
         $element.attr('style', 'width:' + availWidth + 'px !important');
       })
         // trigger window resize
@@ -529,10 +702,9 @@ angular.module('routing', [])
         templateUrl: 'html/register.html',
         controller: 'RegisterCtrl',
       })
-      .state('groups', {
-        url: '/groups',
-        templateUrl: 'html/groups.html',
-        controller: 'GroupsCtrl',
+      .state('messenger', {
+        templateUrl: 'html/messenger.template.html',
+        controller: 'MessengerCtrl',
         // restrict that only members can get access
         // to this page
         // restrictions: [
@@ -541,7 +713,12 @@ angular.module('routing', [])
         //     no: 'login' }
         // ]
       })
-      .state('chat', {
+      .state('messenger.groups', {
+        url: '/groups',
+        templateUrl: 'html/groups.html',
+        controller: 'GroupsCtrl',
+      })
+      .state('messenger.chat', {
         url: '/chat/:groupId',
         templateUrl: 'html/chat.html',
         controller: 'ChatCtrl',
