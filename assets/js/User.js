@@ -3,14 +3,32 @@
 angular.module('User', [])
 
 .factory('User', function (Caller, $q) {
-  // this is jwt token
-  // client just has to keep it
-  // and sends it to the sever on every request
-  var token = null;
+
+  // Token encapsulation
+  var token = (function () {
+    // this is jwt token
+    // client just has to keep it
+    // and sends it to the sever on every request
+    var jwtToken = null;
+
+    // check local storage for old token
+    if (localStorage._chatroomjs_token) {
+      jwtToken = localStorage._chatroomjs_token;
+    }
+
+    return {
+      Get: function () { return jwtToken; },
+      Set: function (_token) {
+        // upadet both jwtToken and Local Storage Token
+        jwtToken = _token;
+        localStorage._chatroomjs_token = _token;
+      },
+    }
+  }());
 
   return {
     GetToken: function () {
-      return token;
+      return token.Get();
     },
 
     Login: function (req) {
@@ -24,7 +42,7 @@ angular.module('User', [])
       Caller.Call('user.login', req, function (res) {
         if (res.success === true) {
           // save return token
-          token = res._token;
+          token.Set(res._token);
           deferred.resolve(res.UserObj);
         }
         else {
@@ -59,7 +77,7 @@ angular.module('User', [])
     Join: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -75,7 +93,7 @@ angular.module('User', [])
     Leave: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.leave', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -91,7 +109,7 @@ angular.module('User', [])
     Pause: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.pause', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -107,11 +125,11 @@ angular.module('User', [])
     Logout: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
           // clear token
-          token = null;
+          token.Set(null);
           deferred.resolve();
         }
         else {

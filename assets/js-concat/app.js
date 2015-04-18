@@ -1,5 +1,42 @@
 "use strict";
 
+angular.module('ChatCtrl', [])
+
+.controller('ChatCtrl',
+  function (
+    $scope
+  , $state
+  , $stateParams
+  , User
+  , Group
+  , Message
+  , messages) {
+
+    var s = $scope;
+
+    s.err = {}
+
+    // resolved from Message (in routing.js)
+    s.messages = messages;
+    console.log('messages', s.messages);
+
+    s.Send = function (content) {
+      Message.Send({
+        group_name: $stateParams.groupName
+      })
+        .then(function (res) {
+          // sending done!
+          // do nothing perhaps.
+        }, function (err) {
+          console.log('err', err);
+        });
+    }
+
+  }
+)
+
+"use strict";
+
 angular.module('Group', [])
 
 .factory('Group', function (User, Caller, $q) {
@@ -154,6 +191,7 @@ angular.module('MessengerCtrl', [])
   , User
   , Group) {
 
+    console.log('aoeuaoeuao');
     var s = $scope;
     // expose $state to the view
     s.$state = $state;
@@ -351,14 +389,32 @@ angular.module('RegisterCtrl', [])
 angular.module('User', [])
 
 .factory('User', function (Caller, $q) {
-  // this is jwt token
-  // client just has to keep it
-  // and sends it to the sever on every request
-  var token = null;
+
+  // Token encapsulation
+  var token = (function () {
+    // this is jwt token
+    // client just has to keep it
+    // and sends it to the sever on every request
+    var jwtToken = null;
+
+    // check local storage for old token
+    if (localStorage._chatroomjs_token) {
+      jwtToken = localStorage._chatroomjs_token;
+    }
+
+    return {
+      Get: function () { return jwtToken; },
+      Set: function (_token) {
+        // upadet both jwtToken and Local Storage Token
+        jwtToken = _token;
+        localStorage._chatroomjs_token = _token;
+      },
+    }
+  }());
 
   return {
     GetToken: function () {
-      return token;
+      return token.Get();
     },
 
     Login: function (req) {
@@ -372,7 +428,7 @@ angular.module('User', [])
       Caller.Call('user.login', req, function (res) {
         if (res.success === true) {
           // save return token
-          token = res._token;
+          token.Set(res._token);
           deferred.resolve(res.UserObj);
         }
         else {
@@ -407,7 +463,7 @@ angular.module('User', [])
     Join: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -423,7 +479,7 @@ angular.module('User', [])
     Leave: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.leave', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -439,7 +495,7 @@ angular.module('User', [])
     Pause: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.pause', req, function (res) {
         if (res.success === true) {
           deferred.resolve();
@@ -455,11 +511,11 @@ angular.module('User', [])
     Logout: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
           // clear token
-          token = null;
+          token.Set(null);
           deferred.resolve();
         }
         else {
@@ -511,6 +567,7 @@ angular.module('app', [
   'RegisterCtrl',
   'MessengerCtrl',
   'GroupsCtrl',
+  'ChatCtrl',
 ])
 
 .run(
@@ -524,12 +581,14 @@ angular.module('app', [
     // this block of code controls the routing's permission
     $rootScope.$on('$stateChangeStart', function (event, next, current) {
       // no authorization section mentioned
-      if (!next.authorized) {
+      console.log('restrictions', next.restrictions);
+      if (!next.restrictions) {
         return;
       }
 
       // read each restriction of the next page
       var myRole = User.GetToken() === null ? ROLES.guest : ROLES.member;
+      console.log('myRole', myRole);
       next.restrictions.forEach(function (each) {
         if ((each.authorized & myRole) === 0) {
           // access denied
@@ -710,23 +769,44 @@ angular.module('routing', [])
       .state('messenger', {
         templateUrl: 'html/messenger.template.html',
         controller: 'MessengerCtrl',
-        // restrict that only members can get access
-        // to this page
-        // restrictions: [
-        //   { authorized: ROLES.member,
-        //     // if the user is not member, go to 'login' state
-        //     no: 'login' }
-        // ]
       })
       .state('messenger.groups', {
         url: '/groups',
         templateUrl: 'html/groups.html',
         controller: 'GroupsCtrl',
+        // restrict that only members can get access
+        // to this page
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ]
       })
       .state('messenger.chat', {
-        url: '/chat/:groupId',
+        url: '/chat/:groupName',
         templateUrl: 'html/chat.html',
         controller: 'ChatCtrl',
+        // restrict that only members can get access
+        // to this page
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ]
+        // the following block of code must be done before loading the state
+        resolve: {
+          messages: function (Message, $state, $stateParams) {
+            console.log('aoeuaoeu');
+            // we have to check whether the group exists or not
+            return Message.GetUnread({
+              group_name: $stateParams.groupName,
+            })
+              .then(null, function (err) {
+                console.log('err', err);
+                // tell the user that he's requesting the unknown group
+              });
+          }
+        },
       })
   }
 )

@@ -17,6 +17,7 @@ angular.module('MessengerCtrl', [])
   , User
   , Group) {
 
+    console.log('aoeuaoeuao');
     var s = $scope;
     // expose $state to the view
     s.$state = $state;
