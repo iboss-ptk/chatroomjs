@@ -65,7 +65,7 @@ angular.module('MessengerCtrl', [])
             createModal.modal('hide');
           }, function (err) {
             // err
-            err.err_msg.forEach(function (each) {
+            err.forEach(function (each) {
               switch (each) {
                 case 'duplicated_group_name':
                   s.err.create.group_name = true;
@@ -126,7 +126,7 @@ angular.module('MessengerCtrl', [])
             leaveModal.modal('hide');
           }, function (err) {
             // fail
-            err.err_msg.forEach(function (each) {
+            err.forEach(function (each) {
               console.log('err', each);
             })
           })

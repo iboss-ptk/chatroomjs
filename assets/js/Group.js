@@ -10,10 +10,10 @@ angular.module('Group', [])
       req._token = User.GetToken();
       Caller.Call('group.create', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
