@@ -37,11 +37,11 @@ angular.module('routing', [])
         controller: 'GroupsCtrl',
         // restrict that only members can get access
         // to this page
-        restrictions: [
-          { authorized: ROLES.member,
-            // if the user is not member, go to 'login' state
-            no: 'login' }
-        ],
+        // restrictions: [
+        //   { authorized: ROLES.member,
+        //     // if the user is not member, go to 'login' state
+        //     no: 'login' }
+        // ],
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',
@@ -49,11 +49,11 @@ angular.module('routing', [])
         controller: 'ChatCtrl',
         // restrict that only members can get access
         // to this page
-        restrictions: [
-          { authorized: ROLES.member,
-            // if the user is not member, go to 'login' state
-            no: 'login' }
-        ],
+        // restrictions: [
+        //   { authorized: ROLES.member,
+        //     // if the user is not member, go to 'login' state
+        //     no: 'login' }
+        // ],
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {

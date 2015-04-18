@@ -9,6 +9,8 @@ mongoose.connect('mongodb://mongo/chat');
 
 var models = {
 	User: require("./models/user").User
+, GroupMember : require("./models/group_member").GroupMember
+, Group : require("./models/group").Group
 }
 
 function createPubSubClient(){
@@ -28,36 +30,34 @@ io.on('connection', function(socket){
 	//user handler
 
 	socket.on('user.login', function(data){
-
+		console.log("USER LOGIN CALLED");
 		res = {
 			_token: 'JNU^TFYTHGJNKHVKGC',
 			success: true,
 			err_msg: null,
 			UserObj: 'obj'
 		}
+		models.User.login(data,function(err,res){
+			console.log(res);
+			io.emit(data._event, res)
+		});
+		// io.emit(data._event, res)
 
-		io.emit(data._event, res)
 	});
 
 	socket.on('user.register', function(data){
+		console.log("USER REGISTER CALLED");
 
-		res = {
-			success: true,
-			err_msg: null
-		}
+			res = {
+				success: true,
+				err_msg: null
+			}
+				models.User.register(data,function(err,res){
+					io.emit(data._event, res)
+				});
 
-		io.emit(data._event, res)
-	});
+		});
 
-	socket.on('user.login', function(data){
-
-		res = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, res)
-	});
 
 	socket.on('user.join', function(data){
 
@@ -65,6 +65,8 @@ io.on('connection', function(socket){
 			success: true,
 			err_msg: null
 		}
+
+		//CREATE GROUPMEMBER ENTITY HERE
 
 		io.emit(data._event, res)
 	});
@@ -75,6 +77,8 @@ io.on('connection', function(socket){
 			success: true,
 			err_msg: null
 		}
+
+		//DELETE GROUPMEMBER ENTITY
 
 		io.emit(data._event, res)
 	});
@@ -103,13 +107,17 @@ io.on('connection', function(socket){
 	//group handler
 
 	socket.on('group.create', function(data){
-
+		console.log(data)
 		res = {
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, res)
+		console.log("GROUP REGISTER CALLED");
+		models.Group.create(data,function(err,res){
+			io.emit(data._event, res)
+		});
+
 	});
 
 

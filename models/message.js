@@ -1,14 +1,14 @@
 var mongoose = require("mongoose");
 
-var GroupSchema = new mongoose.Schema({
+var MessageSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		index: true
 	}
 });
 
-var Group = mongoose.model('Group', GroupSchema);
+var Message = mongoose.model('Message', MessageSchema);
 
 module.exports = {
-	Group: Group
+	Message: Message
 }
