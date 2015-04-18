@@ -2,6 +2,7 @@
 
 angular.module('directives', [])
 
+// set vertical alignment of items inside a given element to be middle
 .directive('verticalMiddle', function () {
   return {
     restrict: 'EA',
@@ -11,7 +12,6 @@ angular.module('directives', [])
       var $element = $(element);
 
       var height = $element.height() + 'px';
-      console.log('height', height);
       $element.css({
         'line-height': height,
         'height': height
@@ -32,6 +32,7 @@ angular.module('directives', [])
   }
 })
 
+// resize the div in the groups.jade to fit the window
 .directive('listColumn', function () {
   return {
     restrict: 'EA',
@@ -42,7 +43,6 @@ angular.module('directives', [])
 
       $window.resize(function () {
         var availWidth = $window.width() - $mainNav.width();
-        console.log('width', availWidth);
         $element.attr('style', 'width:' + availWidth + 'px !important');
       })
         // trigger window resize
