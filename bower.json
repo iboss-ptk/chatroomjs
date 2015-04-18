@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "homepage": "https://github.com/iboss-ptk/chatroomjs",
   "authors": [
-    "Konpat Ta Preechakul <the.akita.ta@gmail.com>"
+    "Konpat Ta Preechakul <the.akita.ta@gmail.com>",
+    "Supanat Boss Potiwarakorn <supanat.ptk@gmail.com>",
   ],
   "license": "MIT",
   "private": true,

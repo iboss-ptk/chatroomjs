@@ -34,6 +34,7 @@ angular.module('RegisterCtrl', [])
         s.err.disp_name = true;
         return;
       }
+      console.log(err);
       // make request
       User.Register({
         username: username,

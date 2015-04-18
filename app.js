@@ -62,12 +62,14 @@ io.on('connection', function(socket){
 
 	socket.on('user.register', function(data){
 
-		var returnObj = {
-			success: true,
-			err_msg: null
-		}
+		console.log(data)
 
-		io.emit(data._event, returnObj)
+		// var returnObj = {
+		// 	success: true,
+		// 	err_msg: null
+		// }
+
+		// io.emit(data._event, returnObj)
 	});
 
 	socket.on('user.join', function(data){
