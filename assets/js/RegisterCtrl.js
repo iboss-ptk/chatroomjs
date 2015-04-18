@@ -42,6 +42,19 @@ angular.module('RegisterCtrl', [])
       })
         .then(function (res) {
           // register success
+          console.log('res', res);
+          // take login
+          User.Login({
+            username: username,
+            password: password,
+          })
+            .then(function (res) {
+              // redirect to groups
+              $state.go('messenger.groups');
+            }, function (err) {
+              // login error occured
+              console.log('err', err);
+            })
         }, function (err) {
           // register err
           err.err_msg.forEach(function (val) {
