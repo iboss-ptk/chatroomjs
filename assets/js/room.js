@@ -9,8 +9,8 @@ login.password = prompt("password");
 login._event = "LKMLDKFMGNSPP"
 socket.emit('user.login', login);
 
-// var room = prompt("select room");
-// socket.emit('addRoom', room);
+var room = prompt("select room");
+socket.emit('user.join', { group_name: room });
 
 function scrollToBottom() {
   var h = $('#msgpane')[0].scrollHeight;
@@ -18,11 +18,11 @@ function scrollToBottom() {
 }
 
 $('form').submit(function(){
-  socket.emit('user.join', {_event: "clxknfvld"});
+
   if (!$('#m').val().trim()){
     return false;
   }
-  socket.emit('chatmsg', $('#m').val());
+  socket.emit('message.send', {_event: "message.rcv" ,content: $('#m').val(), group_name: room});
   sentmsg = $('#m').val();
   $('#m').val('');
   $('#m').focus();
@@ -30,7 +30,8 @@ $('form').submit(function(){
 });
 
 
-socket.on('chatmsg', function(msg){
+socket.on('message.rcv', function(data){
+  console.log(data);
   if (sentmsg == msg) {
     $('#messages').append($('<div>').text(msg).addClass('mymsg'));
   } else {
