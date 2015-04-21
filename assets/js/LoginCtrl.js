@@ -32,8 +32,9 @@ angular.module('LoginCtrl', [])
       })
         .then(function (res) {
           // login success
-          // redirect to groups
           console.log('res', res);
+          // redirect to groups
+          $state.go('messenger.groups');
         }, function (err) {
           // login error
           console.log('err', err);

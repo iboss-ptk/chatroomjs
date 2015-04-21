@@ -13,5 +13,8 @@ angular.module('GroupsCtrl', [])
 
     s.err = {}
 
+    s.groups = User.GetGroup();
+    console.log('groups', s.groups)
+
   }
 )

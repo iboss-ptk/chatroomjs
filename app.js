@@ -125,15 +125,17 @@ io.on('connection', function(socket){
 
 	socket.on('group.create', function(data){
 
-
 		returnObj = {
-
 			success: true,
 			err_msg: null
 		}
 
-		io.emit(data._event, returnObj)
-	});	
+		console.log("GROUP REGISTER CALLED");
+		models.Group.create(data,function(err,res){
+			io.emit(data._event, returnObj)
+		});
+
+	});
 
 
 	//message handler

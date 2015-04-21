@@ -1,5 +1,42 @@
 "use strict";
 
+angular.module('ChatCtrl', [])
+
+.controller('ChatCtrl',
+  function (
+    $scope
+  , $state
+  , $stateParams
+  , User
+  , Group
+  , Message
+  , messages) {
+
+    var s = $scope;
+
+    s.err = {}
+
+    // resolved from Message (in routing.js)
+    s.messages = messages;
+    console.log('messages', s.messages);
+
+    s.Send = function (content) {
+      Message.Send({
+        group_name: $stateParams.groupName
+      })
+        .then(function (res) {
+          // sending done!
+          // do nothing perhaps.
+        }, function (err) {
+          console.log('err', err);
+        });
+    }
+
+  }
+)
+
+"use strict";
+
 angular.module('Group', [])
 
 .factory('Group', function (User, Caller, $q) {
@@ -10,10 +47,10 @@ angular.module('Group', [])
       req._token = User.GetToken();
       Caller.Call('group.create', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -36,6 +73,9 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
+
+    s.groups = User.GetGroup();
+    console.log('groups', s.groups)
 
   }
 )
@@ -74,8 +114,9 @@ angular.module('LoginCtrl', [])
       })
         .then(function (res) {
           // login success
-          // redirect to groups
           console.log('res', res);
+          // redirect to groups
+          $state.go('messenger.groups');
         }, function (err) {
           // login error
           console.log('err', err);
@@ -103,10 +144,10 @@ angular.module('Message', [])
       req._token = User.GetToken();
       Caller.Call('message.send', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -119,10 +160,10 @@ angular.module('Message', [])
       req._token = User.GetToken();
       Caller.Call('message.get_unread', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve(res.unread_msg);
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -130,6 +171,144 @@ angular.module('Message', [])
     }
   }
 })
+
+"use strict";
+
+angular.module('MessengerCtrl', [])
+
+.factory('MessengerService',
+  function () {
+    return {
+
+    }
+  })
+
+.controller('MessengerCtrl',
+  function (
+    $scope
+  , $timeout
+  , $state
+  , User
+  , Group) {
+
+    console.log('aoeuaoeuao');
+    var s = $scope;
+    // expose $state to the view
+    s.$state = $state;
+    // all errors in this page are here
+    s.err = {};
+
+    // Creating a new group encapsulation
+    (function () {
+      var createModal = $('#messenger-create-group');
+      // local errors
+      s.err.create = {};
+      // data models
+      s.craete = {};
+
+      s.AskCreate = function () {
+        // use timeout just get over the angular's warning message
+        $timeout(function () {
+          createModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
+      }
+
+      s.Create = function (group_name) {
+        // clear errors
+        s.err.create = {};
+        // validate
+        if (!group_name) {
+          s.err.create.group_name = true;
+          return;
+        }
+        // make request
+        Group.Create({
+          group_name: group_name
+        })
+          .then(function (res) {
+            // success
+            // make a new group list
+
+            // hide modal
+            createModal.modal('hide');
+          }, function (err) {
+            // err
+            err.forEach(function (each) {
+              switch (each) {
+                case 'duplicated_group_name':
+                  s.err.create.group_name = true;
+                  break;
+                default:
+                  console.log('err', each);
+                  break;
+              }
+            });
+          });
+      }
+    }());
+
+    // Leaving a group encapsulation
+    (function () {
+      var leaveModal = $('#messenger-leave-group');
+      var groupNotDefinedModal = $('#messenger-leave-not-defined-group');
+      // local errors
+      s.err.leave = {};
+
+      s.AskLeave = function () {
+        // only at 'messenger.chat' can take this action
+        // if ($state.current.name !== 'messenger.chat') {
+        //   return;
+        // }
+
+        $timeout(function () {
+          leaveModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
+      }
+
+      s.Leave = function (group_name) {
+        // clear errors
+        s.err.leave = {};
+        // validate
+        if (!group_name) {
+          // notice the user
+          // leave modal will be auto hidden by this command
+          groupNotDefinedModal.modal('show');
+          return;
+        }
+        // make request
+        User.leave({
+          group_name: group_name
+        })
+          .then(function (res) {
+            // success
+            // remove this group from the array
+
+            // hide leave modal
+            leaveModal.modal('hide');
+          }, function (err) {
+            // fail
+            err.forEach(function (each) {
+              console.log('err', each);
+            })
+          })
+      }
+    }());
+
+  })
 
 "use strict";
 
@@ -153,6 +332,11 @@ angular.module('RegisterCtrl', [])
       // clear error
       s.err = {}
       // validate
+      if (!disp_name) {
+        s.err.disp_name = true;
+        return;
+      }
+
       if (!username) {
         s.err.username = true;
         return;
@@ -163,10 +347,6 @@ angular.module('RegisterCtrl', [])
         return;
       }
 
-      if (!disp_name) {
-        s.err.disp_name = true;
-        return;
-      }
       // make request
       User.Register({
         username: username,
@@ -175,9 +355,22 @@ angular.module('RegisterCtrl', [])
       })
         .then(function (res) {
           // register success
+          console.log('res', res);
+          // take login
+          User.Login({
+            username: username,
+            password: password,
+          })
+            .then(function (res) {
+              // redirect to groups
+              $state.go('messenger.groups');
+            }, function (err) {
+              // login error occured
+              console.log('err', err);
+            })
         }, function (err) {
           // register err
-          err.err_msg.forEach(function (val) {
+          err.forEach(function (val) {
             // each err
             switch (val) {
               case 'duplicated_username':
@@ -196,14 +389,66 @@ angular.module('RegisterCtrl', [])
 angular.module('User', [])
 
 .factory('User', function (Caller, $q) {
-  // this is jwt token
-  // client just has to keep it
-  // and sends it to the sever on every request
-  var token = null;
+  // storage namespace
+  var namespace = '_chatroomjs';
+  // if find not .. create one
+  if (!localStorage[namespace]) {
+    localStorage[namespace] = {};
+  }
+  // browser's storage
+  var storage = localStorage[namespace];
+
+  // password salt
+  // even an intruder knows this (and he will)
+  // he has no choice but to use brute-force or dictionary attack
+  // but not rainbow table :D
+  var salt = '927RV6ggf7loy13U';
+
+  // Token encapsulation
+  var token = (function () {
+    // this is jwt token
+    // client just has to keep it
+    // and sends it to the sever on every request
+    var jwtToken = null;
+    // check local storage for old token
+    if (storage.token) {
+      jwtToken = storage.token;
+    }
+
+    return {
+      Get: function () { return jwtToken; },
+      Set: function (_token) {
+        // upadet both jwtToken and Local Storage Token
+        jwtToken = _token;
+        storage.token = _token;
+      },
+    }
+  }());
+
+  var UserObj = (function() {
+    var UserObj = null;
+    // check local storage for old UserObj
+    if (storage.UserObj) {
+      UserObj = storage.UserObj;
+    }
+
+    return {
+      Get: function () { return UserObj; },
+      Set: function (_UserObj) {
+        // update both in mem and in local storage
+        UserObj = _UserObj;
+        storage.UserObj = _UserObj;
+      },
+    }
+  }());
 
   return {
     GetToken: function () {
-      return token;
+      return token.Get();
+    },
+
+    GetUserObj: function () {
+      return UserObj.Get();
     },
 
     Login: function (req) {
@@ -212,16 +457,21 @@ angular.module('User', [])
       // hash the password first!
       // hash with sha256 (sha2)
       var hasher = new Hashes.SHA256
-      req.password = hasher.b64(req.password)
+      // salt the password
+      var salted = req.password + salt;
+      // encode in base64
+      req.password = hasher.b64(salted);
 
       Caller.Call('user.login', req, function (res) {
         if (res.success === true) {
           // save return token
-          token = res._token;
-          deferred.resolve(res);
+          token.Set(res._token);
+          // save return UserObj
+          UserObj.Set(res.UserObj);
+          deferred.resolve(res.UserObj);
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -234,16 +484,17 @@ angular.module('User', [])
       // hash the password first!
       // hash with sha256 (sha2)
       var hasher = new Hashes.SHA256
-      req.password = hasher.b64(req.password)
+      // salt the password
+      var salted = req.password + salt;
+      // password is hashed in base64 format
+      req.password = hasher.b64(salted);
 
       Caller.Call('user.register', req, function (res) {
         if (res.success === true) {
-          // clear token
-          token = null;
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -253,13 +504,13 @@ angular.module('User', [])
     Join: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -269,13 +520,13 @@ angular.module('User', [])
     Leave: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.leave', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -285,13 +536,13 @@ angular.module('User', [])
     Pause: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.pause', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -301,13 +552,34 @@ angular.module('User', [])
     Logout: function (req) {
       var deferred = $q.defer();
       // append _token to the request
-      req._token = token;
+      req._token = token.Get();
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
-          deferred.resolve(res);
+          // clear token
+          token.Set(null);
+          deferred.resolve();
         }
         else {
-          deferred.reject(res);
+          deferred.reject(res.err_msg);
+        }
+      });
+
+      return deferred.promise;
+    },
+
+    GetGroup: function () {
+      var deferred = $q.defer();
+      // fabricate the request
+      var req = {
+        _token: token
+      };
+
+      Caller.Call('user.get_group', req, function (res) {
+        if (res.success === true) {
+          deferred.resolve(res.GroupObjList);
+        }
+        else {
+          deferred.reject(res.err_msg);
         }
       });
 
@@ -319,6 +591,8 @@ angular.module('User', [])
 "use strict";
 
 angular.module('app', [
+  'ngAnimate',
+  'angular-velocity',
   'ui.router',
   'btford.socket-io',
   // Routing
@@ -332,7 +606,9 @@ angular.module('app', [
   // Pages
   'LoginCtrl',
   'RegisterCtrl',
+  'MessengerCtrl',
   'GroupsCtrl',
+  'ChatCtrl',
 ])
 
 .run(
@@ -346,12 +622,14 @@ angular.module('app', [
     // this block of code controls the routing's permission
     $rootScope.$on('$stateChangeStart', function (event, next, current) {
       // no authorization section mentioned
-      if (!next.authorized) {
+      console.log('restrictions', next.restrictions);
+      if (!next.restrictions) {
         return;
       }
 
       // read each restriction of the next page
       var myRole = User.GetToken() === null ? ROLES.guest : ROLES.member;
+      console.log('myRole', myRole);
       next.restrictions.forEach(function (each) {
         if ((each.authorized & myRole) === 0) {
           // access denied
@@ -412,6 +690,7 @@ angular.module('app', [
 
 angular.module('directives', [])
 
+// set vertical alignment of items inside a given element to be middle
 .directive('verticalMiddle', function () {
   return {
     restrict: 'EA',
@@ -421,7 +700,6 @@ angular.module('directives', [])
       var $element = $(element);
 
       var height = $element.height() + 'px';
-      console.log('height', height);
       $element.css({
         'line-height': height,
         'height': height
@@ -442,6 +720,7 @@ angular.module('directives', [])
   }
 })
 
+// resize the div in the groups.jade to fit the window
 .directive('listColumn', function () {
   return {
     restrict: 'EA',
@@ -452,7 +731,6 @@ angular.module('directives', [])
 
       $window.resize(function () {
         var availWidth = $window.width() - $mainNav.width();
-        console.log('width', availWidth);
         $element.attr('style', 'width:' + availWidth + 'px !important');
       })
         // trigger window resize
@@ -467,6 +745,7 @@ angular.module('directives', [])
 // var sentmsg = ''; // to be change later
 
 
+
 // var name = prompt("your name");
 // socket.emit('addUser', name);
 
@@ -477,6 +756,7 @@ angular.module('directives', [])
 //   var h = $('#msgpane')[0].scrollHeight;
 //   $('#msgpane').animate({ scrollTop: h }, 100);
 // }
+
 
 // $('form').submit(function(){
 //   if (!$('#m').val().trim()){
@@ -529,7 +809,11 @@ angular.module('routing', [])
         templateUrl: 'html/register.html',
         controller: 'RegisterCtrl',
       })
-      .state('groups', {
+      .state('messenger', {
+        templateUrl: 'html/messenger.template.html',
+        controller: 'MessengerCtrl',
+      })
+      .state('messenger.groups', {
         url: '/groups',
         templateUrl: 'html/groups.html',
         controller: 'GroupsCtrl',
@@ -539,12 +823,33 @@ angular.module('routing', [])
         //   { authorized: ROLES.member,
         //     // if the user is not member, go to 'login' state
         //     no: 'login' }
-        // ]
+        // ],
       })
-      .state('chat', {
-        url: '/chat/:groupId',
+      .state('messenger.chat', {
+        url: '/chat/:groupName',
         templateUrl: 'html/chat.html',
         controller: 'ChatCtrl',
+        // restrict that only members can get access
+        // to this page
+        // restrictions: [
+        //   { authorized: ROLES.member,
+        //     // if the user is not member, go to 'login' state
+        //     no: 'login' }
+        // ],
+        // the following block of code must be done before loading the state
+        resolve: {
+          messages: function (Message, $state, $stateParams) {
+            console.log('aoeuaoeu');
+            // we have to check whether the group exists or not
+            return Message.GetUnread({
+              group_name: $stateParams.groupName,
+            })
+              .then(null, function (err) {
+                console.log('err', err);
+                // tell the user that he's requesting the unknown group
+              });
+          }
+        },
       })
   }
 )

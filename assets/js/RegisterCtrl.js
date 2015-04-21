@@ -20,6 +20,11 @@ angular.module('RegisterCtrl', [])
       // clear error
       s.err = {}
       // validate
+      if (!disp_name) {
+        s.err.disp_name = true;
+        return;
+      }
+
       if (!username) {
         s.err.username = true;
         return;
@@ -30,11 +35,6 @@ angular.module('RegisterCtrl', [])
         return;
       }
 
-      if (!disp_name) {
-        s.err.disp_name = true;
-        return;
-      }
-      console.log(err);
       // make request
       User.Register({
         username: username,
@@ -43,9 +43,22 @@ angular.module('RegisterCtrl', [])
       })
         .then(function (res) {
           // register success
+          console.log('res', res);
+          // take login
+          User.Login({
+            username: username,
+            password: password,
+          })
+            .then(function (res) {
+              // redirect to groups
+              $state.go('messenger.groups');
+            }, function (err) {
+              // login error occured
+              console.log('err', err);
+            })
         }, function (err) {
           // register err
-          err.err_msg.forEach(function (val) {
+          err.forEach(function (val) {
             // each err
             switch (val) {
               case 'duplicated_username':

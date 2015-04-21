@@ -5,6 +5,26 @@ var GroupSchema = new mongoose.Schema({
         index: true}
 });
 
+GroupSchema.statics.create = function(data,returnObject){
+	group = new Group({name:data.name});
+	group.save(function(err,_group){
+		if(err){
+			returnObject.success = false,
+			returnObject.err_msg = err
+			console.error(err);
+		}else{
+			console.log("New Group %s is CREATED",_group.name);
+			returnObject.success = true;
+		}
+	});
+}
+
+GroupSchema.statics.remove = function(data,returnObject){
+	//IMPLEMENTATION OF A GROUP REMOVE HERE
+	//DATA = GROUP NAME
+	//NEED PRE EVENT IMPLEMENTATION TOO
+}
+
 var Group = mongoose.model('Group', GroupSchema);
 
 GroupSchema.pre("save", function(next) {

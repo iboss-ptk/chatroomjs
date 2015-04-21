@@ -1,6 +1,8 @@
 "use strict";
 
 angular.module('app', [
+  'ngAnimate',
+  'angular-velocity',
   'ui.router',
   'btford.socket-io',
   // Routing
@@ -14,7 +16,9 @@ angular.module('app', [
   // Pages
   'LoginCtrl',
   'RegisterCtrl',
+  'MessengerCtrl',
   'GroupsCtrl',
+  'ChatCtrl',
 ])
 
 .run(
@@ -28,12 +32,14 @@ angular.module('app', [
     // this block of code controls the routing's permission
     $rootScope.$on('$stateChangeStart', function (event, next, current) {
       // no authorization section mentioned
-      if (!next.authorized) {
+      console.log('restrictions', next.restrictions);
+      if (!next.restrictions) {
         return;
       }
 
       // read each restriction of the next page
       var myRole = User.GetToken() === null ? ROLES.guest : ROLES.member;
+      console.log('myRole', myRole);
       next.restrictions.forEach(function (each) {
         if ((each.authorized & myRole) === 0) {
           // access denied
