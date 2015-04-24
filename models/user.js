@@ -18,6 +18,11 @@ UserSchema.methods.get_groups = function get_groups (callback){
 	GroupMember.find({user_id:this._id},'group_id',function(err,results){
 		if(results){
 			var myLength = results.length;
+			// no group fix
+			if (myLength === 0) {
+				callback([]);
+				return;
+			}
 
 			results.forEach(function(item){
 				Group.find({_id: mongoose.Types.ObjectId(item.group_id)},'group_name',function(err,groupObj){

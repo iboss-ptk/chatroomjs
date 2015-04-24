@@ -62,6 +62,9 @@ angular.module('MessengerCtrl', [])
       s.join = {};
 
       s.AskJoin = function () {
+        // clear vars
+        s.err.join = {};
+        s.join = {};
         // use timeout just get over the angular's warning message
         $timeout(function () {
           joinModal
@@ -119,6 +122,10 @@ angular.module('MessengerCtrl', [])
       s.create = {};
 
       s.AskCreate = function () {
+        // clear vars
+        s.err.create = {};
+        s.create = {};
+
         // use timeout just get over the angular's warning message
         $timeout(function () {
           createModal
@@ -186,6 +193,9 @@ angular.module('MessengerCtrl', [])
       s.err.leave = {};
 
       s.AskLeave = function () {
+        // clear varls
+        s.err.leave = {};
+
         // only at 'messenger.chat' can take this action
         if ($state.current.name !== 'messenger.chat') {
           return;
