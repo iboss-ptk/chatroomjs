@@ -23,10 +23,11 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    // var storedToken = storage[namespace + 'token'];
-    // if (storedToken) {
-    //   jwtToken = storedToken;
-    // }
+    var storedToken = storage[namespace + 'token'];
+    console.log('stored token:', storedToken);
+    if (storedToken) {
+      jwtToken = storedToken;
+    }
 
     return {
       Get: function () { return jwtToken; },
@@ -41,17 +42,31 @@ angular.module('User', [])
   var UserObj = (function() {
     var UserObj = null;
     // check local storage for old UserObj
-    // var storedUserObj = storage[namespace + 'UserObj'];
-    // if (storedUserObj) {
-    //   UserObj = JSON.parse(storedUserObj);
-    // }
+    var storedUserObj = storage[namespace + 'UserObj'];
+    if (typeof token.Get() === 'string'
+      && storedUserObj
+      // this for bug fix
+      && storedUserObj !== 'undefined'
+      ) {
+      UserObj = JSON.parse(storedUserObj);
+    }
 
     return {
       Get: function () { return UserObj; },
       Set: function (_UserObj) {
+        // verify that _UserObj is an object
+        if (typeof _UserObj !== 'object' || _UserObj === null) {
+          console.log("User Object will not be set, because it's empty");
+          return ;
+        }
         // update both in mem and in local storage
         UserObj = _UserObj;
-        storage[namespace + 'UserObj'] = JSON.stringify(_UserObj);
+        storage[namespace + 'UserObj'] = JSON.stringify(UserObj);
+        console.log('stored use has been set: ', JSON.stringify(UserObj));
+      },
+      Unset: function() {
+        // remove UserObj from webstorage
+        storage.removeItem(namespace + 'UserObj');
       },
     }
   }());
@@ -175,7 +190,7 @@ angular.module('User', [])
           // clear token
           token.Set(null);
           // clear UserObj
-          UserObj.Set(null);
+          UserObj.Unset();
 
           deferred.resolve();
         }

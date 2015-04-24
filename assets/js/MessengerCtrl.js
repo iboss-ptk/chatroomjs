@@ -38,13 +38,28 @@ angular.module('MessengerCtrl', [])
         });
     };
 
+    (function () {
+      var joinModal = $('#messenger-join-group');
+
+      s.err.join = {};
+      s.join = {};
+
+      s.AskJoin = function () {
+
+      };
+
+      s.Join = function (group_name) {
+
+      };
+    }());
+
     // Creating a new group encapsulation
     (function () {
       var createModal = $('#messenger-create-group');
       // local errors
       s.err.create = {};
       // data models
-      s.craete = {};
+      s.create = {};
 
       s.AskCreate = function () {
         // use timeout just get over the angular's warning message
