@@ -41,6 +41,7 @@ angular.module('User', [])
 
   var UserObj = (function() {
     var UserObj = null;
+
     // check local storage for old UserObj
     var storedUserObj = storage[namespace + 'UserObj'];
     if (typeof token.Get() === 'string'
@@ -181,24 +182,34 @@ angular.module('User', [])
     },
 
     Logout: function () {
+      var self = this;
+
       var deferred = $q.defer();
       // fabricate the request
       var req = {
         _token: token.Get(),
       };
-      Caller.Call('user.logout', req, function (res) {
-        if (res.success === true) {
-          // clear token
-          token.Set(null);
-          // clear UserObj
-          UserObj.Unset();
 
-          deferred.resolve();
-        }
-        else {
-          deferred.reject(res.err_msg);
-        }
-      });
+      // first, tell the server to pause this user
+      self.Pause({
+        group_name: null,
+      })
+        .then(function () {
+          console.log('The user has been paused.');
+          // second, do the logout
+          Caller.Call('user.logout', req, function (res) {
+            if (res.success === true) {
+              // clear token
+              token.Set(null);
+              // clear UserObj
+              UserObj.Unset();
+              deferred.resolve();
+            }
+            else {
+              deferred.reject(res.err_msg);
+            }
+          });
+        });
 
       return deferred.promise;
     },
@@ -218,7 +229,6 @@ angular.module('User', [])
           deferred.reject(res.err_msg);
         }
       });
-
       return deferred.promise;
     },
   }

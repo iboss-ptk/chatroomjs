@@ -2,31 +2,42 @@
 
 angular.module('MessengerCtrl', [])
 
-.factory('MessengerService',
-  function () {
-    return {
-
-    }
-  })
-
 .controller('MessengerCtrl',
   function (
     $scope
   , $timeout
+  , socket
   , $state
   , User
   , Group) {
 
-    console.log('aoeuaoeuao');
     var s = $scope;
     // expose $state to the view
     s.$state = $state;
     // expose User to the view
     s.UserObj = User.GetUserObj();
+    // expose User's messages
+    s.GlobalMessages = {};
     // expose User's groups
     s.GroupObjs = User.GetGroup();
     // all errors in this page are here
     s.err = {};
+
+    // Let's say that when user come
+    console.log('got into messenger ctrl');
+
+    // listen to all incoming messages
+    // and classify them to the right place
+    socket.on('message.receive', function (message) {
+      var messageGroup = message.GroupObj.group_name;
+      // if the messageGroup is not recognized
+      if (!s.GlobalMessages[messageGroup]) {
+        console.log('got a message from an unknown group');
+        return ;
+      }
+      // separatly clissify it to the right box
+      s.GlobalMessages[messageGroup].push(message);
+    });
 
     // Logout
     s.Logout = function () {
@@ -85,7 +96,7 @@ angular.module('MessengerCtrl', [])
             // err
             err.forEach(function (each) {
               switch (each) {
-                case 'unknown_group_name':
+                case 'group_not_found':
                   s.err.join.group_name = true;
                   break;
                 default:
@@ -152,7 +163,7 @@ angular.module('MessengerCtrl', [])
             // err
             err.forEach(function (each) {
               switch (each) {
-                case 'duplicated_group_name':
+                case 'already_exists':
                   s.err.create.group_name = true;
                   break;
                 default:

@@ -13,16 +13,19 @@ angular.module('ChatCtrl', [])
   , messages) {
 
     var s = $scope;
-
+    // expose the group name
+    s.groupName = $stateParams.groupName;
+    // all the errors
     s.err = {}
 
-    // resolved from Message (in routing.js)
-    s.messages = messages;
-    console.log('messages', s.messages);
+    // all the messages in this chat
+    // we get 'messages' from the resolving state in routing.js
+    s.Messages = s.GlobalMessages[s.groupName] = messages;
 
     s.Send = function (content) {
       Message.Send({
-        group_name: $stateParams.groupName
+        group_name: s.groupName,
+        content: content,
       })
         .then(function (res) {
           // sending done!
@@ -31,6 +34,5 @@ angular.module('ChatCtrl', [])
           console.log('err', err);
         });
     }
-
   }
 )
