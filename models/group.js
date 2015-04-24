@@ -27,15 +27,12 @@ var Group = mongoose.model('Group', GroupSchema);
 GroupSchema.pre("save", function(next) {
     Group.findOne({group_name : this.group_name},'group_name', function(err, results) {
         if(err) {
-					 console.log("IF SECTION = "+results);
             next(err);
         } else if(results) {
             //IF ROOM IS ALREADY CREATED
-						console.log("ELSE IF SECTION = "+results);
-						next(new Error("Group Already Exists : Joining Group " + results.group_name));
+						next(new Error("already_exist"));
         } else {
 						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
-						console.log("ELSE SECTION = "+results);
             next();
         }
     });

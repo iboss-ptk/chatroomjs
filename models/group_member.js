@@ -6,31 +6,58 @@ var Group	= require("../models/group").Group
 
 
 var GroupMemberSchema = new mongoose.Schema({
-	user:  {type : Schema.Types.ObjectId , ref : User} ,
-	group_name: {type : Schema.Types.ObjectId , ref : Group},
+	user_id:  {type : Schema.Types.ObjectId , ref : User , index : true} ,
+	group_id: {type : Schema.Types.ObjectId , ref : Group, index : true} ,
 	last_seen :{type : Date , default:Date.now}
 });
 
-
-GroupMemberSchema.statics.create = function(data,returnObject){
+//CREATE GROUP MEMBER SCHEMA
+GroupMemberSchema.statics.create = function(data,callback){
 	console.log("Try To Create GroupMemberSchema");
-	groupMember = new GroupMember({user:data.name ,group_name:data.group_name });
-	groupMember.save(function(err,_group){
-		if(err){
-			returnObject.success = false,
-			returnObject.err_msg = err
-			console.log(user)
-			console.log(group_name)
-			console.error(err);
+	var resolved_group_id = 0;
+	//FIND GROUP BY data.group_name
+	Group.findOne({group_name:data.group_name},function(err,results){
+		if(!results){
+			callback('group_not_found');
 		}else{
-			console.log("GroupMemberEntity Created",_group);
-			returnObject.success = true;
+			resolved_group_id = results._id;
+		}
+	});
+
+	//GOT resolved_group_id
+	groupMember = new GroupMember(
+		{
+			user_id  : data.user_id ,
+			group_id : mongoose.Types.ObjectId(resolved_group_id)
+		});
+	//console.log(groupMember);
+	groupMember.save(function(err){
+		if(err){
+			//return unhandled error
+			console.log(err);
+			callback(err);
+		}else{
+			//SUCCESS SAVED
+			callback("group_member_created");
 		}
 	});
 }
 
 
 var GroupMember = mongoose.model('GroupMember', GroupMemberSchema);
+
+GroupMemberSchema.pre("save", function(next) {
+	GroupMember.findOne({group_id : this.group_id , user_id:this.user_id },'group_id', function(err, results) {
+		if(err) {
+			next(err);
+		} else if(results) {
+			next(new Error("duplicated_groupMember"));
+		} else {
+			next();
+		}
+	});
+});
+
 
 module.exports = {
 	GroupMember: GroupMember

@@ -96,12 +96,27 @@ io.on('connection', function(socket){
 				err_msg: err
 			}
 
-
-			io.emit(data._event, returnObj);
-		});
-
-
+			//FIND USEROBJECT
+				models.User.findOne({username:decoded_result.username},function(err,results){
+					if(results){
+						//GOT USER OBJ => get him in da group
+						results.getInGroup(data.group_name,function(returnMessage){
+							res.err_msg = [returnMessage];
+							if(returnMessage == 'group_not_found'){
+								res.success = false;
+								console.log("group not found");
+							}else if(returnMessage == 'success'){
+								console.log('succesfull joining and create member entity');
+							}else{
+								res.success = false;
+								console.log('unhandled error');
+							}
+						});
+					}
+				});
+				io.emit(data._event, res); // SUCCESS
 	});
+});
 
 	socket.on('user.leave', function(data){
 
@@ -152,12 +167,33 @@ io.on('connection', function(socket){
 		}
 
 		models.Group.create(data,function(err,groupCreateResult){
+			var UserObj;
 			if(groupCreateResult == 'success'){
 				res.success = true;
 				console.log("New Group is Create name : "+data.group_name);
+				// //FIND USEROBJECT
+				// validateToken(function(err,decoded_result){
+				// 	models.User.findOne({username:decoded_result.username},function(err,results){
+				// 		if(results){
+				// 			//GOT USER OBJ => get him in da group
+				// 			results.getInGroup(data.group_name,function(returnMessage){
+				// 				res.err_msg = [returnMessage];
+				// 				if(returnMessage == 'group_not_found'){
+				// 					 res.success = false;
+				// 					console.log("group not found");
+				// 				}else if(returnMessage == 'success'){
+				// 					console.log('succesfull joining and create member entity');
+				// 				}else{
+				// 					res.success = false;
+				// 					console.log('unhandled error');
+				// 				}
+				// 			});
+				// 		}
+				// 	});
+				// });
 			}else if(groupCreateResult == 'failed'){
 				res.success = false;
-				res.err_msg = err;
+				res.err_msg = ['already_exists'];
 				console.log("Cant Create Group :"+data.group_name+" "+err);
 			}
 			io.emit(data._event, res);

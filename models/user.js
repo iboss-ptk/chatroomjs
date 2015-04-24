@@ -1,5 +1,8 @@
 var mongoose = require("mongoose");
 
+var GroupMember	= require("../models/group_member").GroupMember
+var Group	= require("../models/group").Group
+
 var UserSchema = new mongoose.Schema({
 	username: {
 		type: String,
@@ -9,13 +12,36 @@ var UserSchema = new mongoose.Schema({
 	password : String
 });
 
+UserSchema.methods.listGroup = function listGroup (callback){
+	//return this.model('Animal').find({ type: this.type }, callback);
+
+	//callback(groupList);
+}
+
+UserSchema.methods.getInGroup = function getInGroup (group_name,callback) {
+	var myDisplayName = this.disp_name;
+	GroupMember.create({user_id:this._id, group_name:group_name},function(returnMessage){
+		if(returnMessage == 'group_not_found'){
+			//callback("") <= message to be pass to app.js (server layer)
+			callback('group_not_found');
+		}else if(returnMessage == 'group_member_created'){
+			//create successfully
+			console.log("Groupmember Object Creation SUCCESS with the room "+group_name+" and user : "+ myDisplayName);
+			callback('success');
+		}else{
+			//unhandled , another error which not handle
+			callback('error');
+		}
+	});
+}
+
 //Register Function
 UserSchema.statics.register = function(data, callback){
-	var returnObject = {};
 	user = new User({ username: data.username, disp_name: data.disp_name ,password: data.password});
 	//Save After UserSchema.pre (please see UserSchema.pre)
 	user.save(function (err, user) {
 		if (err){
+			//(FRONTEND MESSAGE , SERVER MESSAGE)
 			callback('duplicated_username','error');
 		}else{
 			callback('okay','success');

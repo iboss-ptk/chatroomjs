@@ -4,7 +4,7 @@ angular.module('ChatCtrl', [])
 
 .controller('ChatCtrl',
   function (
-    $scope
+  $scope
   , $state
   , $stateParams
   , User
