@@ -423,10 +423,10 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    var storedToken = storage[namespace + 'token'];
-    if (storedToken) {
-      jwtToken = storedToken;
-    }
+    // var storedToken = storage[namespace + 'token'];
+    // if (storedToken) {
+    //   jwtToken = storedToken;
+    // }
 
     return {
       Get: function () { return jwtToken; },
@@ -441,10 +441,10 @@ angular.module('User', [])
   var UserObj = (function() {
     var UserObj = null;
     // check local storage for old UserObj
-    var storedUserObj = storage[namespace + 'UserObj'];
-    if (storedUserObj) {
-      UserObj = JSON.parse(storedUserObj);
-    }
+    // var storedUserObj = storage[namespace + 'UserObj'];
+    // if (storedUserObj) {
+    //   UserObj = JSON.parse(storedUserObj);
+    // }
 
     return {
       Get: function () { return UserObj; },
