@@ -1,0 +1,10 @@
+{
+  "verbose": true,
+  "ignore": [
+    "assets/*",
+    "node_modules/*",
+    "mongo/*",
+    "data/*",
+    ".*"
+  ]
+}
