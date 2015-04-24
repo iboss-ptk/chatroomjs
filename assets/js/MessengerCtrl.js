@@ -19,7 +19,9 @@ angular.module('MessengerCtrl', [])
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
-    s.GroupObjs = User.GetGroup();
+    s.GroupObjs = User.GetGroup().then(function (res) {
+      console.log('groupobjectslist: ', res);
+    });
     // all errors in this page are here
     s.err = {};
 

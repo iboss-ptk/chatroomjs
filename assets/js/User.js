@@ -222,6 +222,7 @@ angular.module('User', [])
       };
 
       Caller.Call('user.get_group', req, function (res) {
+        console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);
         }

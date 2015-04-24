@@ -4,7 +4,7 @@ angular.module('ChatCtrl', [])
 
 .controller('ChatCtrl',
   function (
-  $scope
+    $scope
   , $state
   , $stateParams
   , User
@@ -75,8 +75,6 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
-
-    console.log('groups: ', s.GroupObjs);
   }
 )
 
@@ -193,7 +191,9 @@ angular.module('MessengerCtrl', [])
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
-    s.GroupObjs = User.GetGroup();
+    s.GroupObjs = User.GetGroup().then(function (res) {
+      console.log('groupobjectslist: ', res);
+    });
     // all errors in this page are here
     s.err = {};
 
@@ -703,6 +703,7 @@ angular.module('User', [])
       };
 
       Caller.Call('user.get_group', req, function (res) {
+        console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);
         }

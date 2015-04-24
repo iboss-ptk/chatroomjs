@@ -198,6 +198,8 @@ io.on('connection', function(socket){
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
 
+			console.log('user.get_group has been called');
+
 			socket.emit(data._event, {
 				success: true,
 				GroupObjList: [],
