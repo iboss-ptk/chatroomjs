@@ -44,9 +44,11 @@ io.on('connection', function(socket){
 		models.User.login(data,function(err,loginResult){
 			if(loginResult == 'authen_success'){
 				res.success = true;
+				res.UserObj = err;
+				console.log(res);
 				redis_client.set( data.username + ":token", token, function(err, redis_res) {
 					redis_client.get(data.username + ":token", function(err, redis_token){
-						socket.username = data.username
+						socket.username = data.username;
 						res._token = redis_token;
 						console.log(res);
 						io.emit(data._event, res);
