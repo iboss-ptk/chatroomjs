@@ -21,7 +21,9 @@ UserSchema.methods.get_groups = function get_groups (callback){
 
 			results.forEach(function(item){
 				Group.find({_id: mongoose.Types.ObjectId(item.group_id)},'group_name',function(err,groupObj){
-					var resolver = groupObj[0].group_name;
+					var resolver = {
+						group_name: groupObj[0].group_name,
+					};
 					--myLength;
 					groupList.push(resolver);
 					if(myLength == 0) callback(groupList);

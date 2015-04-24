@@ -1,10 +1,11 @@
 var mongoose = require("mongoose");
 
 var MessageSchema = new mongoose.Schema({
-	name: {
-		type: String,
-		index: true
-	}
+  content: String,
+  username: String,
+  group_name: String,
+  seq: Number,
+  sent_at: Date,
 });
 
 var Message = mongoose.model('Message', MessageSchema);
