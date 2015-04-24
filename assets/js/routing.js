@@ -32,7 +32,16 @@ angular.module('routing', [])
         controller: 'MessengerCtrl',
         resolve: {
           groups: function(User) {
-            return User.GetGroup();
+            var r = User.GetGroup();
+
+            r.then(function (res) {
+              console.log('groups', res);
+            }, function (err) {
+              console.log('during resloving messenger');
+              throw new Error(err);
+            });
+
+            return r;
           },
         },
       })
@@ -42,18 +51,25 @@ angular.module('routing', [])
         controller: 'GroupsCtrl',
         // restrict that only members can get access
         // to this page
-        // restrictions: [
-        //   { authorized: ROLES.member,
-        //     // if the user is not member, go to 'login' state
-        //     no: 'login' }
-        // ],
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ],
         resolve: {
           pauseAll: function (User) {
             console.log('pause all groups');
             // pause all groups
-            return User.Pause({
+            var r = User.Pause({
               group_name: null,
             });
+
+            r.then(null, function (err) {
+              console.log('during resolving groups');
+              throw new Error(err);
+            });
+
+            return r;
           },
         },
       })
@@ -63,20 +79,27 @@ angular.module('routing', [])
         controller: 'ChatCtrl',
         // restrict that only members can get access
         // to this page
-        // restrictions: [
-        //   { authorized: ROLES.member,
-        //     // if the user is not member, go to 'login' state
-        //     no: 'login' }
-        // ],
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ],
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {
             console.log('getting unread messages of : ', $stateParams.groupName);
             // we have to check whether the group exists or not
             // server should unpause this user from the group as well
-            return Message.GetUnread({
+            var r = Message.GetUnread({
               group_name: $stateParams.groupName,
             });
+
+            r.then(null, function (err) {
+              console.log('during resolving chat');
+              throw new Error(err);
+            });
+
+            return r;
           }
         },
       })

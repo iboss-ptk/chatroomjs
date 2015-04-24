@@ -128,7 +128,7 @@ angular.module('LoginCtrl', [])
           // login error
           console.log('err', err);
           // show error
-          s.err.username = s.err.password = true
+          s.err.username = s.err.password = true;
         });
     }
 
@@ -243,6 +243,9 @@ angular.module('MessengerCtrl', [])
       s.join = {};
 
       s.AskJoin = function () {
+        // clear vars
+        s.err.join = {};
+        s.join = {};
         // use timeout just get over the angular's warning message
         $timeout(function () {
           joinModal
@@ -300,6 +303,10 @@ angular.module('MessengerCtrl', [])
       s.create = {};
 
       s.AskCreate = function () {
+        // clear vars
+        s.err.create = {};
+        s.create = {};
+
         // use timeout just get over the angular's warning message
         $timeout(function () {
           createModal
@@ -367,6 +374,9 @@ angular.module('MessengerCtrl', [])
       s.err.leave = {};
 
       s.AskLeave = function () {
+        // clear varls
+        s.err.leave = {};
+
         // only at 'messenger.chat' can take this action
         if ($state.current.name !== 'messenger.chat') {
           return;
@@ -811,6 +821,9 @@ angular.module('app', [
     // for requesting
     Call: function (event, data, callback) {
       var returnEvent = GetUniqueId();
+      var timeout = setTimeout(function () {
+        console.log('this takes so looooong...', event, data);
+      }, 1000);
       // append _event to the request
       data._event = returnEvent;
       // emit
@@ -818,6 +831,7 @@ angular.module('app', [
       // wait for the return
       // send it to callback function
       socket.once(returnEvent, function (res) {
+        clearTimeout(timeout);
         callback(res);
       });
     }
@@ -970,7 +984,16 @@ angular.module('routing', [])
         controller: 'MessengerCtrl',
         resolve: {
           groups: function(User) {
-            return User.GetGroup();
+            var r = User.GetGroup();
+
+            r.then(function (res) {
+              console.log('groups', res);
+            }, function (err) {
+              console.log('during resloving messenger');
+              throw new Error(err);
+            });
+
+            return r;
           },
         },
       })
@@ -980,18 +1003,25 @@ angular.module('routing', [])
         controller: 'GroupsCtrl',
         // restrict that only members can get access
         // to this page
-        // restrictions: [
-        //   { authorized: ROLES.member,
-        //     // if the user is not member, go to 'login' state
-        //     no: 'login' }
-        // ],
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ],
         resolve: {
           pauseAll: function (User) {
             console.log('pause all groups');
             // pause all groups
-            return User.Pause({
+            var r = User.Pause({
               group_name: null,
             });
+
+            r.then(null, function (err) {
+              console.log('during resolving groups');
+              throw new Error(err);
+            });
+
+            return r;
           },
         },
       })
@@ -1001,20 +1031,27 @@ angular.module('routing', [])
         controller: 'ChatCtrl',
         // restrict that only members can get access
         // to this page
-        // restrictions: [
-        //   { authorized: ROLES.member,
-        //     // if the user is not member, go to 'login' state
-        //     no: 'login' }
-        // ],
+        restrictions: [
+          { authorized: ROLES.member,
+            // if the user is not member, go to 'login' state
+            no: 'login' }
+        ],
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {
             console.log('getting unread messages of : ', $stateParams.groupName);
             // we have to check whether the group exists or not
             // server should unpause this user from the group as well
-            return Message.GetUnread({
+            var r = Message.GetUnread({
               group_name: $stateParams.groupName,
             });
+
+            r.then(null, function (err) {
+              console.log('during resolving chat');
+              throw new Error(err);
+            });
+
+            return r;
           }
         },
       })

@@ -152,6 +152,9 @@ io.on('connection', function(socket){
 							//console.log('unhandled error');
 						}
 						console.log(res.err_msg);
+						// join him to this group
+						socket.join(data.group_name);
+						// return the value
 						socket.emit(data._event, res); // SUCCESS
 					});
 				}
@@ -222,6 +225,12 @@ io.on('connection', function(socket){
 					results.get_groups(function(groupList){
 						res.GroupObjList = groupList;
 						console.log(res.GroupObjList);
+
+						// join him the the groups in the list
+						groupList.forEach(function (group) {
+							socket.join(group.group_name);
+						});
+						// return the value
 						socket.emit(data._event,res);
 					});
 				}else{

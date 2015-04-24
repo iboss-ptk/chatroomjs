@@ -39,7 +39,7 @@ angular.module('LoginCtrl', [])
           // login error
           console.log('err', err);
           // show error
-          s.err.username = s.err.password = true
+          s.err.username = s.err.password = true;
         });
     }
 

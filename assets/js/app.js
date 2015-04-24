@@ -83,6 +83,9 @@ angular.module('app', [
     // for requesting
     Call: function (event, data, callback) {
       var returnEvent = GetUniqueId();
+      var timeout = setTimeout(function () {
+        console.log('this takes so looooong...', event, data);
+      }, 1000);
       // append _event to the request
       data._event = returnEvent;
       // emit
@@ -90,6 +93,7 @@ angular.module('app', [
       // wait for the return
       // send it to callback function
       socket.once(returnEvent, function (res) {
+        clearTimeout(timeout);
         callback(res);
       });
     }
