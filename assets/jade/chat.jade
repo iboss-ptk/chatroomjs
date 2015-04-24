@@ -12,8 +12,14 @@ script.
 			data-title="ibosz"
 			src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/10991376_10153081313289814_298485608797890658_n.jpg?oh=165c63ff1b44bc18e3bee0f5d9666b64&oe=55A32BAD&__gda__=1436492738_4a0aba731483c5bd14832789b1361d2c")
 
+		.sent-time(
+			ng-bind="message.sent_at"
+			ng-if="message.UserObj.username == User.username")
+
 		.message(ng-bind="message.content")
-		.sent-time(ng-bind="message.sent_at")
+		.sent-time(
+			ng-bind="message.sent_at"
+			ng-if="message.UserObj.username !== User.username")
 
 #message-type-box
 	form(ng-submit="Send()")
