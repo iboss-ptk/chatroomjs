@@ -18,6 +18,7 @@ var models = {
 }
 
 var redis_client = redis.createClient(6379, 'redis');
+//var redis_client = redis.createClient(6379, '127.0.0.1');
 
 app.use(express.static('assets'));
 
@@ -44,12 +45,7 @@ models.Message.findOne().sort('-seq').exec(function (err, res) {
 	});
 });
 
-<<<<<<< HEAD
-	var redis_client = redis.createClient(6379, 'redis');
-//	var redis_client = redis.createClient(6379, '127.0.0.1');
-=======
 io.on('connection', function(socket){
->>>>>>> efd76a4b2ddcebd54840b34a1e1e061ceb1d6654
 	// var validateToken = function(token, callback){
 	// 	jwt.verify(token, secret, function(err, decoded) {
 	// 		//
