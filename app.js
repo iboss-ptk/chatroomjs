@@ -42,7 +42,7 @@ io.on('connection', function(socket){
 		var token = jwt.sign(data, secret, { expiresInMinutes: 60*24*2 });
 
 		models.User.login(data,function(err,loginResult){
-			if(loginResult == 'username found'){
+			if(loginResult == 'authen_success'){
 				res.success = true;
 				redis_client.set( data.username + ":token", token, function(err, redis_res) {
 					redis_client.get(data.username + ":token", function(err, redis_token){
@@ -51,9 +51,9 @@ io.on('connection', function(socket){
 						console.log(res);
 						io.emit(data._event, res);
 					});
-					
+
 				});
-			}else if(loginResult == 'username not found'){
+			}else if(loginResult == 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
 				io.emit(data._event, res)
@@ -88,15 +88,16 @@ io.on('connection', function(socket){
 	socket.on('user.join', function(data){
 		validateToken(function(err, decoded){
 			socket.join(data.group_name);
-			console.log('join ' + data.group_name);
-			var returnObj = {
+			console.log('trying to join ' + data.group_name);
+			var res = {
 				success: err ? false : true,
 				err_msg: err
 			}
 
+
 			io.emit(data._event, returnObj);
 		});
-		
+
 
 	});
 
@@ -122,7 +123,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.logout', function(data){
-		
+
 		returnObj = {
 			success: true,
 			err_msg: []
@@ -136,7 +137,7 @@ io.on('connection', function(socket){
 				io.emit(data._event, returnObj);
 			}
 		});
-		
+
 	});
 
 
@@ -178,7 +179,7 @@ io.on('connection', function(socket){
 			console.log(returnObj);
 			io.to(data.group_name).emit(data._event, returnObj);
 		});
-	});	
+	});
 
 	socket.on('message.get_unread', function(data){
 
@@ -189,7 +190,7 @@ io.on('connection', function(socket){
 		}
 
 		io.emit(data._event, returnObj)
-	});	
+	});
 });
 
 
