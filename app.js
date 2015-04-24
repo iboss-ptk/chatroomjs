@@ -1,10 +1,13 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var redis = require('redis');
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
+var uuid = require('node-uuid');
+var extend = require('util')._extend;
 
 mongoose.connect('mongodb://mongo/chat');
 //mongoose.connect('mongodb://127.0.0.1:27017/chat');
@@ -20,11 +23,23 @@ var models = {
 var redis_client = redis.createClient(6379, 'redis');
 //var redis_client = redis.createClient(6379, '127.0.0.1');
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('assets'));
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 	console.log('successfuly request');
+});
+
+app.post('/photo', function (req, res) {
+	helper.SetData({ data: { _token: req.body._token} });
+	helper.IsLogin(data, function (UserObj) {
+
+		var fileName = req.files.display_image.name;
+		var extension = fileNmae.split('.').slice(-1)[0];
+		var serverPath = 'assets/display_images/' + UserObj.username + '.' + extension;
+
+	}, false);
 });
 
 // load last sequence from mongo
@@ -50,25 +65,67 @@ models.Message.findOne().sort('-seq').exec(function (err, res) {
 });
 
 io.on('connection', function(socket){
+	// helper function is used to verify and get data from the user
 	var helper = (function (){
-		var data = null;
 
 		return {
-			SetData: function (_data) {
-				data = _data;
+			CreateToken: function (payload, callback) {
+				var obj = {
+					session_id: uuid.v4(),
+				};
+
+				// if the payload is not an object
+				if (typeof payload !== 'object' || payload === null) {
+					payload = {};
+				}
+
+				// add to redis
+				redis_client.set(obj.session_id, payload, function (err, success) {
+					if (err) {
+						console.log('error while creating token');
+						return ;
+					}
+					var token = jwt.sign(obj, secret, { expiresInMinutes: 60*24*2 });
+					callback(token);
+				});
 			},
 
-			IsLogin: function (callback) {
+			Set: function (obj) {
+				throw new Error('deprecated');
+			},
+
+			IsLogin: function (data, callback, emit) {
+				// default
+				emit = emit || true;
+
 				jwt.verify(data._token, secret, function (err, payload) {
 					if (err) {
 						// wrong token
-						socket.emit(data._event, {
-							success: false,
-							err_msg: [ 'wrong_token' ],
-						});
+						if (emit) {
+							socket.emit(data._event, {
+								success: false,
+								err_msg: [ 'wrong_token' ],
+							});
+						}
 						return console.log(err);
 					}
-					callback(payload);
+
+					// use payload to get the information from redis
+					redis_client.get(payload.session_id, function (err, UserObj) {
+						// problem getting this entry,
+						// or the entry is empty
+						if (err || UserObj === null) {
+							if (emit) {
+								socket.emit(data._event, {
+									success: false,
+									err_msg: ['expired_token'],
+								});
+							}
+							return console.log('error while getting session from redis');
+						}
+						// this should return UserObj
+						callback(UserObj);
+					});
 				});
 			},
 		}
@@ -83,20 +140,21 @@ io.on('connection', function(socket){
 			if(loginResult == 'authen_success'){
 				var UserObj = err;
 				// the token contains only an instance of UserObj
-				var sessionToken = jwt.sign(UserObj, secret, { expiresInMinutes: 60*24*2 });
 
-				res.success = true;
-				res.UserObj = UserObj;
-				res._token = sessionToken;
+				helper.CreateToken(UserObj, function (token) {
 
-				console.log(res);
+					res.success = true;
+					res.UserObj = UserObj;
+					res._token = token;
 
-			}else if(loginResult == 'authen_failed'){
+					socket.emit(data._event, res);
+				});
+
+			}else if(loginResult === 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
+				socket.emit(data._event, res);
 			}
-
-			socket.emit(data._event, res);
 		});
 	});
 
@@ -125,12 +183,11 @@ io.on('connection', function(socket){
 
 
 	socket.on('user.join', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			var res = {};
 
 			//FIND USEROBJECT
-			models.User.findOne({username:UserObj.username},function(err,results){
+			models.User.findOne(UserObj,function(err,results){
 				if(results){
 					//GOT USER OBJ => get him in da group
 					results.getInGroup(data.group_name,function(returnMessage){
@@ -158,13 +215,16 @@ io.on('connection', function(socket){
 						socket.emit(data._event, res); // SUCCESS
 					});
 				}
+				else {
+					res.success = false;
+					socket.emit(data._event, res);
+				}
 			});
 		});
 	});
 
 	socket.on('user.leave', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			// leaving code here !
 
 			socket.emit(data._event, {
@@ -175,8 +235,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.pause', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			// user pause code here!
 
 			socket.emit(data._event, {
@@ -187,8 +246,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.logout', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			// logout code here
 			// since we don't use redis anymore
 			// logout can be done entirely at the frontend
@@ -213,14 +271,13 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.get_groups', function (data) {
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			var res = {
 					success : true ,
 					GroupObjList : []
 			};
-			console.log('user.get_group has been called');
-			models.User.findOne({username:UserObj.username},function(err,results){
+			console.log('user.get_group has been called ', UserObj);
+			models.User.findOne(UserObj,function(err,results){
 				if(results){
 					results.get_groups(function(groupList){
 						res.GroupObjList = groupList;
@@ -235,6 +292,7 @@ io.on('connection', function(socket){
 					});
 				}else{
 					//CANNOT FIND USER => CANT GET GROUP
+					console.log('results', results);
 					res.success = false;
 					socket.emit(data._event,res);
 				}
@@ -246,8 +304,7 @@ io.on('connection', function(socket){
 	//group handler
 
 	socket.on('group.create', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 
 			res = {
 				err_msg: null,
@@ -275,8 +332,7 @@ io.on('connection', function(socket){
 	//message handler
 
 	socket.on('message.send', function(data){
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 			console.log('messag send has been called !');
 			var date = new Date();
 			// get the latest id from redis
@@ -326,8 +382,7 @@ io.on('connection', function(socket){
 
 	socket.on('message.get_unread', function(data){
 
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 
 			returnObj = {
 				unread_msg: [],
@@ -342,8 +397,7 @@ io.on('connection', function(socket){
 
 	// this will return the requsted messages
 	socket.on('message.get_message', function (data) {
-		helper.SetData(data);
-		helper.IsLogin(function (UserObj) {
+		helper.IsLogin(data, function (UserObj) {
 
 			models.Message
 				.find({

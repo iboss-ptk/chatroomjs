@@ -11,6 +11,10 @@ angular.module('GroupsCtrl', [])
 
     var s = $scope;
 
-    s.err = {}
+    s.err = {};
+
+    s.OpenChat = function (group) {
+      $state.go('messenger.chat', { groupName: group.group_name });
+    }
   }
 )

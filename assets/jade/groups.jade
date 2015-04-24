@@ -1,6 +1,8 @@
-div.ui.card(
+a(ng-click="OpenChat(group)"
   ng-repeat="group in GroupObjs")
-  div.content
-    img.ui.avatar.image
-    div.text
-      h1.header(ng-bind="group.group_name")
+
+  div.ui.card
+    div.content
+      img.ui.avatar.image
+      div.text
+        h1.header(ng-bind="group.group_name")
