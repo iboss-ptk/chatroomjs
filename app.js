@@ -50,14 +50,6 @@ models.Message.findOne().sort('-seq').exec(function (err, res) {
 });
 
 io.on('connection', function(socket){
-	// var validateToken = function(token, callback){
-	// 	jwt.verify(token, secret, function(err, decoded) {
-	// 		//
-	// 		if (err) return console.log(err);
-
-	// 	});
-	// }
-
 	var helper = (function (){
 		var data = null;
 
@@ -98,15 +90,6 @@ io.on('connection', function(socket){
 				res._token = sessionToken;
 
 				console.log(res);
-				// redis_client.set( data.username + ":token", token, function(err, redis_res) {
-				// 	redis_client.get(data.username + ":token", function(err, redis_token){
-				// 		socket.username = data.username;
-				// 		res._token = redis_token;
-				// 		console.log(res);
-				// 		socket.emit(data._event, res);
-				// 	});
-
-				// });
 
 			}else if(loginResult == 'authen_failed'){
 				res.success = false;
