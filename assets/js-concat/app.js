@@ -79,6 +79,11 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
+
+    s.OpenChat = function(group) {
+    	// todo: change page
+    	$state.go();
+    }
   }
 )
 
