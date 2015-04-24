@@ -12,8 +12,11 @@ var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
 	User: require("./models/user").User,
 	GroupMember : require("./models/group_member").GroupMember,
- 	Group : require("./models/group").Group
+ 	Group : require("./models/group").Group,
+ 	Message: require('./models/message').Message,
 }
+
+var redis_client = redis.createClient(6379, 'redis');
 
 app.use(express.static('assets'));
 
@@ -22,9 +25,25 @@ app.get('/', function(req, res){
 	console.log('successfuly request');
 });
 
-io.on('connection', function(socket){
+// load last sequence from mongo
+// and update this to redis
+models.Message.findOne().sort('-seq').exec(function (err, res) {
+	if (err) {
+		throw new Error(err);
+		return ;
+	}
+	console.log('the maximum is ', res);
+	var latestSequence = res.seq;
+	redis_client.set('message_sequence', latestSequence, function(err, res) {
+		if (err) {
+			throw new Error(err);
+			return ;
+		}
+		console.log('set message_sequence to :', latestSequence);
+	});
+});
 
-	var redis_client = redis.createClient(6379, 'redis');
+io.on('connection', function(socket){
 	// var validateToken = function(token, callback){
 	// 	jwt.verify(token, secret, function(err, decoded) {
 	// 		//
@@ -82,6 +101,7 @@ io.on('connection', function(socket){
 				// 	});
 
 				// });
+
 			}else if(loginResult == 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
@@ -203,12 +223,23 @@ io.on('connection', function(socket){
 	socket.on('user.get_groups', function (data) {
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
-
+			var res = {
+					success : true ,
+					GroupObjList : []
+			};
 			console.log('user.get_group has been called');
-
-			socket.emit(data._event, {
-				success: true,
-				GroupObjList: [],
+			models.User.findOne({username:UserObj.username},function(err,results){
+				if(results){
+					results.get_groups(function(groupList){
+						res.GroupObjList = groupList;
+						console.log(res.GroupObjList);
+						socket.emit(data._event,res);
+					});
+				}else{
+					//CANNOT FIND USER => CANT GET GROUP
+					res.success = false;
+					socket.emit(data._event,res);
+				}
 			});
 		});
 	});
@@ -248,18 +279,48 @@ io.on('connection', function(socket){
 	socket.on('message.send', function(data){
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
+			console.log('messag send has been called !');
+			var date = new Date();
+			// get the latest id from redis
+			// and increase it
+			var sequence = null;
+			redis_client.incr('message_sequence', function (err, seq) {
+				sequence = seq;
+				console.log('sequence: ', seq);
 
-			var returnObj = {
-				success: true,
-				user: decoded.username,
-				_event: data._event,
-				content: data.content,
-				group_name: data.group_name,
-				err_msg: null
-			}
+				// emit the message to every client in the room
+				var message = {
+					content: data.content,
+					UserObj: UserObj,
+					GroupObj: {
+						group_name: data.group_name,
+					},
+					seq: sequence,
+					sent_at: date,
+				};
+				console.log('sending message:', message);
+				io.to(data.group_name).emit('message.receive', message);
 
-			console.log(returnObj);
-			io.to(data.group_name).emit(data._event, returnObj);
+				// save it to mongo
+				models.Message.create({
+					content: data.content,
+					username: UserObj.username,
+					group_name: data.group_name,
+					seq: sequence,
+					sent_at: date,
+				}, function (err, res) {
+					// save done
+
+					// return this result to the caller
+					console.log('finsihed!');
+					socket.emit(data._event, {
+						success: true,
+						err_msg: null,
+					});
+
+				});
+
+			});
 
 		});
 
