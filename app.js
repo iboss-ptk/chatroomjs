@@ -7,6 +7,7 @@ var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 
 mongoose.connect('mongodb://mongo/chat');
+//mongoose.connect('mongodb://127.0.0.1:27017/chat');
 
 var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
@@ -25,6 +26,7 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 
 	var redis_client = redis.createClient(6379, 'redis');
+//	var redis_client = redis.createClient(6379, '127.0.0.1');
 	// var validateToken = function(token, callback){
 	// 	jwt.verify(token, secret, function(err, decoded) {
 	// 		//
