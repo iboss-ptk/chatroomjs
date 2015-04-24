@@ -25,44 +25,69 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 
 	var redis_client = redis.createClient(6379, 'redis');
+	// var validateToken = function(token, callback){
+	// 	jwt.verify(token, secret, function(err, decoded) {
+	// 		//
+	// 		if (err) return console.log(err);
 
-	var validateToken = function(callback){
-		redis_client.get(socket.username + ":token", function(err, user_token){
-			jwt.verify(user_token, secret, function(err, decoded) {
-				if (err) {
-					redis_client.del(data.username + ":token", function(err, res){
-						console.log("token is deleted");
+	// 	});
+	// }
+
+	var helper = (function (){
+		var data = null;
+
+		return {
+			SetData: function (_data) {
+				data = _data;
+			},
+
+			IsLogin: function (callback) {
+				jwt.verify(data._token, secret, function (err, payload) {
+					if (err) {
+						// wrong token
+						socket.emit(data._event, {
+							success: false,
+							err_msg: [ 'wrong_token' ],
+						});
 						return console.log(err);
-					});
-				}
-				callback(err, decoded);
-			});
-		})
-	}
+					}
+					callback(payload);
+				});
+			},
+		}
+	}());
 
 	//user handler
 
 	socket.on('user.login', function(data){
 		var res = {};
-		var token = jwt.sign(data, secret, { expiresInMinutes: 60*24*2 });
 
 		models.User.login(data,function(err,loginResult){
-			if(loginResult == 'username found'){
+			if(loginResult == 'authen_success'){
+				var UserObj = err;
+				// the token contains only an instance of UserObj
+				var sessionToken = jwt.sign(UserObj, secret, { expiresInMinutes: 60*24*2 });
+
 				res.success = true;
-				redis_client.set( data.username + ":token", token, function(err, redis_res) {
-					redis_client.get(data.username + ":token", function(err, redis_token){
-						socket.username = data.username
-						res._token = redis_token;
-						console.log(res);
-						io.emit(data._event, res);
-					});
-					
-				});
-			}else if(loginResult == 'username not found'){
+				res.UserObj = UserObj;
+				res._token = sessionToken;
+
+				console.log(res);
+				// redis_client.set( data.username + ":token", token, function(err, redis_res) {
+				// 	redis_client.get(data.username + ":token", function(err, redis_token){
+				// 		socket.username = data.username;
+				// 		res._token = redis_token;
+				// 		console.log(res);
+				// 		io.emit(data._event, res);
+				// 	});
+
+				// });
+			}else if(loginResult == 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
-				io.emit(data._event, res)
 			}
+
+			io.emit(data._event, res);
 		});
 	});
 
@@ -91,53 +116,97 @@ io.on('connection', function(socket){
 
 
 	socket.on('user.join', function(data){
-		validateToken(function(err, decoded){
-			socket.join(data.group_name);
-			console.log('join ' + data.group_name);
-			var returnObj = {
-				success: err ? false : true,
-				err_msg: err
-			}
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+			var res = {};
 
-			io.emit(data._event, returnObj);
+			//FIND USEROBJECT
+			models.User.findOne({username:UserObj.username},function(err,results){
+				if(results){
+					//GOT USER OBJ => get him in da group
+					results.getInGroup(data.group_name,function(returnMessage){
+						res.err_msg = [returnMessage];
+						if(returnMessage == 'already_exists'){
+							res.success = false;
+							//console.log("YOU JOINED Groups = > already_exists");
+						}else if(returnMessage == 'success'){
+							res.success = true;
+							console.log('succesfull joining and create member entity');
+						}else if(returnMessage == 'group_not_found'){
+							res.success = false;
+							//console.log("GROUP NOT FOUND");
+						}else{
+							res.success = false;
+							//console.log('unhandled error');
+						}
+						console.log(res.err_msg);
+						io.emit(data._event, res); // SUCCESS
+					});
+				}
+			});
 		});
-		
-
 	});
 
 	socket.on('user.leave', function(data){
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+			// leaving code here !
 
-		returnObj = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, returnObj)
-
+			io.emit(data._event, {
+				success: true,
+				err_msg: null,
+			});
+		});
 	});
 
 	socket.on('user.pause', function(data){
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+			// user pause code here!
 
-		returnObj = {
-			success: true,
-			err_msg: null
-		}
-
-		io.emit(data._event, returnObj);
+			io.emit(data._event, {
+				success: true,
+				err_msg: null,
+			});
+		});
 	});
 
 	socket.on('user.logout', function(data){
-		returnObj = {
-			success: true,
-			err_msg: []
-		}
-
-		redis_client.del(data.username + ":token", function(err, res){
-			if (err) {
-				returnObj.success = false;
-				returnObj.err_msg.push('Can not logout. Error occured at redis.');
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+			// logout code here
+			// since we don't use redis anymore
+			// logout can be done entirely at the frontend
+			returnObj = {
+				success: true,
+				err_msg: []
 			}
+
 			io.emit(data._event, returnObj);
+
+			// redis_client.del(data.username + ":token", function(err, res){
+			// 	if (err) {
+			// 		returnObj.success = false;
+			// 		returnObj.err_msg.push('Can not logout. Error occured at redis.');
+			// 		console.log(res);
+			// 		io.emit(data._event, returnObj);
+			// 	}
+			// });
+
+		});
+
+	});
+
+	socket.on('user.get_groups', function (data) {
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+
+			console.log('user.get_group has been called');
+
+			socket.emit(data._event, {
+				success: true,
+				GroupObjList: [],
+			});
 		});
 	});
 
@@ -145,30 +214,38 @@ io.on('connection', function(socket){
 	//group handler
 
 	socket.on('group.create', function(data){
-		res = {
-			success: true,
-			err_msg: null
-		}
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
 
-		models.Group.create(data,function(err,groupCreateResult){
-			if(groupCreateResult == 'success'){
-				res.success = true;
-				console.log("New Group is Create name : "+data.group_name);
-			}else if(groupCreateResult == 'failed'){
-				res.success = false;
-				res.err_msg = err;
-				console.log("Cant Create Group :"+data.group_name+" "+err);
+			res = {
+				err_msg: null,
 			}
-			io.emit(data._event, res);
-		});
 
+			models.Group.create(data,function(err,groupCreateResult){
+
+				if(groupCreateResult == 'success'){
+					res.success = true;
+					console.log("New Group is Create name : "+data.group_name);
+
+				}else if(groupCreateResult == 'failed'){
+					res.success = false;
+					res.err_msg = ['already_exists'];
+					console.log("Cant Create Group :"+data.group_name+" "+err);
+				}
+
+				socket.emit(data._event, res);
+
+			});
+		});
 	});
 
 
 	//message handler
 
 	socket.on('message.send', function(data){
-		validateToken(function(err, decoded){
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+
 			var returnObj = {
 				success: true,
 				user: decoded.username,
@@ -177,25 +254,35 @@ io.on('connection', function(socket){
 				group_name: data.group_name,
 				err_msg: null
 			}
+
 			console.log(returnObj);
 			io.to(data.group_name).emit(data._event, returnObj);
+
 		});
-	});	
+
+	});
 
 	socket.on('message.get_unread', function(data){
 
-		returnObj = {
-			unread_msg: [],
-			success: true,
-			err_msg: null
-		}
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
 
-		io.emit(data._event, returnObj);
-	});	
+			returnObj = {
+				unread_msg: [],
+				success: true,
+				err_msg: null
+			};
+
+			io.emit(data._event, returnObj);
+		});
+
+	});
+
 
 	socket.on('disconnect', function () {
 		// pause all group if token is valid
 	});
+
 });
 
 

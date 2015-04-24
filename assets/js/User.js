@@ -23,10 +23,11 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    // var storedToken = storage[namespace + 'token'];
-    // if (storedToken) {
-    //   jwtToken = storedToken;
-    // }
+    var storedToken = storage[namespace + 'token'];
+    if (storedToken) {
+      jwtToken = storedToken;
+      console.log('stored token:', storedToken);
+    }
 
     return {
       Get: function () { return jwtToken; },
@@ -40,18 +41,34 @@ angular.module('User', [])
 
   var UserObj = (function() {
     var UserObj = null;
+
     // check local storage for old UserObj
-    // var storedUserObj = storage[namespace + 'UserObj'];
-    // if (storedUserObj) {
-    //   UserObj = JSON.parse(storedUserObj);
-    // }
+    var storedUserObj = storage[namespace + 'UserObj'];
+    if (typeof token.Get() === 'string'
+      && storedUserObj
+      // this for bug fix
+      && storedUserObj !== 'undefined'
+      ) {
+      UserObj = JSON.parse(storedUserObj);
+      console.log('stored userobj:', UserObj);
+    }
 
     return {
       Get: function () { return UserObj; },
       Set: function (_UserObj) {
+        // verify that _UserObj is an object
+        if (typeof _UserObj !== 'object' || _UserObj === null) {
+          console.log("User Object will not be set, because it's empty");
+          return ;
+        }
         // update both in mem and in local storage
         UserObj = _UserObj;
-        storage[namespace + 'UserObj'] = JSON.stringify(_UserObj);
+        storage[namespace + 'UserObj'] = JSON.stringify(UserObj);
+        console.log('stored use has been set: ', JSON.stringify(UserObj));
+      },
+      Unset: function() {
+        // remove UserObj from webstorage
+        storage.removeItem(namespace + 'UserObj');
       },
     }
   }());
@@ -122,7 +139,7 @@ angular.module('User', [])
       req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve();
+          deferred.resolve(res.GroupObj);
         }
         else {
           deferred.reject(res.err_msg);
@@ -165,24 +182,34 @@ angular.module('User', [])
     },
 
     Logout: function () {
+      var self = this;
+
       var deferred = $q.defer();
       // fabricate the request
       var req = {
         _token: token.Get(),
       };
-      Caller.Call('user.logout', req, function (res) {
-        if (res.success === true) {
-          // clear token
-          token.Set(null);
-          // clear UserObj
-          UserObj.Set(null);
 
-          deferred.resolve();
-        }
-        else {
-          deferred.reject(res.err_msg);
-        }
-      });
+      // first, tell the server to pause this user
+      self.Pause({
+        group_name: null,
+      })
+        .then(function () {
+          console.log('The user has been paused.');
+          // second, do the logout
+          Caller.Call('user.logout', req, function (res) {
+            if (res.success === true) {
+              // clear token
+              token.Set(null);
+              // clear UserObj
+              UserObj.Unset();
+              deferred.resolve();
+            }
+            else {
+              deferred.reject(res.err_msg);
+            }
+          });
+        });
 
       return deferred.promise;
     },
@@ -194,7 +221,8 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      Caller.Call('user.get_group', req, function (res) {
+      Caller.Call('user.get_groups', req, function (res) {
+        console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);
         }
@@ -202,7 +230,6 @@ angular.module('User', [])
           deferred.reject(res.err_msg);
         }
       });
-
       return deferred.promise;
     },
   }

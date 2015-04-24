@@ -12,9 +12,5 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
-
-    s.groups = User.GetGroup();
-    console.log('groups', s.groups)
-
   }
 )

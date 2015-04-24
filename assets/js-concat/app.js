@@ -13,16 +13,19 @@ angular.module('ChatCtrl', [])
   , messages) {
 
     var s = $scope;
-
+    // expose the group name
+    s.groupName = $stateParams.groupName;
+    // all the errors
     s.err = {}
 
-    // resolved from Message (in routing.js)
-    s.messages = messages;
-    console.log('messages', s.messages);
+    // all the messages in this chat
+    // we get 'messages' from the resolving state in routing.js
+    s.Messages = s.GlobalMessages[s.groupName] = messages;
 
     s.Send = function (content) {
       Message.Send({
-        group_name: $stateParams.groupName
+        group_name: s.groupName,
+        content: content,
       })
         .then(function (res) {
           // sending done!
@@ -31,7 +34,6 @@ angular.module('ChatCtrl', [])
           console.log('err', err);
         });
     }
-
   }
 )
 
@@ -73,10 +75,6 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
-
-    s.groups = User.GetGroup();
-    console.log('groups', s.groups)
-
   }
 )
 
@@ -176,27 +174,44 @@ angular.module('Message', [])
 
 angular.module('MessengerCtrl', [])
 
-.factory('MessengerService',
-  function () {
-    return {
-
-    }
-  })
-
 .controller('MessengerCtrl',
   function (
     $scope
   , $timeout
+  , socket
   , $state
   , User
-  , Group) {
+  , Group
+  , groups) {
 
-    console.log('aoeuaoeuao');
     var s = $scope;
     // expose $state to the view
     s.$state = $state;
+    // expose User to the view
+    s.UserObj = User.GetUserObj();
+    // expose User's messages
+    s.GlobalMessages = {};
+    // expose User's groups
+    s.GroupObjs = groups;
+    // s.GroupObjs = [];
     // all errors in this page are here
     s.err = {};
+
+    // Let's say that when user come
+    console.log('got into messenger ctrl');
+
+    // listen to all incoming messages
+    // and classify them to the right place
+    socket.on('message.receive', function (message) {
+      var messageGroup = message.GroupObj.group_name;
+      // if the messageGroup is not recognized
+      if (!s.GlobalMessages[messageGroup]) {
+        console.log('got a message from an unknown group');
+        return ;
+      }
+      // separatly clissify it to the right box
+      s.GlobalMessages[messageGroup].push(message);
+    });
 
     // Logout
     s.Logout = function () {
@@ -212,13 +227,68 @@ angular.module('MessengerCtrl', [])
         });
     };
 
+    (function () {
+      var joinModal = $('#messenger-join-group');
+
+      s.err.join = {};
+      s.join = {};
+
+      s.AskJoin = function () {
+        // use timeout just get over the angular's warning message
+        $timeout(function () {
+          joinModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
+      };
+
+      s.Join = function (group_name) {
+        // clear errors
+        s.err.join = {};
+        // validate
+        if (!group_name) {
+          s.err.join.group_name = true;
+          return;
+        }
+        // make request
+        User.Join({
+          group_name: group_name
+        })
+          .then(function (GroupObj) {
+            // success
+            // make a new group list
+            s.GroupObjs.push(GroupObj);
+            console.log('pushed the group: ', GroupObj);
+            // hide modal
+            joinModal.modal('hide');
+          }, function (err) {
+            // err
+            err.forEach(function (each) {
+              switch (each) {
+                case 'group_not_found':
+                  s.err.join.group_name = true;
+                  break;
+                default:
+                  console.log('err', each);
+                  break;
+              }
+            });
+          });
+      };
+    }());
+
     // Creating a new group encapsulation
     (function () {
       var createModal = $('#messenger-create-group');
       // local errors
       s.err.create = {};
       // data models
-      s.craete = {};
+      s.create = {};
 
       s.AskCreate = function () {
         // use timeout just get over the angular's warning message
@@ -244,11 +314,23 @@ angular.module('MessengerCtrl', [])
         }
         // make request
         Group.Create({
-          group_name: group_name
+          group_name: group_name,
         })
           .then(function (res) {
             // success
-            // make a new group list
+            // join into the newly craeted group
+            User.Join({
+              group_name: group_name,
+            })
+              .then(function (GroupObj) {
+                // success
+                // make a new group list
+                console.log('GroupObjs', s.GroupObjs);
+                s.GroupObjs.push(GroupObj);
+                console.log('pushed the group: ', GroupObj);
+              }, function (err) {
+                throw new Error('err', err);
+              });
 
             // hide modal
             createModal.modal('hide');
@@ -256,7 +338,7 @@ angular.module('MessengerCtrl', [])
             // err
             err.forEach(function (each) {
               switch (each) {
-                case 'duplicated_group_name':
+                case 'already_exists':
                   s.err.create.group_name = true;
                   break;
                 default:
@@ -423,10 +505,11 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    // var storedToken = storage[namespace + 'token'];
-    // if (storedToken) {
-    //   jwtToken = storedToken;
-    // }
+    var storedToken = storage[namespace + 'token'];
+    if (storedToken) {
+      jwtToken = storedToken;
+      console.log('stored token:', storedToken);
+    }
 
     return {
       Get: function () { return jwtToken; },
@@ -440,18 +523,34 @@ angular.module('User', [])
 
   var UserObj = (function() {
     var UserObj = null;
+
     // check local storage for old UserObj
-    // var storedUserObj = storage[namespace + 'UserObj'];
-    // if (storedUserObj) {
-    //   UserObj = JSON.parse(storedUserObj);
-    // }
+    var storedUserObj = storage[namespace + 'UserObj'];
+    if (typeof token.Get() === 'string'
+      && storedUserObj
+      // this for bug fix
+      && storedUserObj !== 'undefined'
+      ) {
+      UserObj = JSON.parse(storedUserObj);
+      console.log('stored userobj:', UserObj);
+    }
 
     return {
       Get: function () { return UserObj; },
       Set: function (_UserObj) {
+        // verify that _UserObj is an object
+        if (typeof _UserObj !== 'object' || _UserObj === null) {
+          console.log("User Object will not be set, because it's empty");
+          return ;
+        }
         // update both in mem and in local storage
         UserObj = _UserObj;
-        storage[namespace + 'UserObj'] = JSON.stringify(_UserObj);
+        storage[namespace + 'UserObj'] = JSON.stringify(UserObj);
+        console.log('stored use has been set: ', JSON.stringify(UserObj));
+      },
+      Unset: function() {
+        // remove UserObj from webstorage
+        storage.removeItem(namespace + 'UserObj');
       },
     }
   }());
@@ -522,7 +621,7 @@ angular.module('User', [])
       req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve();
+          deferred.resolve(res.GroupObj);
         }
         else {
           deferred.reject(res.err_msg);
@@ -565,24 +664,34 @@ angular.module('User', [])
     },
 
     Logout: function () {
+      var self = this;
+
       var deferred = $q.defer();
       // fabricate the request
       var req = {
         _token: token.Get(),
       };
-      Caller.Call('user.logout', req, function (res) {
-        if (res.success === true) {
-          // clear token
-          token.Set(null);
-          // clear UserObj
-          UserObj.Set(null);
 
-          deferred.resolve();
-        }
-        else {
-          deferred.reject(res.err_msg);
-        }
-      });
+      // first, tell the server to pause this user
+      self.Pause({
+        group_name: null,
+      })
+        .then(function () {
+          console.log('The user has been paused.');
+          // second, do the logout
+          Caller.Call('user.logout', req, function (res) {
+            if (res.success === true) {
+              // clear token
+              token.Set(null);
+              // clear UserObj
+              UserObj.Unset();
+              deferred.resolve();
+            }
+            else {
+              deferred.reject(res.err_msg);
+            }
+          });
+        });
 
       return deferred.promise;
     },
@@ -594,7 +703,8 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      Caller.Call('user.get_group', req, function (res) {
+      Caller.Call('user.get_groups', req, function (res) {
+        console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);
         }
@@ -602,7 +712,6 @@ angular.module('User', [])
           deferred.reject(res.err_msg);
         }
       });
-
       return deferred.promise;
     },
   }
@@ -850,6 +959,11 @@ angular.module('routing', [])
       .state('messenger', {
         templateUrl: 'html/messenger.template.html',
         controller: 'MessengerCtrl',
+        resolve: {
+          groups: function(User) {
+            return User.GetGroup();
+          },
+        },
       })
       .state('messenger.groups', {
         url: '/groups',
@@ -862,6 +976,15 @@ angular.module('routing', [])
         //     // if the user is not member, go to 'login' state
         //     no: 'login' }
         // ],
+        resolve: {
+          pauseAll: function (User) {
+            console.log('pause all groups');
+            // pause all groups
+            return User.Pause({
+              group_name: null,
+            });
+          },
+        },
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',
@@ -877,15 +1000,12 @@ angular.module('routing', [])
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {
-            console.log('aoeuaoeu');
+            console.log('getting unread messages of : ', $stateParams.groupName);
             // we have to check whether the group exists or not
+            // server should unpause this user from the group as well
             return Message.GetUnread({
               group_name: $stateParams.groupName,
-            })
-              .then(null, function (err) {
-                console.log('err', err);
-                // tell the user that he's requesting the unknown group
-              });
+            });
           }
         },
       })

@@ -151,7 +151,12 @@ body {
         #messenger-wrapper .nav .avatar-wrapper .name .browse {
           display: inline-block; }
         #messenger-wrapper .nav .avatar-wrapper .name .popup .header {
-          margin: 0px; }
+          margin: 0px;
+          padding: 0px;
+          font-weight: normal; }
+        #messenger-wrapper .nav .avatar-wrapper .name .popup .list a {
+          font-size: 1.5rem;
+          font-weight: bold; }
 
 #register-wrapper {
   text-align: center;
@@ -168,3 +173,9 @@ body {
         background-color: #dbb1b1; }
       #register-wrapper .wrapper .row .label .icon {
         margin: 0px 3px; }
+      #register-wrapper .wrapper .row .image-uploader {
+        margin: auto auto;
+        height: 150px;
+        width: 150px;
+        background-color: #fafafa;
+        border-radius: 100%; }
