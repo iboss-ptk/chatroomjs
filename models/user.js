@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
 
 var UserSchema = new mongoose.Schema({
-	name: {
+	username: {
 		type: String,
 		index: true
 	},
@@ -12,7 +12,7 @@ var UserSchema = new mongoose.Schema({
 //Register Function
 UserSchema.statics.register = function(data, callback){
 	var returnObject = {};
-	user = new User({ name: data.username, disp_name: data.disp_name ,password: data.password});
+	user = new User({ username: data.username, disp_name: data.disp_name ,password: data.password});
 	//Save After UserSchema.pre (please see UserSchema.pre)
 	user.save(function (err, user) {
 		if (err){
@@ -40,7 +40,7 @@ UserSchema.statics.login = function(data,callback){
 var User = mongoose.model('User', UserSchema);
 
 UserSchema.pre("save", function(next) {
-	User.findOne({name : this.name},'name', function(err, results) {
+	User.findOne({username : this.username},'username', function(err, results) {
 		if(err) {
 			//Another Error
 			next(err);
