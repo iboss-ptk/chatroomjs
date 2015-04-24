@@ -12,10 +12,28 @@ var UserSchema = new mongoose.Schema({
 	password : String
 });
 
-UserSchema.methods.listGroup = function listGroup (callback){
-	//return this.model('Animal').find({ type: this.type }, callback);
+UserSchema.methods.get_groups = function get_groups (callback){
+	console.log("get in getgroup");
+	var groupList = [];
+	GroupMember.find({user_id:this._id},'group_id',function(err,results){
+		if(results){
+			var myLength = results.length;
 
-	//callback(groupList);
+			results.forEach(function(item){
+				Group.find({_id: mongoose.Types.ObjectId(item.group_id)},'group_name',function(err,groupObj){
+					var resolver = groupObj[0].group_name;
+					--myLength;
+					groupList.push(resolver);
+					if(myLength == 0) callback(groupList);
+				});
+			});
+
+		}else{
+				console.log('no id match in groupmember');
+				callback(groupList);
+		}
+	});
+
 }
 
 UserSchema.methods.getInGroup = function getInGroup (group_name,callback) {

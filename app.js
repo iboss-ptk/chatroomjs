@@ -43,6 +43,7 @@ io.on('connection', function(socket){
 
 		models.User.login(data,function(err,loginResult){
 			if(loginResult == 'authen_success'){
+
 				res.success = true;
 				res.UserObj = err;
 				console.log(res);
@@ -53,7 +54,6 @@ io.on('connection', function(socket){
 						console.log(res);
 						io.emit(data._event, res);
 					});
-
 				});
 			}else if(loginResult == 'authen_failed'){
 				res.success = false;
@@ -99,6 +99,11 @@ io.on('connection', function(socket){
 			//FIND USEROBJECT
 				models.User.findOne({username:decoded.username},function(err,results){
 					if(results){
+						//@@@@@@@@@@@@@@@@@@@@@@@@@@@
+						results.get_groups(function(groupList){
+							console.log(groupList);
+						});
+						//@@@@@@@@@@@@@@@@@@@@@@@@@@@
 						//GOT USER OBJ => get him in da group
 						results.getInGroup(data.group_name,function(returnMessage){
 							res.err_msg = [returnMessage];
