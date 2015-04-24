@@ -204,6 +204,8 @@ angular.module('MessengerCtrl', [])
         .then(function (res) {
           // logout success
           console.log('logout success');
+          // redirect to login
+          $state.go('login');
         }, function (err) {
           // logout err
           console.log('logout fail', err);
