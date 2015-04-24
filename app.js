@@ -125,11 +125,6 @@ io.on('connection', function(socket){
 			models.User.findOne({username:UserObj.username},function(err,results){
 				if(results){
 					//GOT USER OBJ => get him in da group
-					//@@@@@@@@@@@@@@@@@@@@@@@@@@@
-					results.get_groups(function(groupList){
-						console.log(groupList);
-					});
-					//@@@@@@@@@@@@@@@@@@@@@@@@@@@
 					results.getInGroup(data.group_name,function(returnMessage){
 						res.err_msg = [returnMessage];
 						res.GroupObj = {
