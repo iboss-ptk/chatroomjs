@@ -7,7 +7,6 @@ var GroupSchema = new mongoose.Schema({
 
 GroupSchema.statics.create = function(data,callback){
 	group = new Group({group_name: data.group_name});
-
 	group.save(function(err,_group){
 		if(err){
 			callback(err,'failed');
@@ -27,17 +26,16 @@ var Group = mongoose.model('Group', GroupSchema);
 
 GroupSchema.pre("save", function(next) {
     Group.findOne({group_name : this.group_name},'group_name', function(err, results) {
-			console.log("result = "+results);
         if(err) {
-					 console.log("IF SECTION");
+					 console.log("IF SECTION = "+results);
             next(err);
         } else if(results) {
             //IF ROOM IS ALREADY CREATED
-						console.log("ELSE IF SECTION");
+						console.log("ELSE IF SECTION = "+results);
 						next(new Error("Group Already Exists : Joining Group " + results.group_name));
         } else {
 						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
-						console.log("ELSE SECTION");
+						console.log("ELSE SECTION = "+results);
             next();
         }
     });

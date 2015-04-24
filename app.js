@@ -39,26 +39,25 @@ io.on('connection', function(socket){
 	//user handler
 
 	socket.on('user.login', function(data){
-
-
+		var res = {};
 		var token = jwt.sign(data, secret, { expiresInMinutes: 60*24*2 });
-		redis_client.set( data.username + ":token",token , function(err, res) {
 
-			socket.username = data.username
-
-			var returnObj = {
-				_token: token,
-				success: err ? false : true,
-				err_msg: err,
-				UserObj: 'obj'
+		models.User.login(data,function(err,loginResult){
+			if(loginResult == 'username found'){
+				res.success = true;
+				redis_client.set( data.username + ":token", token, function(err, res) {
+					socket.username = data.username
+					redis_client.get(data.username + ":token", function(err, res){
+						console.log(res);
+					});
+					io.emit(data._event, res)
+				});
+			}else if(loginResult == 'username not found'){
+				res.success = false;
+				res.err_msg = err;
+				io.emit(data._event, res)
 			}
-
-			console.log(returnObj);
-			redis_client.get(data.username + ":token", function(err, res){
-				console.log(res);
-			});
-			io.emit(data._event, returnObj)
-		})
+		});
 	});
 
 	socket.on('user.register', function(data){
@@ -67,17 +66,20 @@ io.on('connection', function(socket){
 			success: true,
 			err_msg: null
 		}
-			models.User.register(data,function(err,registerResult){
-				if(registerResult == 'error'){
-					res.success = false;
-					res.err_msg = err;
-					console.log("Failed To Register");
-				}else if(registerResult == 'success'){
-					res.success = true;
-					console.log("User Register success");
-				}
-				io.emit(data._event, res)
-			});
+
+		models.User.register(data,function(err,registerResult){
+			if(registerResult == 'error'){
+				var err_msg = [];
+				err_msg.push(err);
+				res.success = false;
+				res.err_msg = err_msg;
+				console.log(err_msg);
+			}else if(registerResult == 'success'){
+				res.success = true;
+				console.log("User Register success");
+			}
+			io.emit(data._event, res);
+		});
 	});
 
 
