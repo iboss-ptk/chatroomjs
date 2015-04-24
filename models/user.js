@@ -16,9 +16,10 @@ UserSchema.statics.register = function(data,callback){
 	//Save After UserSchema.pre (please see UserSchema.pre)
 	user.save(function (err, user) {
 			if (err){
-					callback(err,'error');
+
+					callback('duplicated_username','error');
 			}else{
-					callback(err,'success');
+					callback('okay','success');
 			}
 	});
 }
@@ -27,6 +28,7 @@ UserSchema.statics.register = function(data,callback){
 UserSchema.statics.login = function(data,callback){
 	User.findOne({username : data.username},'username', function(err, results) {
 			if(!results){
+				//err.username_not_found = true;
 				callback(err,'username not found');
 			}else{
 				callback(err,'username found');
@@ -44,7 +46,8 @@ UserSchema.pre("save", function(next) {
             next(err);
         } else if(results) {
             //IF USER IS ALREADY CREATED
-						next(new Error("User Already Exists :" + results.username));
+						//next(new Error("User Already Exists :" + results.username));
+						next(new Error("duplicated_username"));
         } else {
 						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
 						//NO ERROR INPUT TO NEXT

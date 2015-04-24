@@ -35,7 +35,7 @@ io.on('connection', function(socket){
 			_token: 'JNU^TFYTHGJNKHVKGC',
 			success: true,
 			err_msg: null,
-			UserObj: 'obj'
+			UserObj: 'obj' //realobject
 		}
 		models.User.login(data,function(err,loginResult){
 			if(loginResult == 'username found'){
@@ -49,6 +49,7 @@ io.on('connection', function(socket){
 
 	});
 
+
 	socket.on('user.register', function(data){
 
 			res = {
@@ -57,14 +58,16 @@ io.on('connection', function(socket){
 			}
 				models.User.register(data,function(err,registerResult){
 					if(registerResult == 'error'){
+						var err_msg = [];
+						err_msg.push(err);
 						res.success = false;
-						res.err_msg = err;
-						console.log("Failed To Register");
+						res.err_msg = err_msg;
+						console.log(err_msg);
 					}else if(registerResult == 'success'){
 						res.success = true;
 						console.log("User Register success");
 					}
-					io.emit(data._event, res)
+					io.emit(data._event, res);
 				});
 		});
 
