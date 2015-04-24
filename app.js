@@ -16,6 +16,8 @@ var models = {
  	Message: require('./models/message').Message,
 }
 
+var redis_client = redis.createClient(6379, 'redis');
+
 app.use(express.static('assets'));
 
 app.get('/', function(req, res){
@@ -25,24 +27,23 @@ app.get('/', function(req, res){
 
 // load last sequence from mongo
 // and update this to redis
-models.Message.findOne().sort('seq').run(function (err, res) {
+models.Message.findOne().sort('-seq').exec(function (err, res) {
 	if (err) {
 		throw new Error(err);
 		return ;
 	}
+	console.log('the maximum is ', res);
 	var latestSequence = res.seq;
 	redis_client.set('message_sequence', latestSequence, function(err, res) {
 		if (err) {
 			throw new Error(err);
 			return ;
 		}
-		console.log('set message_sequence to :', res);
+		console.log('set message_sequence to :', latestSequence);
 	});
 });
 
 io.on('connection', function(socket){
-
-	var redis_client = redis.createClient(6379, 'redis');
 	// var validateToken = function(token, callback){
 	// 	jwt.verify(token, secret, function(err, decoded) {
 	// 		//
@@ -100,6 +101,7 @@ io.on('connection', function(socket){
 				// 	});
 
 				// });
+
 			}else if(loginResult == 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
@@ -221,12 +223,23 @@ io.on('connection', function(socket){
 	socket.on('user.get_groups', function (data) {
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
-
+			var res = {
+					success : true ,
+					GroupObjList : []
+			};
 			console.log('user.get_group has been called');
-
-			socket.emit(data._event, {
-				success: true,
-				GroupObjList: [],
+			models.User.findOne({username:UserObj.username},function(err,results){
+				if(results){
+					results.get_groups(function(groupList){
+						res.GroupObjList = groupList;
+						console.log(res.GroupObjList);
+						socket.emit(data._event,res);
+					});
+				}else{
+					//CANNOT FIND USER => CANT GET GROUP
+					res.success = false;
+					socket.emit(data._event,res);
+				}
 			});
 		});
 	});
