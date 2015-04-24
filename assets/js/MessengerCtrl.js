@@ -9,7 +9,8 @@ angular.module('MessengerCtrl', [])
   , socket
   , $state
   , User
-  , Group) {
+  , Group
+  , groups) {
 
     var s = $scope;
     // expose $state to the view
@@ -19,7 +20,8 @@ angular.module('MessengerCtrl', [])
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
-    s.GroupObjs = User.GetGroup();
+    s.GroupObjs = groups;
+    // s.GroupObjs = [];
     // all errors in this page are here
     s.err = {};
 
@@ -151,6 +153,7 @@ angular.module('MessengerCtrl', [])
               .then(function (GroupObj) {
                 // success
                 // make a new group list
+                console.log('GroupObjs', s.GroupObjs);
                 s.GroupObjs.push(GroupObj);
                 console.log('pushed the group: ', GroupObj);
               }, function (err) {

@@ -30,6 +30,11 @@ angular.module('routing', [])
       .state('messenger', {
         templateUrl: 'html/messenger.template.html',
         controller: 'MessengerCtrl',
+        resolve: {
+          groups: function(User) {
+            return User.GetGroup();
+          },
+        },
       })
       .state('messenger.groups', {
         url: '/groups',
@@ -49,7 +54,7 @@ angular.module('routing', [])
             return User.Pause({
               group_name: null,
             });
-          }
+          },
         },
       })
       .state('messenger.chat', {
@@ -71,13 +76,7 @@ angular.module('routing', [])
             // server should unpause this user from the group as well
             return Message.GetUnread({
               group_name: $stateParams.groupName,
-            })
-              .then(null, function (err) {
-                err.forEach(function (err) {
-                  console.log('err', err);
-                });
-                // tell the user that he's requesting the unknown group
-              });
+            });
           }
         },
       })

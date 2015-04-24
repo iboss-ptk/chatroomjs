@@ -12,7 +12,5 @@ angular.module('GroupsCtrl', [])
     var s = $scope;
 
     s.err = {}
-
-    console.log('groups: ', s.GroupObjs);
   }
 )
