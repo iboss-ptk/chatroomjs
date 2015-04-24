@@ -30,7 +30,6 @@ UserSchema.methods.getInGroup = function getInGroup (group_name,callback) {
 		}
 		else{
 			//unhandled , another error which not handle
-			console.log("UNHANDLE");
 			callback('error');
 		}
 	});

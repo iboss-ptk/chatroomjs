@@ -129,14 +129,18 @@ io.on('connection', function(socket){
 						res.err_msg = [returnMessage];
 						if(returnMessage == 'already_exists'){
 							res.success = false;
-							console.log("YOU JOINED Groups = > already_exists");
+							//console.log("YOU JOINED Groups = > already_exists");
 						}else if(returnMessage == 'success'){
 							res.success = true;
 							console.log('succesfull joining and create member entity');
+						}else if(returnMessage == 'group_not_found'){
+							res.success = false;
+							//console.log("GROUP NOT FOUND");
 						}else{
 							res.success = false;
-							console.log('unhandled error');
+							//console.log('unhandled error');
 						}
+						console.log(res.err_msg);
 						io.emit(data._event, res); // SUCCESS
 					});
 				}
@@ -194,7 +198,7 @@ io.on('connection', function(socket){
 
 	});
 
-	socket.on('user.get_group', function (data) {
+	socket.on('user.get_groups', function (data) {
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
 
@@ -216,25 +220,25 @@ io.on('connection', function(socket){
 		helper.IsLogin(function (UserObj) {
 
 			res = {
-				success: true,
-				err_msg: null
+				err_msg: null,
 			}
 
 			models.Group.create(data,function(err,groupCreateResult){
-				var UserObj;
+
 				if(groupCreateResult == 'success'){
 					res.success = true;
 					console.log("New Group is Create name : "+data.group_name);
+
 				}else if(groupCreateResult == 'failed'){
 					res.success = false;
 					res.err_msg = ['already_exists'];
 					console.log("Cant Create Group :"+data.group_name+" "+err);
 				}
-				io.emit(data._event, res);
+
+				socket.emit(data._event, res);
+
 			});
-
 		});
-
 	});
 
 

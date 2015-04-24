@@ -139,7 +139,7 @@ angular.module('User', [])
       req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve();
+          deferred.resolve(res.GroupObj);
         }
         else {
           deferred.reject(res.err_msg);
@@ -221,7 +221,7 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      Caller.Call('user.get_group', req, function (res) {
+      Caller.Call('user.get_groups', req, function (res) {
         console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);

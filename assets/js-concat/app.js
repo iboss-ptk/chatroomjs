@@ -181,7 +181,8 @@ angular.module('MessengerCtrl', [])
   , socket
   , $state
   , User
-  , Group) {
+  , Group
+  , groups) {
 
     var s = $scope;
     // expose $state to the view
@@ -191,9 +192,8 @@ angular.module('MessengerCtrl', [])
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
-    s.GroupObjs = User.GetGroup().then(function (res) {
-      console.log('groupobjectslist: ', res);
-    });
+    s.GroupObjs = groups;
+    // s.GroupObjs = [];
     // all errors in this page are here
     s.err = {};
 
@@ -325,6 +325,7 @@ angular.module('MessengerCtrl', [])
               .then(function (GroupObj) {
                 // success
                 // make a new group list
+                console.log('GroupObjs', s.GroupObjs);
                 s.GroupObjs.push(GroupObj);
                 console.log('pushed the group: ', GroupObj);
               }, function (err) {
@@ -620,7 +621,7 @@ angular.module('User', [])
       req._token = token.Get();
       Caller.Call('user.join', req, function (res) {
         if (res.success === true) {
-          deferred.resolve();
+          deferred.resolve(res.GroupObj);
         }
         else {
           deferred.reject(res.err_msg);
@@ -702,7 +703,7 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      Caller.Call('user.get_group', req, function (res) {
+      Caller.Call('user.get_groups', req, function (res) {
         console.log('result from getgroup:', res);
         if (res.success === true) {
           deferred.resolve(res.GroupObjList);
@@ -958,6 +959,11 @@ angular.module('routing', [])
       .state('messenger', {
         templateUrl: 'html/messenger.template.html',
         controller: 'MessengerCtrl',
+        resolve: {
+          groups: function(User) {
+            return User.GetGroup();
+          },
+        },
       })
       .state('messenger.groups', {
         url: '/groups',
@@ -977,7 +983,7 @@ angular.module('routing', [])
             return User.Pause({
               group_name: null,
             });
-          }
+          },
         },
       })
       .state('messenger.chat', {
@@ -999,13 +1005,7 @@ angular.module('routing', [])
             // server should unpause this user from the group as well
             return Message.GetUnread({
               group_name: $stateParams.groupName,
-            })
-              .then(null, function (err) {
-                err.forEach(function (err) {
-                  console.log('err', err);
-                });
-                // tell the user that he's requesting the unknown group
-              });
+            });
           }
         },
       })
