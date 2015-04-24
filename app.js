@@ -12,7 +12,8 @@ var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
 	User: require("./models/user").User,
 	GroupMember : require("./models/group_member").GroupMember,
- 	Group : require("./models/group").Group
+ 	Group : require("./models/group").Group,
+ 	Message: require('./models/message').Message,
 }
 
 app.use(express.static('assets'));
@@ -20,6 +21,23 @@ app.use(express.static('assets'));
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 	console.log('successfuly request');
+});
+
+// load last sequence from mongo
+// and update this to redis
+models.Message.findOne().sort('seq').run(function (err, res) {
+	if (err) {
+		throw new Error(err);
+		return ;
+	}
+	var latestSequence = res.seq;
+	redis_client.set('message_sequence', latestSequence, function(err, res) {
+		if (err) {
+			throw new Error(err);
+			return ;
+		}
+		console.log('set message_sequence to :', res);
+	});
 });
 
 io.on('connection', function(socket){
@@ -248,18 +266,48 @@ io.on('connection', function(socket){
 	socket.on('message.send', function(data){
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
+			console.log('messag send has been called !');
+			var date = new Date();
+			// get the latest id from redis
+			// and increase it
+			var sequence = null;
+			redis_client.incr('message_sequence', function (err, seq) {
+				sequence = seq;
+				console.log('sequence: ', seq);
 
-			var returnObj = {
-				success: true,
-				user: decoded.username,
-				_event: data._event,
-				content: data.content,
-				group_name: data.group_name,
-				err_msg: null
-			}
+				// emit the message to every client in the room
+				var message = {
+					content: data.content,
+					UserObj: UserObj,
+					GroupObj: {
+						group_name: data.group_name,
+					},
+					seq: sequence,
+					sent_at: date,
+				};
+				console.log('sending message:', message);
+				io.to(data.group_name).emit('message.receive', message);
 
-			console.log(returnObj);
-			io.to(data.group_name).emit(data._event, returnObj);
+				// save it to mongo
+				models.Message.create({
+					content: data.content,
+					username: UserObj.username,
+					group_name: data.group_name,
+					seq: sequence,
+					sent_at: date,
+				}, function (err, res) {
+					// save done
+
+					// return this result to the caller
+					console.log('finsihed!');
+					socket.emit(data._event, {
+						success: true,
+						err_msg: null,
+					});
+
+				});
+
+			});
 
 		});
 
