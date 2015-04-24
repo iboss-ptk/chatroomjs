@@ -26,12 +26,11 @@ UserSchema.statics.register = function(data, callback){
 
 //Login Function
 UserSchema.statics.login = function(data,callback){
-	User.findOne({username : data.username},'username', function(err, results) {
+	User.findOne({username : data.username , password : data.password},{'username' :1 , 'disp_name':1}, function(err, results) {
 		if(!results){
-			//err.username_not_found = true;
-			callback(err,'username not found');
+			callback(err,'authen_failed');
 		}else{
-			callback(err,'username found');
+			callback(results,'authen_success');
 		}
 	});
 }
