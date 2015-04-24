@@ -45,12 +45,14 @@ io.on('connection', function(socket){
 		models.User.login(data,function(err,loginResult){
 			if(loginResult == 'username found'){
 				res.success = true;
-				redis_client.set( data.username + ":token", token, function(err, res) {
-					socket.username = data.username
-					redis_client.get(data.username + ":token", function(err, res){
+				redis_client.set( data.username + ":token", token, function(err, redis_res) {
+					redis_client.get(data.username + ":token", function(err, redis_token){
+						socket.username = data.username
+						res._token = redis_token;
 						console.log(res);
+						io.emit(data._event, res);
 					});
-					io.emit(data._event, res)
+					
 				});
 			}else if(loginResult == 'username not found'){
 				res.success = false;
@@ -76,6 +78,7 @@ io.on('connection', function(socket){
 				console.log(err_msg);
 			}else if(registerResult == 'success'){
 				res.success = true;
+
 				console.log("User Register success");
 			}
 			io.emit(data._event, res);
