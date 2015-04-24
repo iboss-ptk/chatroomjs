@@ -34,6 +34,10 @@ models.Message.findOne().sort('-seq').exec(function (err, res) {
 		throw new Error(err);
 		return ;
 	}
+	// message not found
+	if (!res) {
+		return ;
+	}
 	console.log('the maximum is ', res);
 	var latestSequence = res.seq;
 	redis_client.set('message_sequence', latestSequence, function(err, res) {
