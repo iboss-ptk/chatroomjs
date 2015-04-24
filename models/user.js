@@ -10,20 +10,22 @@ var UserSchema = new mongoose.Schema({
 });
 
 //Register Function
-UserSchema.statics.register = function(data,returnObject){
-
-	user = new User({ name: data.name, disp_name: data.name ,password: data.password});
+UserSchema.statics.register = function(data){
+	var returnObject = {};
+	user = new User({ name: data.username, disp_name: data.disp_name ,password: data.password});
 	//Save After UserSchema.pre (please see UserSchema.pre)
 	user.save(function (err, user) {
 			if (err){
-					returnObject.success = false,
-					returnObject.err_msg = err
-					console.error(err);
+				returnObject.success = false,
+				returnObject.err_msg = err
+				console.error(err);
 			}else{
-					console.log("New User %s is CREATED", user.name);
-					returnObject.success = true;
+				console.log("New User %s is CREATED", user.name);
+				returnObject.success = true;
 			}
 	});
+
+	return returnObject;
 }
 
 //After Define Function Then Packed it in modelSchema
