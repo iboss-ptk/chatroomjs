@@ -29,7 +29,6 @@ io.on('connection', function(socket){
 	var validateToken = function(callback){
 		redis_client.get(socket.username + ":token", function(err, user_token){
 			jwt.verify(user_token, secret, function(err, decoded) {
-				redis_client
 				if (err) return console.log(err);
 				callback(err, decoded);
 			});
@@ -123,13 +122,21 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.logout', function(data){
-
+		
 		returnObj = {
 			success: true,
-			err_msg: null
+			err_msg: []
 		}
 
-		io.emit(data._event, returnObj);
+		redis_client.del(data.username + ":token", function(err, res){
+			if (err) {
+				returnObj.success = false;
+				returnObj.err_msg.push('Can not logout. Error occured at redis.');
+				console.log(res);
+				io.emit(data._event, returnObj);
+			}
+		});
+		
 	});
 
 
