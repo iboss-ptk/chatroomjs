@@ -904,6 +904,23 @@ angular.module('directives', [])
   }
 })
 
+.directive('ngEnter', function () {
+  return {
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      element.bind('keydown keypress', function (event) {
+        if (event.which === 13) {
+          scope.$apply(function () {
+            scope.$eval(attrs.ngEnter);
+          });
+
+          event.preventDefault();
+        }
+      });
+    },
+  }
+});
+
 // var socket = io();
 // var offset = 0;
 // var h = 0;

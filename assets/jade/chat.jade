@@ -17,7 +17,9 @@ script.
 
 #message-type-box
 	form(ng-submit="Send()")
-		textarea.type-box(ng-model="content")
+		textarea.type-box(
+			ng-enter="Send()"
+			ng-model="content")
 		button#send-button.ui.teal.button(
 			type="submit")
 			| Send
