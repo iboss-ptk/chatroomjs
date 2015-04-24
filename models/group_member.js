@@ -17,30 +17,31 @@ GroupMemberSchema.statics.create = function(data,callback){
 	var resolved_group_id = 0;
 	//FIND GROUP BY data.group_name
 	Group.findOne({group_name:data.group_name},function(err,results){
+		console.log(results);
 		if(!results){
 			callback('group_not_found');
 		}else{
 			resolved_group_id = results._id;
+			//GOT resolved_group_id
+			groupMember = new GroupMember(
+				{
+					user_id  : data.user_id ,
+					group_id : mongoose.Types.ObjectId(resolved_group_id)
+				});
+			//console.log(groupMember);
+			groupMember.save(function(err){
+				if(err){
+					//return unhandled error
+					callback('already_exists');
+				}else{
+					//SUCCESS SAVED
+					callback("group_member_created");
+				}
+			});
 		}
 	});
 
-	//GOT resolved_group_id
-	groupMember = new GroupMember(
-		{
-			user_id  : data.user_id ,
-			group_id : mongoose.Types.ObjectId(resolved_group_id)
-		});
-	//console.log(groupMember);
-	groupMember.save(function(err){
-		if(err){
-			//return unhandled error
-			console.log(err);
-			callback(err);
-		}else{
-			//SUCCESS SAVED
-			callback("group_member_created");
-		}
-	});
+
 }
 
 

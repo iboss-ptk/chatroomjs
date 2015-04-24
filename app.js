@@ -97,24 +97,25 @@ io.on('connection', function(socket){
 			}
 
 			//FIND USEROBJECT
-				models.User.findOne({username:decoded_result.username},function(err,results){
+				models.User.findOne({username:decoded.username},function(err,results){
 					if(results){
 						//GOT USER OBJ => get him in da group
 						results.getInGroup(data.group_name,function(returnMessage){
 							res.err_msg = [returnMessage];
-							if(returnMessage == 'group_not_found'){
+							if(returnMessage == 'already_exists'){
 								res.success = false;
-								console.log("group not found");
+								console.log("YOU JOINED Groups = > already_exists");
 							}else if(returnMessage == 'success'){
 								console.log('succesfull joining and create member entity');
 							}else{
 								res.success = false;
 								console.log('unhandled error');
 							}
+							io.emit(data._event, res); // SUCCESS
 						});
 					}
 				});
-				io.emit(data._event, res); // SUCCESS
+
 	});
 });
 
