@@ -204,6 +204,6 @@ angular.module('User', [])
       });
 
       return deferred.promise;
-    }
+    },
   }
 })

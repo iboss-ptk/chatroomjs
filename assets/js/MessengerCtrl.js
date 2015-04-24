@@ -24,11 +24,6 @@ angular.module('MessengerCtrl', [])
     // all errors in this page are here
     s.err = {};
 
-    // Check if the user is leaving...
-    $(window).bind('beforeunload', function () {
-      alert('dont goo');
-    });
-
     // Logout
     s.Logout = function () {
       User.Logout()
@@ -39,7 +34,7 @@ angular.module('MessengerCtrl', [])
           // logout err
           console.log('logout fail', err);
         });
-    }
+    };
 
     // Creating a new group encapsulation
     (function () {
@@ -61,7 +56,7 @@ angular.module('MessengerCtrl', [])
             })
             .modal('show');
         });
-      }
+      };
 
       s.Create = function (group_name) {
         // clear errors
@@ -120,7 +115,7 @@ angular.module('MessengerCtrl', [])
             })
             .modal('show');
         });
-      }
+      };
 
       s.Leave = function (group_name) {
         // clear errors
@@ -148,7 +143,7 @@ angular.module('MessengerCtrl', [])
               console.log('err', each);
             })
           })
-      }
+      };
     }());
 
   })
