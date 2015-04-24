@@ -25,7 +25,6 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
 
 	var redis_client = redis.createClient(6379, 'redis');
-
 	// var validateToken = function(token, callback){
 	// 	jwt.verify(token, secret, function(err, decoded) {
 	// 		//
@@ -211,7 +210,6 @@ io.on('connection', function(socket){
 				success: true,
 				GroupObjList: [],
 			});
-
 		});
 	});
 
@@ -281,6 +279,11 @@ io.on('connection', function(socket){
 			io.emit(data._event, returnObj);
 		});
 
+	});
+
+
+	socket.on('disconnect', function () {
+		// pause all group if token is valid
 	});
 
 });

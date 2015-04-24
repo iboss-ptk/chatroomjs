@@ -1,0 +1,72 @@
+@import "bourbon/bourbon"
+
+#messenger-chat
+  padding: 50px 50px
+  padding-bottom: 70px
+  overflow: scroll
+  height: 100%
+
+  .message-wrapper
+    float: right
+    clear: both
+    max-width: 45%
+  
+    .message
+      max-width: 100%
+      font-size: 1.2em
+      word-break: break-all
+      overflow-wrap: break-word
+      hyphens: auto;
+      white-space: pre
+      display:inline
+      padding: 10px 10px
+      margin-bottom: 30px
+      background-color: #C8F7C5
+      border-radius: 5px
+      display: inline-block
+
+    .sent-time
+      vertical-align: middle
+      display: inline-block
+      margin-left: 10px
+      margin-right: 10px
+      color: white
+      font-size: 1em
+      
+
+  .message-wrapper.other-message
+    float: left
+
+    .avatar
+      border-radius: 100%
+
+    .message
+      vertical-align: middle
+      background-color: white
+      margin-left: 20px
+
+#message-type-box
+  position: fixed
+  bottom: 0
+  padding: 17px 10px
+  padding-left: 75px
+  margin-left: -2%
+  background-color: white
+  height: 60px
+  width: 98%
+  opacity: 0.8
+    
+  textarea.type-box
+    box-sizing: border-box
+    font-size: 1.2em
+    width: 67%
+    height: auto
+    border-collapse: collapse
+    border: none
+    outline: none
+    resize: none
+
+  #send-button
+    position: fixed
+    bottom: 13px
+    right: 425px
