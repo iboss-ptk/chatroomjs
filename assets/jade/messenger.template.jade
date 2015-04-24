@@ -1,5 +1,7 @@
 //- join modal
-div#messenger-join-group.ui.modal
+form#messenger-join-group.ui.modal(
+  ng-submit="Join(join.group_name)")
+
   i.close.icon
   div.content
     h1
@@ -16,15 +18,18 @@ div#messenger-join-group.ui.modal
       div.ui.corner.label
         i.asterisk.icon
   div.actions
-    div.ui.black.button
+    button.ui.black.button(
+      type="button")
       | Nope
-    div.ui.positive.right.labeled.icon.button(
-      ng-click="Join(join.group_name)")
+    button.ui.positive.right.labeled.icon.button(
+      type="submit")
       | Let me in already :)
       i.checkmark.icon
 
 //- create modals
-div#messenger-create-group.ui.modal
+form#messenger-create-group.ui.modal(
+  ng-submit="Create(create.group_name)")
+
   i.close.icon
   div.content
     h1 I wanna start this group chat ...
@@ -38,10 +43,11 @@ div#messenger-create-group.ui.modal
       div.ui.corner.label
         i.asterisk.icon
   div.actions
-    div.ui.black.button
+    button.ui.black.button(
+      type="button")
       | Nope
-    div.ui.positive.right.labeled.icon.button(
-      ng-click="Create(create.group_name)")
+    button.ui.positive.right.labeled.icon.button(
+      type="submit")
       | Create it for me!!!
       i.checkmark.icon
 
@@ -54,9 +60,9 @@ div#messenger-leave-group.ui.modal
       span(style="color: red;")  leave
       |  this group :(
   div.actions
-    div.ui.black.button
+    button.ui.black.button
       | Nope
-    div.ui.positive.right.labeled.icon.button(
+    button.ui.positive.right.labeled.icon.button(
       ng-click="Leave()")
       | Let me go!!
       i.checkmark.icon
@@ -66,7 +72,7 @@ div#messenger-leave-group.ui.modal
     div.content
       h1 You want to leave the unspecified group..
     div.actions
-      div.ui.negative.right.labeled.icon.button
+      button.ui.negative.right.labeled.icon.button
         | Okay...
         i.close.icon
 
