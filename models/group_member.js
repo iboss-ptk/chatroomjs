@@ -13,11 +13,9 @@ var GroupMemberSchema = new mongoose.Schema({
 
 //CREATE GROUP MEMBER SCHEMA
 GroupMemberSchema.statics.create = function(data,callback){
-	console.log("Try To Create GroupMemberSchema");
 	var resolved_group_id = 0;
 	//FIND GROUP BY data.group_name
 	Group.findOne({group_name:data.group_name},function(err,results){
-		console.log(results);
 		if(!results){
 			callback('group_not_found');
 		}else{
