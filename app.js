@@ -103,7 +103,7 @@ io.on('connection', function(socket){
 				// 		socket.username = data.username;
 				// 		res._token = redis_token;
 				// 		console.log(res);
-				// 		io.emit(data._event, res);
+				// 		socket.emit(data._event, res);
 				// 	});
 
 				// });
@@ -113,7 +113,7 @@ io.on('connection', function(socket){
 				res.err_msg = err;
 			}
 
-			io.emit(data._event, res);
+			socket.emit(data._event, res);
 		});
 	});
 
@@ -136,7 +136,7 @@ io.on('connection', function(socket){
 
 				console.log("User Register success");
 			}
-			io.emit(data._event, res);
+			socket.emit(data._event, res);
 		});
 	});
 
@@ -169,7 +169,7 @@ io.on('connection', function(socket){
 							//console.log('unhandled error');
 						}
 						console.log(res.err_msg);
-						io.emit(data._event, res); // SUCCESS
+						socket.emit(data._event, res); // SUCCESS
 					});
 				}
 			});
@@ -181,7 +181,7 @@ io.on('connection', function(socket){
 		helper.IsLogin(function (UserObj) {
 			// leaving code here !
 
-			io.emit(data._event, {
+			socket.emit(data._event, {
 				success: true,
 				err_msg: null,
 			});
@@ -193,7 +193,7 @@ io.on('connection', function(socket){
 		helper.IsLogin(function (UserObj) {
 			// user pause code here!
 
-			io.emit(data._event, {
+			socket.emit(data._event, {
 				success: true,
 				err_msg: null,
 			});
@@ -211,14 +211,14 @@ io.on('connection', function(socket){
 				err_msg: []
 			}
 
-			io.emit(data._event, returnObj);
+			socket.emit(data._event, returnObj);
 
 			// redis_client.del(data.username + ":token", function(err, res){
 			// 	if (err) {
 			// 		returnObj.success = false;
 			// 		returnObj.err_msg.push('Can not logout. Error occured at redis.');
 			// 		console.log(res);
-			// 		io.emit(data._event, returnObj);
+			// 		socket.emit(data._event, returnObj);
 			// 	}
 			// });
 
@@ -343,7 +343,7 @@ io.on('connection', function(socket){
 				err_msg: null
 			};
 
-			io.emit(data._event, returnObj);
+			socket.emit(data._event, returnObj);
 		});
 
 	});
