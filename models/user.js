@@ -22,14 +22,15 @@ UserSchema.methods.getInGroup = function getInGroup (group_name,callback) {
 	var myDisplayName = this.disp_name;
 	GroupMember.create({user_id:this._id, group_name:group_name},function(returnMessage){
 		if(returnMessage == 'group_not_found'){
-			//callback("") <= message to be pass to app.js (server layer)
 			callback('group_not_found');
 		}else if(returnMessage == 'group_member_created'){
-			//create successfully
-			console.log("Groupmember Object Creation SUCCESS with the room "+group_name+" and user : "+ myDisplayName);
 			callback('success');
-		}else{
+		}else if(returnMessage == 'already_exists'){
+			callback('already_exists');
+		}
+		else{
 			//unhandled , another error which not handle
+			console.log("UNHANDLE");
 			callback('error');
 		}
 	});

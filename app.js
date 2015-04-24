@@ -43,7 +43,7 @@ io.on('connection', function(socket){
 			},
 
 			IsLogin: function (callback) {
-				jwt.verify(token, secret, function (err, payload) {
+				jwt.verify(data._token, secret, function (err, payload) {
 					if (err) {
 						// wrong token
 						socket.emit(data._event, {
@@ -74,8 +74,6 @@ io.on('connection', function(socket){
 				res._token = sessionToken;
 
 				console.log(res);
-
-
 				// redis_client.set( data.username + ":token", token, function(err, redis_res) {
 				// 	redis_client.get(data.username + ":token", function(err, redis_token){
 				// 		socket.username = data.username;
@@ -88,8 +86,9 @@ io.on('connection', function(socket){
 			}else if(loginResult == 'authen_failed'){
 				res.success = false;
 				res.err_msg = err;
-				io.emit(data._event, res)
 			}
+
+			io.emit(data._event, res);
 		});
 	});
 
@@ -118,34 +117,27 @@ io.on('connection', function(socket){
 
 
 	socket.on('user.join', function(data){
-		// validateToken(function(err, decoded){
 		helper.SetData(data);
 		helper.IsLogin(function (UserObj) {
-			var res = {
-				success: err ? false : true,
-				err_msg: err
-			}
+			var res = {};
 
 			//FIND USEROBJECT
-			models.User.findOne({username:decoded_result.username},function(err,results){
+			models.User.findOne({username:UserObj.username},function(err,results){
 				if(results){
 					//GOT USER OBJ => get him in da group
 					results.getInGroup(data.group_name,function(returnMessage){
 						res.err_msg = [returnMessage];
-						if(returnMessage == 'group_not_found'){
+						if(returnMessage == 'already_exists'){
 							res.success = false;
-							console.log("group not found");
+							console.log("YOU JOINED Groups = > already_exists");
 						}else if(returnMessage == 'success'){
-							socket.join(data.group_name);
-							console.log('trying to join ' + data.group_name);
-
+							res.success = true;
 							console.log('succesfull joining and create member entity');
-
-							io.emit(data._event, res); // SUCCESS
 						}else{
 							res.success = false;
 							console.log('unhandled error');
 						}
+						io.emit(data._event, res); // SUCCESS
 					});
 				}
 			});
@@ -202,46 +194,43 @@ io.on('connection', function(socket){
 
 	});
 
+	socket.on('user.get_group', function (data) {
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+
+			socket.emit(data._event, {
+				success: true,
+				GroupObjList: [],
+			});
+
+		});
+	});
+
 
 	//group handler
 
 	socket.on('group.create', function(data){
-		res = {
-			success: true,
-			err_msg: null
-		}
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
 
-		models.Group.create(data,function(err,groupCreateResult){
-			var UserObj;
-			if(groupCreateResult == 'success'){
-				res.success = true;
-				console.log("New Group is Create name : "+data.group_name);
-				// //FIND USEROBJECT
-				// validateToken(function(err,decoded_result){
-				// 	models.User.findOne({username:decoded_result.username},function(err,results){
-				// 		if(results){
-				// 			//GOT USER OBJ => get him in da group
-				// 			results.getInGroup(data.group_name,function(returnMessage){
-				// 				res.err_msg = [returnMessage];
-				// 				if(returnMessage == 'group_not_found'){
-				// 					 res.success = false;
-				// 					console.log("group not found");
-				// 				}else if(returnMessage == 'success'){
-				// 					console.log('succesfull joining and create member entity');
-				// 				}else{
-				// 					res.success = false;
-				// 					console.log('unhandled error');
-				// 				}
-				// 			});
-				// 		}
-				// 	});
-				// });
-			}else if(groupCreateResult == 'failed'){
-				res.success = false;
-				res.err_msg = ['already_exists'];
-				console.log("Cant Create Group :"+data.group_name+" "+err);
+			res = {
+				success: true,
+				err_msg: null
 			}
-			io.emit(data._event, res);
+
+			models.Group.create(data,function(err,groupCreateResult){
+				var UserObj;
+				if(groupCreateResult == 'success'){
+					res.success = true;
+					console.log("New Group is Create name : "+data.group_name);
+				}else if(groupCreateResult == 'failed'){
+					res.success = false;
+					res.err_msg = ['already_exists'];
+					console.log("Cant Create Group :"+data.group_name+" "+err);
+				}
+				io.emit(data._event, res);
+			});
+
 		});
 
 	});
@@ -271,14 +260,20 @@ io.on('connection', function(socket){
 
 	socket.on('message.get_unread', function(data){
 
-		returnObj = {
-			unread_msg: [],
-			success: true,
-			err_msg: null
-		}
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
 
-		io.emit(data._event, returnObj)
+			returnObj = {
+				unread_msg: [],
+				success: true,
+				err_msg: null
+			};
+
+			io.emit(data._event, returnObj);
+		});
+
 	});
+
 });
 
 
