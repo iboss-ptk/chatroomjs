@@ -24,9 +24,9 @@ angular.module('User', [])
     var jwtToken = null;
     // check local storage for old token
     var storedToken = storage[namespace + 'token'];
-    console.log('stored token:', storedToken);
     if (storedToken) {
       jwtToken = storedToken;
+      console.log('stored token:', storedToken);
     }
 
     return {
@@ -49,6 +49,7 @@ angular.module('User', [])
       && storedUserObj !== 'undefined'
       ) {
       UserObj = JSON.parse(storedUserObj);
+      console.log('stored userobj:', UserObj);
     }
 
     return {

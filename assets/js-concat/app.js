@@ -74,9 +74,7 @@ angular.module('GroupsCtrl', [])
 
     s.err = {}
 
-    s.groups = User.GetGroup();
-    console.log('groups', s.groups)
-
+    console.log('groups: ', s.GroupObjs);
   }
 )
 
@@ -195,6 +193,10 @@ angular.module('MessengerCtrl', [])
     var s = $scope;
     // expose $state to the view
     s.$state = $state;
+    // expose User to the view
+    s.UserObj = User.GetUserObj();
+    // expose User's groups
+    s.GroupObjs = User.GetGroup();
     // all errors in this page are here
     s.err = {};
 
@@ -219,11 +221,51 @@ angular.module('MessengerCtrl', [])
       s.join = {};
 
       s.AskJoin = function () {
-
+        // use timeout just get over the angular's warning message
+        $timeout(function () {
+          joinModal
+            .modal({
+              onApprove: function () {
+                // prevent this modal from closing
+                return false;
+              },
+            })
+            .modal('show');
+        });
       };
 
       s.Join = function (group_name) {
-
+        // clear errors
+        s.err.join = {};
+        // validate
+        if (!group_name) {
+          s.err.join.group_name = true;
+          return;
+        }
+        // make request
+        User.Join({
+          group_name: group_name
+        })
+          .then(function (GroupObj) {
+            // success
+            // make a new group list
+            s.GroupObjs.push(GroupObj);
+            console.log('pushed the group: ', GroupObj);
+            // hide modal
+            joinModal.modal('hide');
+          }, function (err) {
+            // err
+            err.forEach(function (each) {
+              switch (each) {
+                case 'unknown_group_name':
+                  s.err.join.group_name = true;
+                  break;
+                default:
+                  console.log('err', each);
+                  break;
+              }
+            });
+          });
       };
     }());
 
@@ -259,11 +301,22 @@ angular.module('MessengerCtrl', [])
         }
         // make request
         Group.Create({
-          group_name: group_name
+          group_name: group_name,
         })
           .then(function (res) {
             // success
-            // make a new group list
+            // join into the newly craeted group
+            User.Join({
+              group_name: group_name,
+            })
+              .then(function (GroupObj) {
+                // success
+                // make a new group list
+                s.GroupObjs.push(GroupObj);
+                console.log('pushed the group: ', GroupObj);
+              }, function (err) {
+                throw new Error('err', err);
+              });
 
             // hide modal
             createModal.modal('hide');
@@ -439,9 +492,9 @@ angular.module('User', [])
     var jwtToken = null;
     // check local storage for old token
     var storedToken = storage[namespace + 'token'];
-    console.log('stored token:', storedToken);
     if (storedToken) {
       jwtToken = storedToken;
+      console.log('stored token:', storedToken);
     }
 
     return {
@@ -464,6 +517,7 @@ angular.module('User', [])
       && storedUserObj !== 'undefined'
       ) {
       UserObj = JSON.parse(storedUserObj);
+      console.log('stored userobj:', UserObj);
     }
 
     return {

@@ -1,8 +1,33 @@
+//- join modal
+div#messenger-join-group.ui.modal
+  i.close.icon
+  div.content
+    h1
+      | I wanna
+      span(style="color: red")  join
+      |  into this group ...
+    div.ui.corner.labeled.input(
+      ng-class="{ error: err.join.group_name }")
+      input(
+        ng-model="join.group_name"
+        style="font-size: 2rem"
+        type="text"
+        placeholder="Group name..")
+      div.ui.corner.label
+        i.asterisk.icon
+  div.actions
+    div.ui.black.button
+      | Nope
+    div.ui.positive.right.labeled.icon.button(
+      ng-click="Join(join.group_name)")
+      | Let me in already :)
+      i.checkmark.icon
+
 //- create modals
 div#messenger-create-group.ui.modal
   i.close.icon
   div.content
-    h1 I wanna join into this group ...
+    h1 I wanna start this group chat ...
     div.ui.corner.labeled.input(
       ng-class="{ error: err.create.group_name }")
       input(
@@ -17,14 +42,17 @@ div#messenger-create-group.ui.modal
       | Nope
     div.ui.positive.right.labeled.icon.button(
       ng-click="Create(create.group_name)")
-      | Let me in already :)
+      | Create it for me!!!
       i.checkmark.icon
 
 //- leave modals
 div#messenger-leave-group.ui.modal
   i.close.icon
   div.content
-    h1 I wanna leave this group :(
+    h1
+      | I wanna
+      span(style="color: red;")  leave
+      |  this group :(
   div.actions
     div.ui.black.button
       | Nope
@@ -59,7 +87,7 @@ div#messenger-wrapper.ui.grid
       a.item(
         ng-click="AskJoin()")
         h3
-          i.add.icon
+          i.wechat.icon
           | Join
       a.item(
         ng-click="AskCreate()")
@@ -79,7 +107,7 @@ div#messenger-wrapper.ui.grid
         div.name
           a(href="" popup).browse.item
             h4
-              | Konpat Preechakul
+              span(ng-bind="UserObj.disp_name")
               i.caret.up.icon
           div.ui.flowing.popup
             div.ui.one.column.relaxed.equal.height.divided.grid
