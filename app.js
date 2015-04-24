@@ -40,6 +40,7 @@ io.on('connection', function(socket){
 
 	socket.on('user.login', function(data){
 
+
 		var token = jwt.sign(data, secret, { expiresInMinutes: 60*24*2 });
 		redis_client.set( data.username + ":token",token , function(err, res) {
 
@@ -62,15 +63,23 @@ io.on('connection', function(socket){
 
 	socket.on('user.register', function(data){
 
-		console.log(data)
-
-		// var returnObj = {
-		// 	success: true,
-		// 	err_msg: null
-		// }
-
-		// io.emit(data._event, returnObj)
+		res = {
+			success: true,
+			err_msg: null
+		}
+			models.User.register(data,function(err,registerResult){
+				if(registerResult == 'error'){
+					res.success = false;
+					res.err_msg = err;
+					console.log("Failed To Register");
+				}else if(registerResult == 'success'){
+					res.success = true;
+					console.log("User Register success");
+				}
+				io.emit(data._event, res)
+			});
 	});
+
 
 	socket.on('user.join', function(data){
 		validateToken(function(err, decoded){
@@ -81,9 +90,8 @@ io.on('connection', function(socket){
 				err_msg: err
 			}
 
-			// console.log(returnObj);
-			io.emit(data._event, returnObj)
-		})
+			io.emit(data._event, returnObj);
+		});
 		
 
 	});
@@ -94,7 +102,6 @@ io.on('connection', function(socket){
 			success: true,
 			err_msg: null
 		}
-
 
 		io.emit(data._event, returnObj)
 
@@ -107,7 +114,7 @@ io.on('connection', function(socket){
 			err_msg: null
 		}
 
-		io.emit(data._event, returnObj)
+		io.emit(data._event, returnObj);
 	});
 
 	socket.on('user.logout', function(data){
@@ -117,22 +124,28 @@ io.on('connection', function(socket){
 			err_msg: null
 		}
 
-		io.emit(data._event, returnObj)
+		io.emit(data._event, returnObj);
 	});
 
 
 	//group handler
 
 	socket.on('group.create', function(data){
-
-		returnObj = {
+		res = {
 			success: true,
 			err_msg: null
 		}
 
-		console.log("GROUP REGISTER CALLED");
-		models.Group.create(data,function(err,res){
-			io.emit(data._event, returnObj)
+		models.Group.create(data,function(err,groupCreateResult){
+			if(groupCreateResult == 'success'){
+				res.success = true;
+				console.log("New Group is Create name : "+data.group_name);
+			}else if(groupCreateResult == 'failed'){
+				res.success = false;
+				res.err_msg = err;
+				console.log("Cant Create Group :"+data.group_name+" "+err);
+			}
+			io.emit(data._event, res);
 		});
 
 	});
@@ -151,7 +164,7 @@ io.on('connection', function(socket){
 				err_msg: null
 			}
 			console.log(returnObj);
-			io.to(data.group_name).emit(data._event, returnObj)
+			io.to(data.group_name).emit(data._event, returnObj);
 		});
 	});	
 

@@ -61,11 +61,9 @@ div#messenger-wrapper.ui.grid
         h3
           i.add.icon
           | Create
-      //- a.item(
-        ng-click="Leave()"
-        ng-class="{ disabled: $state.current.name !== 'messenger.chat' }")
       a.item(
-        ng-click="AskLeave()")
+        ng-click="AskLeave()"
+        ng-class="{ disabled: $state.current.name !== 'messenger.chat' }")
         h3
           i.remove.icon
           | Leave
@@ -74,9 +72,18 @@ div#messenger-wrapper.ui.grid
         img.avatar
 
         div.name
-          h4
-            | Konpat Preechakul
-            i.caret.up.icon
+          a(href="" popup).browse.item
+            h4
+              | Konpat Preechakul
+              i.caret.up.icon
+          div.ui.flowing.popup
+            div.ui.one.column.relaxed.equal.height.divided.grid
+              div.ui.column
+                h3.ui.header I wanna ..
+                div.ui.link.list
+                  a.item(ng-click="Logout()") Logout
+
+
 
 
 

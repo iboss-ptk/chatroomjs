@@ -32,6 +32,24 @@ angular.module('directives', [])
   }
 })
 
+.directive('popup', function () {
+  return {
+    restrict: 'EA',
+    link: function (scope, element, attrs) {
+      var $element = $(element);
+      $element.popup({
+        inline: true,
+        hoverable: true,
+        position: 'bottom center',
+        delay: {
+          show: 300,
+          hide: 800,
+        },
+      });
+    },
+  }
+})
+
 // resize the div in the groups.jade to fit the window
 .directive('listColumn', function () {
   return {

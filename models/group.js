@@ -1,20 +1,18 @@
 var mongoose = require("mongoose");
 
 var GroupSchema = new mongoose.Schema({
-	name:{type : String , unique: true,
+	group_name: {type : String ,
         index: true}
 });
 
-GroupSchema.statics.create = function(data,returnObject){
-	group = new Group({name:data.name});
+GroupSchema.statics.create = function(data,callback){
+	group = new Group({group_name: data.group_name});
+
 	group.save(function(err,_group){
 		if(err){
-			returnObject.success = false,
-			returnObject.err_msg = err
-			console.error(err);
+			callback(err,'failed');
 		}else{
-			console.log("New Group %s is CREATED",_group.name);
-			returnObject.success = true;
+			callback(err,'success');
 		}
 	});
 }
@@ -28,15 +26,18 @@ GroupSchema.statics.remove = function(data,returnObject){
 var Group = mongoose.model('Group', GroupSchema);
 
 GroupSchema.pre("save", function(next) {
-    var self = this;
-    Group.findOne({name : this.name}, 'name', function(err, results) {
+    Group.findOne({group_name : this.group_name},'group_name', function(err, results) {
+			console.log("result = "+results);
         if(err) {
+					 console.log("IF SECTION");
             next(err);
         } else if(results) {
             //IF ROOM IS ALREADY CREATED
-						next(new Error("Group Already Exists : Joining Group " + results.name));
+						console.log("ELSE IF SECTION");
+						next(new Error("Group Already Exists : Joining Group " + results.group_name));
         } else {
 						//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
+						console.log("ELSE SECTION");
             next();
         }
     });

@@ -4,18 +4,16 @@ angular.module('User', [])
 
 .factory('User', function (Caller, $q) {
   // storage namespace
-  var namespace = '_chatroomjs';
-  // if find not .. create one
-  if (!localStorage[namespace]) {
-    localStorage[namespace] = {};
-  }
+  var namespace = '_chatroomjs_';
   // browser's storage
-  var storage = localStorage[namespace];
+  // localStorage is key, value and string based
+  var storage = localStorage;
 
   // password salt
   // even an intruder knows this (and he will)
   // he has no choice but to use brute-force or dictionary attack
   // but not rainbow table :D
+  // ::please don't change this!
   var salt = '927RV6ggf7loy13U';
 
   // Token encapsulation
@@ -25,8 +23,9 @@ angular.module('User', [])
     // and sends it to the sever on every request
     var jwtToken = null;
     // check local storage for old token
-    if (storage.token) {
-      jwtToken = storage.token;
+    var storedToken = storage[namespace + 'token'];
+    if (storedToken) {
+      jwtToken = storedToken;
     }
 
     return {
@@ -34,7 +33,7 @@ angular.module('User', [])
       Set: function (_token) {
         // upadet both jwtToken and Local Storage Token
         jwtToken = _token;
-        storage.token = _token;
+        storage[namespace + 'token'] = _token;
       },
     }
   }());
@@ -42,8 +41,9 @@ angular.module('User', [])
   var UserObj = (function() {
     var UserObj = null;
     // check local storage for old UserObj
-    if (storage.UserObj) {
-      UserObj = storage.UserObj;
+    var storedUserObj = storage[namespace + 'UserObj'];
+    if (storedUserObj) {
+      UserObj = JSON.parse(storedUserObj);
     }
 
     return {
@@ -51,7 +51,7 @@ angular.module('User', [])
       Set: function (_UserObj) {
         // update both in mem and in local storage
         UserObj = _UserObj;
-        storage.UserObj = _UserObj;
+        storage[namespace + 'UserObj'] = JSON.stringify(_UserObj);
       },
     }
   }());
@@ -82,6 +82,7 @@ angular.module('User', [])
           token.Set(res._token);
           // save return UserObj
           UserObj.Set(res.UserObj);
+
           deferred.resolve(res.UserObj);
         }
         else {
@@ -163,14 +164,19 @@ angular.module('User', [])
       return deferred.promise;
     },
 
-    Logout: function (req) {
+    Logout: function () {
       var deferred = $q.defer();
-      // append _token to the request
-      req._token = token.Get();
+      // fabricate the request
+      var req = {
+        _token: token.Get(),
+      };
       Caller.Call('user.logout', req, function (res) {
         if (res.success === true) {
           // clear token
           token.Set(null);
+          // clear UserObj
+          UserObj.Set(null);
+
           deferred.resolve();
         }
         else {
@@ -185,7 +191,7 @@ angular.module('User', [])
       var deferred = $q.defer();
       // fabricate the request
       var req = {
-        _token: token
+        _token: token.Get(),
       };
 
       Caller.Call('user.get_group', req, function (res) {
@@ -198,6 +204,6 @@ angular.module('User', [])
       });
 
       return deferred.promise;
-    }
+    },
   }
 })
