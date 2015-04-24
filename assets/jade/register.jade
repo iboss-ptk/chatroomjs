@@ -3,13 +3,19 @@ div#register-wrapper.animated.fadeIn(vertical-middle)
   div.wrapper
     div.register-panel.ui.center.aligned.segment
       div.ui.grid
-        div.ui.one.column.row
-          div.column
-            h1 Chatroomjs.io
-            p
-              | super fast, super cool web messenger
+        //- div.ui.one.column.row
+        //-   div.column
+        //-     h1 Chatroomjs.io
+        //-     p
+        //-       | super fast, super cool web messenger
 
         form(ng-submit="Register(username, password, disp_name)")
+          //- disp_image field
+          div.ui.one.column.row
+            div.column
+              div.image-uploader(vertical-middle)
+                h5(style="color: rgb(150,150,150)") Your picture here!
+
           //- disp_name field
           div.ui.one.column.row
             div.column

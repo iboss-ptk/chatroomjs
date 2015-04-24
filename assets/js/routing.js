@@ -42,6 +42,15 @@ angular.module('routing', [])
         //     // if the user is not member, go to 'login' state
         //     no: 'login' }
         // ],
+        resolve: {
+          pauseAll: function (User) {
+            console.log('pause all groups');
+            // pause all groups
+            return User.Pause({
+              group_name: null,
+            });
+          }
+        },
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',
@@ -57,13 +66,16 @@ angular.module('routing', [])
         // the following block of code must be done before loading the state
         resolve: {
           messages: function (Message, $state, $stateParams) {
-            console.log('aoeuaoeu');
+            console.log('getting unread messages of : ', $stateParams.groupName);
             // we have to check whether the group exists or not
+            // server should unpause this user from the group as well
             return Message.GetUnread({
               group_name: $stateParams.groupName,
             })
               .then(null, function (err) {
-                console.log('err', err);
+                err.forEach(function (err) {
+                  console.log('err', err);
+                });
                 // tell the user that he's requesting the unknown group
               });
           }
