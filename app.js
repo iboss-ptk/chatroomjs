@@ -225,11 +225,29 @@ io.on('connection', function(socket){
 
 	socket.on('user.leave', function(data){
 		helper.IsLogin(data, function (UserObj) {
-			// leaving code here !
-
-			socket.emit(data._event, {
-				success: true,
-				err_msg: null,
+			var res = {
+									success: true,
+									err_msg: null
+			};
+			// find specific User
+			models.User.findOne(UserObj,function(err,results){
+				if(results){
+					//leave the user
+					results.leave(group_name,function(msg,parse){
+						 if(msg == 'success'){
+								res.success =true;
+								res.err_msg = [msg];
+							}else{
+								res.success = false;
+								res.err_msg = ['no_group_name'];
+							}
+							socket.emit(data._event, res);
+					});
+				}else{
+					res.success = false;
+					res.err_msg = ['no_user'];
+					socket.emit(data._event, res);
+				}
 			});
 		});
 	});
