@@ -12,18 +12,25 @@ var UserSchema = new mongoose.Schema({
 	password : String
 });
 
+UserSchema.methods.pause = function pause(group_name,callback){
+	console.log("SOME1 TRY TO PAUSE");
+	var result = {};
+	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
+		console.log(JSON.stringify(results));
+		callback(err,{success: err ? false : true});
+	});
+}
+
 UserSchema.methods.leave = function leave(group_name,callback){
-	console.log( this.username+" Call Obj-Method leave");
+	console.log( this.username+" Call Obj-Method leave group : " + group_name);
 	Group.findOne({group_name : group_name},function(err,results){
-		if(results){
-			//result = true => have group_name = group_name (proposed)
-			GroupMember.findOneAndRemove({group_id : mongoose.Types.ObjectId(results._id)},function(actionResult){
-				console.log(actionResult);
-				if(!actionResult){
+		if(!err){
+			GroupMember.findOneAndRemove({group_id : mongoose.Types.ObjectId(results._id)},function(err,actionResult){
+				if(err){
 					console.log("error finding group to leave")
 					callback(err,'error_finding_group');
 				}else{
-					console.log('leaveing su');
+					console.log('leaving '+group_name+' success');
 					callback('okay','leaving_success');
 				}
 			});

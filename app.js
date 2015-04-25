@@ -16,10 +16,10 @@ mongoose.connect('mongodb://mongo/chat');
 
 var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
-	User: require("./models/user").User,
+	User : require("./models/user").User,
 	GroupMember : require("./models/group_member").GroupMember,
  	Group : require("./models/group").Group,
- 	Message: require('./models/message').Message,
+ 	Message : require("./models/message").Message
 }
 
 var redis_client = redis.createClient(6379, 'redis');
@@ -144,7 +144,7 @@ io.on('connection', function(socket){
 				}
 
 				// add to redis
-				redis_client.set(obj.session_id, payload, function (err, success) {
+				redis_client.set(obj.session_id, JSON.stringify(payload), function (err, success) {
 					if (err) {
 						console.log('error while creating token');
 						return ;
@@ -188,6 +188,8 @@ io.on('connection', function(socket){
 							return console.log('error while getting session from redis');
 						}
 						// this should return UserObj
+						UserObj = JSON.parse(UserObj);
+						console.log(UserObj);
 						callback(UserObj);
 					});
 				});
@@ -264,7 +266,7 @@ io.on('connection', function(socket){
 							//console.log("YOU JOINED Groups = > already_exists");
 						}else if(returnMessage == 'success'){
 							res.success = true;
-							console.log('succesfull joining and create member entity');
+							console.log('FIRST TIME JOINING = > CREATE MEMBER ENTITY FOR : "'+UserObj.username+ '" IN : '+data.group_name);
 						}else if(returnMessage == 'group_not_found'){
 							res.success = false;
 							//console.log("GROUP NOT FOUND");
@@ -272,7 +274,6 @@ io.on('connection', function(socket){
 							res.success = false;
 							//console.log('unhandled error');
 						}
-						console.log(res.err_msg);
 						// join him to this group
 						socket.join(data.group_name);
 						// return the value
@@ -295,11 +296,12 @@ io.on('connection', function(socket){
 			};
 			// find specific User
 			models.User.findOne(UserObj,function(err,results){
-				console.log("SOME1 ASK TO LEAVE");
+				console.log(UserObj.username+" ASK TO LEAVE "+data.group_name );
 				if(results){
 					//leave the user
 					results.leave(data.group_name,function(msg,parse){
 						if(msg == 'success'){
+							console.log(UserObj.username+" SUCCESSFULLY LEAVE "+data.group_name );
 								res.success =true;
 								res.err_msg = [msg];
 							}else{
@@ -319,11 +321,22 @@ io.on('connection', function(socket){
 
 	socket.on('user.pause', function(data){
 		helper.IsLogin(data, function (UserObj) {
-			// user pause code here!
-
-			socket.emit(data._event, {
-				success: true,
-				err_msg: null,
+			var res = {};
+			models.User.findOne({username: UserObj.username},function(err,user){
+				res.err_msg = []
+				if(err){
+					res.err_msg.push("can not find user. who the hell are you?");
+					res.success = false;
+					socket.emit(data._event, res);
+				} else {
+					user.pause(data.group_name, function(err,results){
+						if(err) {
+							res.err_msg.push(err);
+						}
+						res.success = results.success;
+						socket.emit(data._event, res);
+					});
+				}
 			});
 		});
 	});
@@ -394,15 +407,14 @@ io.on('connection', function(socket){
 			}
 
 			models.Group.create(data,function(err,groupCreateResult){
-
 				if(groupCreateResult == 'success'){
 					res.success = true;
 					console.log("New Group is Create name : "+data.group_name);
-
 				}else if(groupCreateResult == 'failed'){
 					res.success = false;
 					res.err_msg = ['already_exists'];
-					console.log("Cant Create Group :"+data.group_name+" "+err);
+				//console.log("Cant Create Group :"+data.group_name+" "+err);
+					console.log(res.err_msg);
 				}
 
 				socket.emit(data._event, res);
@@ -424,7 +436,6 @@ io.on('connection', function(socket){
 			redis_client.incr('message_sequence', function (err, seq) {
 				sequence = seq;
 				console.log('sequence: ', seq);
-
 				// emit the message to every client in the room
 				var message = {
 					content: data.content,
@@ -454,26 +465,68 @@ io.on('connection', function(socket){
 						success: true,
 						err_msg: null,
 					});
-
 				});
-
 			});
-
 		});
-
 	});
 
-	socket.on('message.get_unread', function(data){
-
+	socket.on('message.get_unread', function (data) {
 		helper.IsLogin(data, function (UserObj) {
-
-			returnObj = {
+			res = {
 				unread_msg: [],
 				success: true,
 				err_msg: null
 			};
 
-			socket.emit(data._event, returnObj);
+			//////CLICK NOT TO JOIN ROOM BUT LEAVE
+			////// THIS CODE IS FOR TESTING
+			////// THE SAME ONE IMPLEMENTED ABOVEE
+			//////////////AFTER YOU TRY IT
+			////////LEAVE GROUP CODE - FOR TESTING////////////DELETE IT IMMEDIATELY
+			//leave code here
+/*
+			models.User.findOne(UserObj,function(err,results){
+				console.log("SOME1 ASK TO LEAVE");
+				if(results){
+					//leave the user
+					results.leave(data.group_name,function(msg,parse){
+						if(msg == 'success'){
+								res.success =true;
+								res.err_msg = [msg];
+							}else{
+								res.success = false;
+								res.err_msg = ['no_group_name'];
+							}
+							socket.emit(data._event, res);
+					});
+				}else{
+					res.success = false;
+					res.err_msg = ['no_user'];
+					socket.emit(data._event, res);
+				}
+			});
+*/
+			/////////////////////////////////////////DELETE ABOVE IMMEDIATELY
+
+			console.log(data);
+			console.log('calling getunreadmsg');
+			//Y U NOT FOUND U MOTHERFUCKING SHIT
+			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
+				if(unreadResults == 'unexpected') {
+			 		//Failed to function properly
+			 		res.success = false;
+			 		res.err_msg = 'unexpected';
+			 	} else if(msg == 'ok'){
+			 		//mikotodesu~
+					res.success = true;
+			 		res.unread_msg = unreadResults;
+			 	} else {
+					res.success = false;
+					res.err_msg = 'unexpected';
+				}
+			 	socket.emit(data._event, res);
+			});
+
 		});
 
 	});
@@ -515,5 +568,5 @@ io.on('connection', function(socket){
 
 
 http.listen(8888, function(){
-	console.log('listening on *:8888');
+	console.log('listening on port 8888');
 });

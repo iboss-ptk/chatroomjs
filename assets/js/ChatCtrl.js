@@ -27,6 +27,8 @@ angular.module('ChatCtrl', [])
     s.Messages = s.GlobalMessages[s.groupName] = messages;
 
     s.Send = function () {
+      //do not send if no content
+      if($.trim(s.content) == '') return;
       console.log('sending ...', s.content);
       Message.Send({
         group_name: s.groupName,

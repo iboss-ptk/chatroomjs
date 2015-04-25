@@ -1,8 +1,11 @@
-a(ng-click="OpenChat(group)"
-  ng-repeat="group in GroupObjs")
-
-  div.ui.card
-    div.content
-      img.ui.avatar.image
-      div.text
-        h1.header(ng-bind="group.group_name")
+#groups-wrapper
+  div(
+    ng-repeat="group in GroupObjs")
+    .group-card(ng-click="OpenChat(group)")
+      div.group.circular
+        | {{group.group_name.substr(0,1).toUpperCase()}}
+      div.text(ng-bind="group.group_name.substr(0,23)")
+      div.floating.ui.red.label
+        | 12 
+  
+  
