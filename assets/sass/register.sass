@@ -4,6 +4,15 @@
   text-align: center
   height: 100%
 
+  canvas
+    background-color: #f3f3f3
+    -webkit-box-shadow: 3px 3px 3px 0 #e3e3e3
+    -moz-box-shadow: 3px 3px 3px 0 #e3e3e3
+    box-shadow: 3px 3px 3px 0 #e3e3e3
+    border: 1px solid #c3c3c3
+    height: 100px
+    margin: 6px 0 0 6px
+
   .wrapper
     display: inline-block
 
@@ -31,3 +40,6 @@
         width: $size
         background-color: rgb(250,250,250)
         border-radius: 100%
+        @include transition(background-color 0.25s)
+      .image-uploader.dragover
+        background-color: rgb(230,230,230)

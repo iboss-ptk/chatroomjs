@@ -8,6 +8,8 @@ var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 var uuid = require('node-uuid');
 var extend = require('util')._extend;
+var fs = require('fs');
+var async = require('async');
 
 mongoose.connect('mongodb://mongo/chat');
 //mongoose.connect('mongodb://127.0.0.1:27017/chat');
@@ -32,14 +34,76 @@ app.get('/', function(req, res){
 });
 
 app.post('/photo', function (req, res) {
-	helper.SetData({ data: { _token: req.body._token} });
-	helper.IsLogin(data, function (UserObj) {
+	var token = req.body._token;
 
-		var fileName = req.files.display_image.name;
-		var extension = fileNmae.split('.').slice(-1)[0];
-		var serverPath = 'assets/display_images/' + UserObj.username + '.' + extension;
+	jwt.verify(token, secret, function (err, payload) {
+		if (err) {
+			res.status(400);
+			res.send('wrong token');
+			return ;
+		}
 
-	}, false);
+		redis_client.get(payload.session_id, function (err, UserObj) {
+			if (err || UserObj === null) {
+				res.status(400);
+				res.send('expired_token');
+				return ;
+			}
+
+			// loggged in
+			var fileName = req.files.display_image.name;
+			var extension = fileNmae.split('.').slice(-1)[0];
+			var newFileName = UserObj.username + '.' + extension;
+			var serverPath = 'assets/display_images/' + UserObj.username + '.' + extension;
+			fs.rename(
+				req.files.display_image.path,
+				serverPath,
+				function (err) {
+					if (err) {
+						res.send({ error: 'cannot upload' });
+						return ;
+					}
+
+					// update UserObj
+					UserObjNew = extend({}, UserObject);
+					UserObjNew.display_image = newFileName;
+
+					async.parallel({
+						redis: function (finish) {
+							redis_client.set(payload.session_id, UserObjNew, function (err) {
+								if (err) {
+									finish(err, null);
+									return console.log('problem with updating UserObj on redis');
+								}
+								finish();
+							});
+						},
+						mongo: function (finish) {
+							mongoose.findOneAndUpdate(UserObj, UserObjNew, { upsert: true }, function (err, doc) {
+								if (err) {
+									finish(err, null);
+									return console.log('problem with updating UserObj on mongo');
+								}
+								finish();
+							});
+						},
+					}, function (err, res) {
+						if (err) {
+							throw new Error(err);
+							return;
+						}
+
+						res.json({
+							success: true,
+							UserObj: UserObjNew,
+						});
+
+					});
+
+				});
+
+		});
+	});
 });
 
 // load last sequence from mongo
@@ -441,7 +505,6 @@ io.on('connection', function(socket){
 
 		});
 	});
-
 
 	socket.on('disconnect', function () {
 		// pause all group if token is valid

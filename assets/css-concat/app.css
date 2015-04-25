@@ -161,6 +161,12 @@ body {
 #register-wrapper {
   text-align: center;
   height: 100%; }
+  #register-wrapper canvas {
+    background-color: #f3f3f3;
+    box-shadow: 3px 3px 3px 0 #e3e3e3;
+    border: 1px solid #c3c3c3;
+    height: 100px;
+    margin: 6px 0 0 6px; }
   #register-wrapper .wrapper {
     display: inline-block; }
     #register-wrapper .wrapper .register-panel {
@@ -178,4 +184,8 @@ body {
         height: 150px;
         width: 150px;
         background-color: #fafafa;
-        border-radius: 100%; }
+        border-radius: 100%;
+        -webkit-transition: background-color 0.25s;
+        transition: background-color 0.25s; }
+      #register-wrapper .wrapper .row .image-uploader.dragover {
+        background-color: #e6e6e6; }
