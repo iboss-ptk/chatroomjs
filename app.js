@@ -484,18 +484,19 @@ io.on('connection', function(socket){
 				unread_msg: [],
 				success: true,
 				err_msg: null
-				models.Message.get_unread(data, UserObj, function(msg, unreadResults) {
-					if(unreadResults = 'unexpected') {
-						//Failed to function properly
-						returnObj.success = false;
-					} else {
-						//mikoto 
-						returnObj.success = true;
-						unread_msg = unreadResults;
-					}
-				});
-				socket.emit(data._event, returnObj);
+				
 			};
+			models.Message.get_unread(data, UserObj, function(msg, unreadResults) {
+				if(unreadResults = 'unexpected') {
+					//Failed to function properly
+					returnObj.success = false;
+				} else {
+					//mikoto 
+					returnObj.success = true;
+					unread_msg = unreadResults;
+				}
+			});
+			socket.emit(data._event, returnObj);
 			
 		});
 
