@@ -19,7 +19,7 @@ var models = {
 	User: require("./models/user").User,
 	GroupMember : require("./models/group_member").GroupMember,
  	Group : require("./models/group").Group,
- 	Message: require('./models/message').Message,
+ 	Message: require('./models/message').Message
 }
 
 var redis_client = redis.createClient(6379, 'redis');

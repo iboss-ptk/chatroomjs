@@ -4,23 +4,23 @@ var GroupMember	= require("../models/group_member").GroupMember
 var Group = require("../models/group").Group
 
 var MessageSchema = new mongoose.Schema({
-  content: String,
-  username: String,
-  group_name: String,
-  seq: Number,
-  sent_at: Date,
+ 	content: String,
+ 	username: String,
+ 	group_name: String,
+ 	seq: Number,
+ 	sent_at: Date,
 });
 
 var Message = mongoose.model('Message', MessageSchema);
 
 //why ??
-MessageSchema.statics.getunreadmsg = function (data, UserObj, callback) {
-	console.log(UserObj.username + ' is calling get_unread');
+MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
+	console.log(userObj.username + ' is calling get_unread');
 	//find group id
 	Group.findOne({group_name: data.group_name}, 'group_id', function (err, results) {
 		if(results) {
 			//find last_seen in group_members
-			GroupMember.findOne({_id:UserObj._id, group_id:results}, 'last_seen', function(ret, res) {
+			GroupMember.findOne({_id:userObj._id, group_id:results}, 'last_seen', function(ret, res) {
 				if(res) {
 					console.log('last_seen at ' + res)
 					var user_last_seen = res;
@@ -36,7 +36,7 @@ MessageSchema.statics.getunreadmsg = function (data, UserObj, callback) {
 						}
 					});
 				} else {
-					console.log('daed : cannot find last_seen associated with user : ' + UserObj.username + ' group : ' + group_name);
+					console.log('daed : cannot find last_seen associated with user : ' + userObj.username + ' group : ' + group_name);
 					callback([]);
 				}
 			});
