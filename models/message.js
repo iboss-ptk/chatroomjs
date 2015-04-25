@@ -11,11 +11,12 @@ var MessageSchema = new mongoose.Schema({
  	sent_at: Date
 });
 
-var Message = mongoose.model('Message', MessageSchema);
+
 
 //why ??
-MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
+MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
 	console.log(userObj.username + ' is calling get_unread');
+  console.log(data.group_name);
 	//find group id
 	Group.findOne({group_name: data.group_name}, 'group_id', function (err, results) {
 		if(results) {
@@ -36,7 +37,7 @@ MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
 						}
 					});
 				} else {
-					console.log('daed : cannot find last_seen associated with user : ' + userObj.username + ' group : ' + group_name);
+					console.log('daed : cannot find last_seen associated with user : ' + userObj.username + ' group : ' + data.group_name);
 					callback(ret, 'unexpected');
 				}
 			});
@@ -47,6 +48,8 @@ MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
 		}
 	});
 }
+
+var Message = mongoose.model('Message', MessageSchema);
 
 module.exports = {
 	Message: Message

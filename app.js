@@ -484,11 +484,12 @@ io.on('connection', function(socket){
 				unread_msg: [],
 				success: true,
 				err_msg: null
-				
+
 			};
+			//console.log(data);
 			console.log('calling getunreadmsg');
 			//Y U NOT FOUND U MOTHERFUCKING SHIT
-			msgjs.getunreadmsg(data, UserObj, function(msg, unreadResults) {
+			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
 				if(unreadResults = 'unexpected') {
 					//Failed to function properly
 					returnObj.success = false;
@@ -500,7 +501,7 @@ io.on('connection', function(socket){
 				}
 				socket.emit(data._event, returnObj);
 			});
-			
+
 		});
 
 	});
