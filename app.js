@@ -170,11 +170,12 @@ io.on('connection', function(socket){
 									err_msg: null
 			};
 			// find specific User
+			console.log("SOME1 ASK TO LEAVE");
 			models.User.findOne({username: UserObj.username},function(err,results){
 				if(results){
 					//leave the user
-					results.leave(group_name,function(msg,parse){
-						 if(msg == 'success'){
+					results.leave(data.group_name,function(msg,parse){
+						if(msg == 'success'){
 								res.success =true;
 								res.err_msg = [msg];
 							}else{
