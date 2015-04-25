@@ -29,18 +29,21 @@ MessageSchema.statics.getunreadmsg = function getunreadmsg (data, UserObj, callb
 						if(resData) {
 							console.log('unread message get !!');
 							console.log(resData);
+							callback(resData);
 						} else {
 							console.log('no unread message');
+							callback([]);
 						}
 					});
 				} else {
 					console.log('daed : cannot find last_seen associated with user : ' + UserObj.username + ' group : ' + group_name);
+					callback([]);
 				}
 			});
 
 		} else {
 			console.log('dead : cannot find group_id');
-			//callback
+			callback([]);
 		}
 	});
 }

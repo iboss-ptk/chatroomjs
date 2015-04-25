@@ -476,10 +476,8 @@ io.on('connection', function(socket){
 
 	});
 
-	socket.on('message.get_unread', function(data){
-
+	socket.on('message.get_unread', function (data) {
 		helper.IsLogin(data, function (UserObj) {
-
 			returnObj = {
 				unread_msg: [],
 				success: true,
