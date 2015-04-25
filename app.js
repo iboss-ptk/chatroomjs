@@ -22,6 +22,8 @@ var models = {
  	Message : require("./models/message").Message
 }
 
+var msgjs = require("./models/message").Message
+
 var redis_client = redis.createClient(6379, 'redis');
 //var redis_client = redis.createClient(6379, '127.0.0.1');
 
@@ -486,7 +488,7 @@ io.on('connection', function(socket){
 			};
 			console.log('calling getunreadmsg');
 			//Y U NOT FOUND U MOTHERFUCKING SHIT
-			models.Message.getunreadmsg(data, UserObj, function(msg, unreadResults) {
+			msgjs.getunreadmsg(data, UserObj, function(msg, unreadResults) {
 				if(unreadResults = 'unexpected') {
 					//Failed to function properly
 					returnObj.success = false;
