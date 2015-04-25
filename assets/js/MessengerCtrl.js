@@ -26,6 +26,10 @@ angular.module('MessengerCtrl', [])
     // all errors in this page are here
     s.err = {};
 
+    s.SetGroup = function (group) {
+      s.groupName = group;
+    };
+
     // Let's say that when user come
     console.log('got into messenger ctrl');
 
@@ -56,6 +60,7 @@ angular.module('MessengerCtrl', [])
         });
     };
 
+    // this block is of code is all about joining..
     (function () {
       var joinModal = $('#messenger-join-group');
 
@@ -215,7 +220,7 @@ angular.module('MessengerCtrl', [])
       };
 
       s.Leave = function () {
-        var group_name = $stateParams.groupName;
+        var group_name = s.groupName;
         console.log('leaving from the group .. ', group_name);
         // clear errors
         s.err.leave = {};
@@ -227,12 +232,21 @@ angular.module('MessengerCtrl', [])
           return;
         }
         // make request
-        User.leave({
+        User.Leave({
           group_name: group_name
         })
           .then(function (res) {
             // success
             // remove this group from the array
+            for (var i = 0; i < s.GroupObjs.length; ++i) {
+              if (s.GroupsObjs[i].group_name === group_name) {
+                // remove that group from groupslist
+                s.GroupObjs.splice(i, 1);
+                break;
+              }
+            }
+            // remove its messages
+            delete s.GlobalMessages[group_name];
 
             // hide leave modal
             leaveModal.modal('hide');

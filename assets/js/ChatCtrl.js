@@ -15,6 +15,9 @@ angular.module('ChatCtrl', [])
     var s = $scope;
     // expose the group name
     s.groupName = $stateParams.groupName;
+    // expose the group name to its parent
+    // s.SetGroup is defined in its parent
+    s.SetGroup(s.groupName);
     // all the errors
     s.err = {};
 

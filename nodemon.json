@@ -5,6 +5,9 @@
     "node_modules/*",
     "mongo/*",
     "data/*",
-    ".git/*"
+    ".git/*",
+    ".python-version",
+    ".bowerrc",
+    ".DS_Store"
   ]
 }

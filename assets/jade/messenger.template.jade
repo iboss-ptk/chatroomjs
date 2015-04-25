@@ -58,7 +58,9 @@ div#messenger-leave-group.ui.modal
     h1
       | I wanna
       span(style="color: red;")  leave
-      |  this group :(
+      | &nbsp;
+      span(ng-bind="groupName")
+      |  :(
   div.actions
     button.ui.black.button
       | Nope

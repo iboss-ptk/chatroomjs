@@ -11,46 +11,21 @@ angular.module('RegisterCtrl', [])
     var s = $scope;
 
     var uploader = s.uploader = new FileUploader({
-      url: 'uploade.php',
-      queueLimit: 1,
+      url: 'photo',
+      formData: { _token: User.GetToken() },
+      queueLimit: 2,
     });
 
     s.Delete = function () {
       uploader.clearQueue();
     }
 
-    uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-    };
     uploader.onAfterAddingFile = function(fileItem) {
+      console.log('queue: ', uploader.queue.length);
+      if (uploader.queue.size > 0) {
+        uploader.removeFromQueue(0);
+      }
         console.info('onAfterAddingFile', fileItem);
-    };
-    uploader.onAfterAddingAll = function(addedFileItems) {
-        console.info('onAfterAddingAll', addedFileItems);
-    };
-    uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-    };
-    uploader.onProgressItem = function(fileItem, progress) {
-        console.info('onProgressItem', fileItem, progress);
-    };
-    uploader.onProgressAll = function(progress) {
-        console.info('onProgressAll', progress);
-    };
-    uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-    };
-    uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    uploader.onCancelItem = function(fileItem, response, status, headers) {
-        console.info('onCancelItem', fileItem, response, status, headers);
-    };
-    uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-    };
-    uploader.onCompleteAll = function() {
-        console.info('onCompleteAll');
     };
 
     s.err = {}
@@ -64,6 +39,11 @@ angular.module('RegisterCtrl', [])
       // clear error
       s.err = {}
       // validate
+      if (uploader.queue.length === 0) {
+        s.err.display_image = true;
+        return ;
+      }
+
       if (!disp_name) {
         s.err.disp_name = true;
         return;
@@ -94,6 +74,11 @@ angular.module('RegisterCtrl', [])
             password: password,
           })
             .then(function (res) {
+              // upload image :D
+              uploader.queue[0].upload();
+              uploader.onCompleteAll = function() {
+                  console.info('onCompleteAll');
+              };
               // redirect to groups
               $state.go('messenger.groups');
             }, function (err) {

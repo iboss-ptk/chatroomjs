@@ -15,6 +15,9 @@ angular.module('ChatCtrl', [])
     var s = $scope;
     // expose the group name
     s.groupName = $stateParams.groupName;
+    // expose the group name to its parent
+    // s.SetGroup is defined in its parent
+    s.SetGroup(s.groupName);
     // all the errors
     s.err = {};
 
@@ -206,6 +209,10 @@ angular.module('MessengerCtrl', [])
     // all errors in this page are here
     s.err = {};
 
+    s.SetGroup = function (group) {
+      s.groupName = group;
+    };
+
     // Let's say that when user come
     console.log('got into messenger ctrl');
 
@@ -236,6 +243,7 @@ angular.module('MessengerCtrl', [])
         });
     };
 
+    // this block is of code is all about joining..
     (function () {
       var joinModal = $('#messenger-join-group');
 
@@ -395,7 +403,7 @@ angular.module('MessengerCtrl', [])
       };
 
       s.Leave = function () {
-        var group_name = $stateParams.groupName;
+        var group_name = s.groupName;
         console.log('leaving from the group .. ', group_name);
         // clear errors
         s.err.leave = {};
@@ -407,12 +415,21 @@ angular.module('MessengerCtrl', [])
           return;
         }
         // make request
-        User.leave({
+        User.Leave({
           group_name: group_name
         })
           .then(function (res) {
             // success
             // remove this group from the array
+            for (var i = 0; i < s.GroupObjs.length; ++i) {
+              if (s.GroupsObjs[i].group_name === group_name) {
+                // remove that group from groupslist
+                s.GroupObjs.splice(i, 1);
+                break;
+              }
+            }
+            // remove its messages
+            delete s.GlobalMessages[group_name];
 
             // hide leave modal
             leaveModal.modal('hide');
@@ -440,46 +457,21 @@ angular.module('RegisterCtrl', [])
     var s = $scope;
 
     var uploader = s.uploader = new FileUploader({
-      url: 'uploade.php',
-      queueLimit: 1,
+      url: 'photo',
+      formData: { _token: User.GetToken() },
+      queueLimit: 2,
     });
 
     s.Delete = function () {
       uploader.clearQueue();
     }
 
-    uploader.onWhenAddingFileFailed = function(item /*{File|FileLikeObject}*/, filter, options) {
-        console.info('onWhenAddingFileFailed', item, filter, options);
-    };
     uploader.onAfterAddingFile = function(fileItem) {
+      console.log('queue: ', uploader.queue.length);
+      if (uploader.queue.size > 0) {
+        uploader.removeFromQueue(0);
+      }
         console.info('onAfterAddingFile', fileItem);
-    };
-    uploader.onAfterAddingAll = function(addedFileItems) {
-        console.info('onAfterAddingAll', addedFileItems);
-    };
-    uploader.onBeforeUploadItem = function(item) {
-        console.info('onBeforeUploadItem', item);
-    };
-    uploader.onProgressItem = function(fileItem, progress) {
-        console.info('onProgressItem', fileItem, progress);
-    };
-    uploader.onProgressAll = function(progress) {
-        console.info('onProgressAll', progress);
-    };
-    uploader.onSuccessItem = function(fileItem, response, status, headers) {
-        console.info('onSuccessItem', fileItem, response, status, headers);
-    };
-    uploader.onErrorItem = function(fileItem, response, status, headers) {
-        console.info('onErrorItem', fileItem, response, status, headers);
-    };
-    uploader.onCancelItem = function(fileItem, response, status, headers) {
-        console.info('onCancelItem', fileItem, response, status, headers);
-    };
-    uploader.onCompleteItem = function(fileItem, response, status, headers) {
-        console.info('onCompleteItem', fileItem, response, status, headers);
-    };
-    uploader.onCompleteAll = function() {
-        console.info('onCompleteAll');
     };
 
     s.err = {}
@@ -493,6 +485,11 @@ angular.module('RegisterCtrl', [])
       // clear error
       s.err = {}
       // validate
+      if (uploader.queue.length === 0) {
+        s.err.display_image = true;
+        return ;
+      }
+
       if (!disp_name) {
         s.err.disp_name = true;
         return;
@@ -523,6 +520,11 @@ angular.module('RegisterCtrl', [])
             password: password,
           })
             .then(function (res) {
+              // upload image :D
+              uploader.queue[0].upload();
+              uploader.onCompleteAll = function() {
+                  console.info('onCompleteAll');
+              };
               // redirect to groups
               $state.go('messenger.groups');
             }, function (err) {
