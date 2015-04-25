@@ -484,8 +484,8 @@ io.on('connection', function(socket){
 				err_msg: null
 				
 			};
-			console.log('test UserObj : ' + UserObj);
-			this.models.Message.getunreadmsg(data, UserObj, function(msg, unreadResults) {
+			console.log('test UserObj : ' + UserObj._id);
+			models.Message.getunreadmsg(data, UserObj, function(msg, unreadResults) {
 				if(unreadResults = 'unexpected') {
 					//Failed to function properly
 					returnObj.success = false;
