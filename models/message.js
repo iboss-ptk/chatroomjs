@@ -14,7 +14,7 @@ var MessageSchema = new mongoose.Schema({
 var Message = mongoose.model('Message', MessageSchema);
 
 //why ??
-MessageSchema.statics.getunreadmsg = function getunreadmsg (data, UserObj, callback) {
+MessageSchema.statics.getunreadmsg = function (data, UserObj, callback) {
 	console.log(UserObj.username + ' is calling get_unread');
 	//find group id
 	Group.findOne({group_name: data.group_name}, 'group_id', function (err, results) {
