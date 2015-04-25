@@ -295,10 +295,11 @@ io.on('connection', function(socket){
 			};
 			// find specific User
 			models.User.findOne(UserObj,function(err,results){
+				console.log("SOME1 ASK TO LEAVE");
 				if(results){
 					//leave the user
-					results.leave(group_name,function(msg,parse){
-						 if(msg == 'success'){
+					results.leave(data.group_name,function(msg,parse){
+						if(msg == 'success'){
 								res.success =true;
 								res.err_msg = [msg];
 							}else{
