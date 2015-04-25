@@ -9,24 +9,19 @@ div#register-wrapper.animated.fadeIn(vertical-middle)
         //-     p
         //-       | super fast, super cool web messenger
 
-        form(ng-submit="Register(username, password, disp_name)")
+        form#main-form(
+          dropzone
+          ng-submit="Register(username, password, disp_name)")
           //- disp_image field
+          input#token(type="hidden" name="_token" value="tmp")
           div.ui.one.column.row
             div.column
-              div.image-uploader(
-                nv-file-drop=""
-                ng-file-over=""
-                over-class="dragover"
-                uploader="uploader"
-                vertical-middle)
-
-                h5(style="color: rgb(150,150,150)"
-                  ng-show="uploader.queue.length === 0"
+              div.image-uploader()
+                h5#upload-text(style="color: rgb(150,150,150)"
+                  ng-show="!textHide"
                   vertical-middle)
-                  span Your picture here!
-                div.image-preview(
-                  ng-repeat="item in uploader.queue"
-                  ng-thumb="{ file: item._file, height: 150 }")
+                  span Drag picture here!
+                img.image-preview
 
           //- disp_name field
           div.ui.one.column.row

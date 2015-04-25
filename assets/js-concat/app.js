@@ -460,43 +460,30 @@ angular.module('RegisterCtrl', [])
   function (
     $scope
   , $state
-  , FileUploader
   , User) {
     var s = $scope;
 
-    var uploader = s.uploader = new FileUploader({
-      url: 'photo',
-      formData: { _token: User.GetToken() },
-      queueLimit: 2,
-    });
-
-    s.Delete = function () {
-      uploader.clearQueue();
-    }
-
-    uploader.onAfterAddingFile = function(fileItem) {
-      console.log('queue: ', uploader.queue.length);
-      if (uploader.queue.size > 0) {
-        uploader.removeFromQueue(0);
-      }
-        console.info('onAfterAddingFile', fileItem);
-    };
-
     s.err = {}
+
+    s.StartUpload = null;
 
     s.Login = function () {
       // redirect to login
       $state.go('login');
     }
 
+    s.RegisterUploader = function (fn) {
+      s.StartUpload = fn;
+    }
+
     s.Register = function (username, password, disp_name) {
       // clear error
       s.err = {}
       // validate
-      if (uploader.queue.length === 0) {
-        s.err.display_image = true;
-        return ;
-      }
+      // if (uploader.queue.length === 0) {
+      //   s.err.display_image = true;
+      //   return ;
+      // }
 
       if (!disp_name) {
         s.err.disp_name = true;
@@ -512,7 +499,6 @@ angular.module('RegisterCtrl', [])
         s.err.password = true;
         return;
       }
-
       // make request
       User.Register({
         username: username,
@@ -529,12 +515,12 @@ angular.module('RegisterCtrl', [])
           })
             .then(function (res) {
               // upload image :D
-              uploader.queue[0].upload();
-              uploader.onCompleteAll = function() {
-                  console.info('onCompleteAll');
-              };
-              // redirect to groups
-              $state.go('messenger.groups');
+              var token = User.GetToken();
+              s.StartUpload(token, function () {
+                // redirect to groups
+                $state.go('messenger.groups');
+              });
+
             }, function (err) {
               // login error occured
               console.log('err', err);
@@ -799,7 +785,6 @@ angular.module('app', [
   'angular-velocity',
   'ui.router',
   'btford.socket-io',
-  'angularFileUpload',
   // Routing
   'routing',
   // Directives
@@ -983,51 +968,54 @@ angular.module('directives', [])
   }
 })
 
-
-.directive('ngThumb', ['$window', function($window) {
-  var helper = {
-      support: !!($window.FileReader && $window.CanvasRenderingContext2D),
-      isFile: function(item) {
-          return angular.isObject(item) && item instanceof $window.File;
-      },
-      isImage: function(file) {
-          var type =  '|' + file.type.slice(file.type.lastIndexOf('/') + 1) + '|';
-          return '|jpg|png|jpeg|bmp|gif|'.indexOf(type) !== -1;
-      }
-  };
-
+.directive('dropzone', function ($timeout) {
   return {
-      restrict: 'A',
-      template: '<canvas/>',
-      link: function(scope, element, attributes) {
-          if (!helper.support) return;
+    restrict: 'EA',
+    scope: false,
+    link: function (scope, element, attrs) {
 
-          var params = scope.$eval(attributes.ngThumb);
+      $(element).dropzone({
+        url: 'photo',
+        maxFiles: 1,
+        accetpedFiles: 'image/*',
+        thumbnailWidth: '400',
+        thumbnailHeight: null,
+        autoProcessQueue: false,
+        thumbnail: function (file, data) {
+          $('#upload-text').fadeOut(350);
 
-          if (!helper.isFile(params.file)) return;
-          if (!helper.isImage(params.file)) return;
 
-          var canvas = element.find('canvas');
-          var reader = new FileReader();
+          $('.image-preview')
+            .fadeOut(350)
+            .queue(function () {
+              $(this).attr('src', data).dequeue();
+            })
+            .fadeIn(350);
+        },
+        init: function () {
+          var self = this;
+          var callback = null;
 
-          reader.onload = onLoadFile;
-          reader.readAsDataURL(params.file);
+          scope.RegisterUploader(function (token, _callback) {
+            // register callback
+            callback = _callback;
+            // insert token
+            $('#token').val(token);
+            // start upload
+            console.log('started uploading..');
+            self.processQueue();
+          });
 
-          function onLoadFile(event) {
-              var img = new Image();
-              img.onload = onLoadImage;
-              img.src = event.target.result;
-          }
 
-          function onLoadImage() {
-              var width = params.width || this.width / this.height * params.height;
-              var height = params.height || this.height / this.width * params.width;
-              canvas.attr({ width: width, height: height });
-              canvas[0].getContext('2d').drawImage(this, 0, 0, width, height);
-          }
-      }
-  };
-}]);
+          this.on('success', function (files, response) {
+            console.log('sending done!');
+            callback();
+          });
+        },
+      });
+    }
+  }
+})
 
 // var socket = io();
 // var offset = 0;

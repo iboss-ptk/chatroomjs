@@ -6,43 +6,30 @@ angular.module('RegisterCtrl', [])
   function (
     $scope
   , $state
-  , FileUploader
   , User) {
     var s = $scope;
 
-    var uploader = s.uploader = new FileUploader({
-      url: 'photo',
-      formData: { _token: User.GetToken() },
-      queueLimit: 2,
-    });
-
-    s.Delete = function () {
-      uploader.clearQueue();
-    }
-
-    uploader.onAfterAddingFile = function(fileItem) {
-      console.log('queue: ', uploader.queue.length);
-      if (uploader.queue.size > 0) {
-        uploader.removeFromQueue(0);
-      }
-        console.info('onAfterAddingFile', fileItem);
-    };
-
     s.err = {}
+
+    s.StartUpload = null;
 
     s.Login = function () {
       // redirect to login
       $state.go('login');
     }
 
+    s.RegisterUploader = function (fn) {
+      s.StartUpload = fn;
+    }
+
     s.Register = function (username, password, disp_name) {
       // clear error
       s.err = {}
       // validate
-      if (uploader.queue.length === 0) {
-        s.err.display_image = true;
-        return ;
-      }
+      // if (uploader.queue.length === 0) {
+      //   s.err.display_image = true;
+      //   return ;
+      // }
 
       if (!disp_name) {
         s.err.disp_name = true;
@@ -58,7 +45,6 @@ angular.module('RegisterCtrl', [])
         s.err.password = true;
         return;
       }
-
       // make request
       User.Register({
         username: username,
@@ -75,12 +61,12 @@ angular.module('RegisterCtrl', [])
           })
             .then(function (res) {
               // upload image :D
-              uploader.queue[0].upload();
-              uploader.onCompleteAll = function() {
-                  console.info('onCompleteAll');
-              };
-              // redirect to groups
-              $state.go('messenger.groups');
+              var token = User.GetToken();
+              s.StartUpload(token, function () {
+                // redirect to groups
+                $state.go('messenger.groups');
+              });
+
             }, function (err) {
               // login error occured
               console.log('err', err);

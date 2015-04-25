@@ -10,6 +10,7 @@ var uuid = require('node-uuid');
 var extend = require('util')._extend;
 var fs = require('fs');
 var async = require('async');
+var multer = require('multer');
 
 mongoose.connect('mongodb://mongo/chat');
 //mongoose.connect('mongodb://127.0.0.1:27017/chat');
@@ -25,7 +26,8 @@ var models = {
 var redis_client = redis.createClient(6379, 'redis');
 //var redis_client = redis.createClient(6379, '127.0.0.1');
 
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded());
+app.use(multer());
 app.use(express.static('assets'));
 
 app.get('/', function(req, res){
@@ -35,75 +37,114 @@ app.get('/', function(req, res){
 
 app.post('/photo', function (req, res) {
 	var token = req.body._token;
+	console.log(req.body);
 
-	jwt.verify(token, secret, function (err, payload) {
-		if (err) {
-			res.status(400);
-			res.send('wrong token');
-			return ;
-		}
+	async.waterfall([
+		// jwt
+		function (callback) {
+			jwt.verify(token, secret, function (err, payload) {
+				if (err) {
+					res.status(400);
+					res.send('wrong token');
+					callback(err);
+					return ;
+				}
+				callback(null, payload);
+			});
+		},
 
-		redis_client.get(payload.session_id, function (err, UserObj) {
-			if (err || UserObj === null) {
-				res.status(400);
-				res.send('expired_token');
-				return ;
-			}
+		// redis
+		function (payload, callback) {
+			redis_client.get(payload.session_id, function (err, UserObj) {
+				if (err || UserObj === null) {
+					res.status(400);
+					res.send('expired_token');
+					callback(err);
+					return ;
+				}
+				callback(null, payload, JSON.parse(UserObj));
+			});
+		},
 
-			// loggged in
-			var fileName = req.files.display_image.name;
-			var extension = fileNmae.split('.').slice(-1)[0];
-			var newFileName = UserObj.username + '.' + extension;
-			var serverPath = 'assets/display_images/' + UserObj.username + '.' + extension;
-			fs.rename(
-				req.files.display_image.path,
-				serverPath,
-				function (err) {
+		// read
+		function (payload, UserObj, callback) {
+			fs.readFile(
+				req.files.file.path,
+				function (err, data) {
 					if (err) {
-						res.send({ error: 'cannot upload' });
+						res.send({ error: 'cannot read the uploaded file' });
+						callback(err);
 						return ;
 					}
+					callback(null, payload, UserObj, data);
+				});
+		},
 
-					// update UserObj
-					UserObjNew = extend({}, UserObject);
-					UserObjNew.display_image = newFileName;
+		// write
+		function (payload, UserObj, data, callback) {
+			var fileName = req.files.file.name;
+			var extension = fileName.split('.').slice(-1)[0];
+			var newFileName = UserObj.username + '.' + extension;
+			var serverPath = 'assets/display_images/' + newFileName;
 
-					async.parallel({
-						redis: function (finish) {
-							redis_client.set(payload.session_id, UserObjNew, function (err) {
-								if (err) {
-									finish(err, null);
-									return console.log('problem with updating UserObj on redis');
-								}
-								finish();
-							});
-						},
-						mongo: function (finish) {
-							mongoose.findOneAndUpdate(UserObj, UserObjNew, { upsert: true }, function (err, doc) {
-								if (err) {
-									finish(err, null);
-									return console.log('problem with updating UserObj on mongo');
-								}
-								finish();
-							});
-						},
-					}, function (err, res) {
-						if (err) {
-							throw new Error(err);
-							return;
-						}
+			fs.writeFile(serverPath, data, function (err) {
+				if (err) {
+					res.send({ error: 'cannot write file' });
+					callback(err);
+					return ;
+				}
 
-						res.json({
-							success: true,
-							UserObj: UserObjNew,
+				// update UserObj
+				UserObjNew = extend({}, UserObj);
+				UserObjNew.display_image = newFileName;
+
+				async.parallel({
+					// update redis
+					redis: function (finish) {
+						redis_client.set(payload.session_id, UserObjNew, function (err) {
+							if (err) {
+								finish(err, null);
+								return console.log('problem with updating UserObj on redis');
+							}
+							finish();
 						});
+					},
+					// update mongo
+					mongo: function (finish) {
+						models.User.findOneAndUpdate(UserObj, UserObjNew, { upsert: true }, function (err, doc) {
+							if (err) {
+								finish(err, null);
+								return console.log('problem with updating UserObj on mongo');
+							}
+							finish();
+						});
+					},
+				}, function (err) {
+					if (err) {
+						throw new Error(err);
+						return;
+					}
 
+					res.json({
+						success: true,
+						UserObj: UserObjNew,
 					});
+
+					callback(null);
 
 				});
 
-		});
+			});
+		},
+
+	], function (err, results) {
+		if (err) {
+			console.log('err uploading image');
+			return ;
+		}
+		console.log('results:', results);
 	});
+
 });
 
 // load last sequence from mongo

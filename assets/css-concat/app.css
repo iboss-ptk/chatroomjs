@@ -211,6 +211,8 @@ body {
 #register-wrapper {
   text-align: center;
   height: 100%; }
+  #register-wrapper .dz-preview {
+    display: none; }
   #register-wrapper .wrapper {
     display: inline-block; }
     #register-wrapper .wrapper .register-panel {
@@ -242,6 +244,7 @@ body {
         #register-wrapper .wrapper .row .image-uploader .image-preview {
           position: absolute;
           top: 0px;
-          left: 0px; }
+          left: 0px;
+          width: 150px; }
       #register-wrapper .wrapper .row .image-uploader.dragover {
         background-color: #e6e6e6; }

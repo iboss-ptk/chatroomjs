@@ -7,6 +7,7 @@ html(ng-app="app", lang="th")
     //- CSS
     link(rel="stylesheet" href="bower/semantic/dist/semantic.min.css")
     link(rel="stylesheet" href="css-concat/app.css")
+    link(rel="stylesheet" href="bower/animate.css/animate.min.css")
 
     //- Jquery Core
     script(src="bower/jquery/dist/jquery.min.js")
@@ -21,6 +22,9 @@ html(ng-app="app", lang="th")
 
     //- jsHashes
     script(src="bower/jshashes/hashes.min.js")
+
+    //- dropzone
+    script(src="bower/dropzone/dist/min/dropzone.min.js")
   body
     section.view-wrapper(
         ui-view=""
@@ -34,9 +38,6 @@ html(ng-app="app", lang="th")
 
     script(src="bower/angular-animate/angular-animate.min.js")
     script(src="bower/angular-velocity/angular-velocity.js")
-    script(src="bower/angular-file-upload/angular-file-upload.min.js")
-    //- script(src="bower/ng-file-upload/ng-file-upload-all.min.js")
-    //- script(src="bower/ng-file-upload/FileAPI.min.js")
 
     //- app.js
     script(src="js-concat/app.js")

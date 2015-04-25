@@ -1,4 +1,4 @@
-#groups-wrapper
+#groups-wrapper.animated.fadeIn
   div(
     ng-repeat="group in GroupObjs")
     .group-card(ng-click="OpenChat(group)")
@@ -6,6 +6,6 @@
         | {{group.group_name.substr(0,1).toUpperCase()}}
       div.text(ng-bind="group.group_name.substr(0,23)")
       div.floating.ui.red.label
-        | 12 
-  
-  
+        | 12
+
+
