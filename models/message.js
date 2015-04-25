@@ -16,7 +16,7 @@ MessageSchema.methods.get_unread = function get_unread (data, UserObj, callback)
 	Group.findOne({group_name: data.group_name}, 'group_id', function (err, results) {
 		if(results) {
 			//find last_seen in group_members
-			GroupMember.findOne({_id:UserObj._id, group_id:results} 'last_seen', function(ret, res) {
+			GroupMember.findOne({_id:UserObj._id, group_id:results}, 'last_seen', function(ret, res) {
 				if(res) {
 					console.log('last_seen at ' + res)
 					var user_last_seen = res;
