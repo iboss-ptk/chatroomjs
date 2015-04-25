@@ -15,7 +15,7 @@ angular.module('GroupsCtrl', [])
 
     s.OpenChat = function(group) {
     	// todo: change page
-    	$state.go();
+    	$state.go('messenger.chat');
     }
   }
 )

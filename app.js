@@ -31,7 +31,7 @@ app.get('/', function(req, res){
 // and update this to redis
 models.Message.findOne().sort('-seq').exec(function (err, res) {
 	if (err) {
-		throw new Error(err);
+		console.log('err', err);
 		return ;
 	}
 	// message not found
@@ -42,7 +42,7 @@ models.Message.findOne().sort('-seq').exec(function (err, res) {
 	var latestSequence = res.seq;
 	redis_client.set('message_sequence', latestSequence, function(err, res) {
 		if (err) {
-			throw new Error(err);
+			console.log('err', err);
 			return ;
 		}
 		console.log('set message_sequence to :', latestSequence);
@@ -338,6 +338,36 @@ io.on('connection', function(socket){
 			socket.emit(data._event, returnObj);
 		});
 
+	});
+
+	// this will return the requsted messages
+	socket.on('message.get_message', function (data) {
+		helper.SetData(data);
+		helper.IsLogin(function (UserObj) {
+
+			models.Message
+				.find({
+					group_name: data.group_name,
+					seq: {
+						$lt: data.start_seq,
+					},
+				})
+				.sort('-seq')
+				.limit(data.limit)
+				.exec(function (err, docs) {
+					if (err) {
+						console.log('err', err);
+						return ;
+					}
+
+					// return the result
+					socket.emit(data._event, {
+						success: true,
+						MessageObjList: docs,
+					});
+				});
+
+		});
 	});
 
 
