@@ -25,7 +25,7 @@ MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
 					console.log('last_seen at ' + res)
 					var user_last_seen = res;
 					//find message before given last_seen
-					Message.find({sent_at : { $gte : res }}).sort({ send_at : -1 }, function (msg, resData) {
+					Message.find({sent_at : { $gte : res }}).sort({ send_at : -1 }).exec(function (msg, resData) {
 						if(resData) {
 							console.log(msg, 'unread message get !!');
 							console.log(resData);
