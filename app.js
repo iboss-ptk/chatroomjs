@@ -16,10 +16,10 @@ mongoose.connect('mongodb://mongo/chat');
 
 var secret = "ZDKFHG98EIGLEHRVT30IHVPXCVSDJNFGHBS@@OOXCPO5U8"
 var models = {
-	User: require("./models/user").User,
+	User : require("./models/user").User,
 	GroupMember : require("./models/group_member").GroupMember,
  	Group : require("./models/group").Group,
- 	Message: require('./models/message').Message
+ 	Message : require("./models/message").Message
 }
 
 var redis_client = redis.createClient(6379, 'redis');
@@ -539,5 +539,5 @@ io.on('connection', function(socket){
 
 
 http.listen(8888, function(){
-	console.log('listening on *:8888');
+	console.log('listening on port 8888');
 });
