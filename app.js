@@ -22,8 +22,6 @@ var models = {
  	Message : require("./models/message").Message
 }
 
-var msgjs = require("./models/message").Message
-
 var redis_client = redis.createClient(6379, 'redis');
 //var redis_client = redis.createClient(6379, '127.0.0.1');
 
@@ -486,6 +484,7 @@ io.on('connection', function(socket){
 			//////////////AFTER YOU TRY IT
 			////////LEAVE GROUP CODE - FOR TESTING////////////DELETE IT IMMEDIATELY
 			//leave code here
+/*
 			models.User.findOne(UserObj,function(err,results){
 				console.log("SOME1 ASK TO LEAVE");
 				if(results){
@@ -506,25 +505,27 @@ io.on('connection', function(socket){
 					socket.emit(data._event, res);
 				}
 			});
+*/
 			/////////////////////////////////////////DELETE ABOVE IMMEDIATELY
 
-
-			// "REAL GET UNREAD MESSAGE " BELOW HERE
-			//console.log(data);
-			// console.log('calling getunreadmsg');
-			// //Y U NOT FOUND U MOTHERFUCKING SHIT
-			// models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
-			// 	if(unreadResults = 'unexpected') {
-			// 		//Failed to function properly
-			// 		returnObj.success = false;
-			// 		err_msg = msg;
-			// 	} else {
-			// 		//mikotodesu~
-			// 		returnObj.success = true;
-			// 		returnObj.unread_msg = unreadResults;
-			// 	}
-			// 	socket.emit(data._event, returnObj);
-			// });
+			console.log(data);
+			console.log('calling getunreadmsg');
+			//Y U NOT FOUND U MOTHERFUCKING SHIT
+			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
+				if(unreadResults == 'unexpected') {
+			 		//Failed to function properly
+			 		res.success = false;
+			 		res.err_msg = 'unexpected';
+			 	} else if(msg == 'ok'){
+			 		//mikotodesu~
+					res.success = true;
+			 		res.unread_msg = unreadResults;
+			 	} else {
+					res.success = false;
+					res.err_msg = 'unexpected';
+				}
+			 	socket.emit(data._event, res);
+			});
 
 		});
 
