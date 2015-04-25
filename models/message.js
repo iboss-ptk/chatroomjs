@@ -8,7 +8,7 @@ var MessageSchema = new mongoose.Schema({
  	username: String,
  	group_name: String,
  	seq: Number,
- 	sent_at: Date,
+ 	sent_at: Date
 });
 
 var Message = mongoose.model('Message', MessageSchema);
@@ -32,18 +32,18 @@ MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
 							callback(resData);
 						} else {
 							console.log('no unread message');
-							callback('ok', []);
+							callback(msg, 'unexpected');
 						}
 					});
 				} else {
 					console.log('daed : cannot find last_seen associated with user : ' + userObj.username + ' group : ' + group_name);
-					callback(ret, []);
+					callback(ret, 'unexpected');
 				}
 			});
 
 		} else {
 			console.log('dead : cannot find group_id');
-			callback(err, []);
+			callback(err, 'unexpected');
 		}
 	});
 }
