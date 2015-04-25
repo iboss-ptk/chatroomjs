@@ -12,8 +12,8 @@
 // socket.emit('addRoom', room);
 
 // function scrollToBottom() {
-//   var h = $('#msgpane')[0].scrollHeight;
-//   $('#msgpane').animate({ scrollTop: h }, 100);
+  // var h = $('#msgpane')[0].scrollHeight;
+  // $('#msgpane').animate({ scrollTop: h }, 100);
 // }
 
 

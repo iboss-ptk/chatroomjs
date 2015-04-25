@@ -1,16 +1,12 @@
-script.
-	$('.avatar').popup();
-
 #messenger-chat
-
 	.message-wrapper(
 		ng-repeat="message in Messages"
 		ng-class="{ 'other-message': message.UserObj.username !== User.username }")
 
 		img.ui.avatar(
 			ng-if="message.UserObj.username !== User.username"
-			data-title="ibosz"
-			src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xpf1/v/t1.0-1/p50x50/10991376_10153081313289814_298485608797890658_n.jpg?oh=165c63ff1b44bc18e3bee0f5d9666b64&oe=55A32BAD&__gda__=1436492738_4a0aba731483c5bd14832789b1361d2c")
+			data-title="{{message.UserObj.disp_name}}"
+			src="https://scontent-kul.xx.fbcdn.net/hphotos-xfp1/v/t1.0-9/s526x395/10422369_819813851401895_5121571274047494089_n.png?oh=848633c904018e90d3b27800818f1c84&oe=5597A7B1")
 
 		.sent-time(
 			ng-bind="message.sent_at"
@@ -29,3 +25,9 @@ script.
 		button#send-button.ui.teal.button(
 			type="submit")
 			| Send
+
+script.
+	$('body').on('mouseover', '.avatar', function() {
+	    $(this).popup('show');
+	});
+	

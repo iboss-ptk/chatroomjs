@@ -10,16 +10,12 @@
   #messenger-chat .message-wrapper {
     float: right;
     clear: both;
-    max-width: 45%; }
+    max-width: 50%; }
     #messenger-chat .message-wrapper .message {
-      max-width: 100%;
+      max-width: 88%;
       font-size: 1.2em;
       word-break: break-all;
       overflow-wrap: break-word;
-      -webkit-hyphens: auto;
-         -moz-hyphens: auto;
-          -ms-hyphens: auto;
-              hyphens: auto;
       white-space: pre;
       display: inline;
       padding: 10px 10px;
@@ -37,9 +33,19 @@
   #messenger-chat .message-wrapper.other-message {
     float: left; }
     #messenger-chat .message-wrapper.other-message .avatar {
-      border-radius: 100%; }
-    #messenger-chat .message-wrapper.other-message .message {
+      width: 50px;
+      height: 50px;
+      border-radius: 100%;
+      -o-object-fit: cover;
+         object-fit: cover;
+      -o-object-position: center;
+         object-position: center;
       vertical-align: middle;
+      -webkit-transition: opacity .5s ease;
+              transition: opacity .5s ease; }
+      #messenger-chat .message-wrapper.other-message .avatar:hover {
+        opacity: 0.6; }
+    #messenger-chat .message-wrapper.other-message .message {
       background-color: white;
       margin-left: 20px; }
 
@@ -56,16 +62,16 @@
   #message-type-box textarea.type-box {
     box-sizing: border-box;
     font-size: 1.2em;
-    width: 67%;
+    width: 60%;
     height: auto;
     border-collapse: collapse;
     border: none;
     outline: none;
     resize: none; }
   #message-type-box #send-button {
-    position: fixed;
+    position: absolute;
     bottom: 13px;
-    right: 425px; }
+    right: 400px; }
 
 
 #login-wrapper {

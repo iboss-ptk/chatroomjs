@@ -12,6 +12,15 @@ var UserSchema = new mongoose.Schema({
 	password : String
 });
 
+UserSchema.methods.pause = function pause(group_name,callback){
+	console.log("SOME1 TRY TO PAUSE");
+	var result = {};
+	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
+		console.log(JSON.stringify(results));
+		callback(err,{success: err ? false : true});
+	});
+}
+
 UserSchema.methods.leave = function leave(group_name,callback){
 	console.log( this.username+" Call Obj-Method leave");
 	Group.findOne({group_name : group_name},function(err,results){

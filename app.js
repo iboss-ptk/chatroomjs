@@ -144,7 +144,7 @@ io.on('connection', function(socket){
 				}
 
 				// add to redis
-				redis_client.set(obj.session_id, payload, function (err, success) {
+				redis_client.set(obj.session_id, JSON.stringify(payload), function (err, success) {
 					if (err) {
 						console.log('error while creating token');
 						return ;
@@ -188,6 +188,8 @@ io.on('connection', function(socket){
 							return console.log('error while getting session from redis');
 						}
 						// this should return UserObj
+						UserObj = JSON.parse(UserObj);
+						console.log(UserObj);
 						callback(UserObj);
 					});
 				});
@@ -319,11 +321,22 @@ io.on('connection', function(socket){
 
 	socket.on('user.pause', function(data){
 		helper.IsLogin(data, function (UserObj) {
-			// user pause code here!
-
-			socket.emit(data._event, {
-				success: true,
-				err_msg: null,
+			var res = {};
+			models.User.findOne({username: UserObj.username},function(err,user){
+				res.err_msg = []
+				if(err){
+					res.err_msg.push("can not find user. who the hell are you?");
+					res.success = false;
+					socket.emit(data._event, res);
+				} else {
+					user.pause(data.group_name, function(err,results){
+						if(err) {
+							res.err_msg.push(err);
+						}
+						res.success = results.success;
+						socket.emit(data._event, res);
+					});
+				}
 			});
 		});
 	});

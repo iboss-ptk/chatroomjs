@@ -38,6 +38,12 @@ angular.module('MessengerCtrl', [])
         console.log('got a message from an unknown group');
         return ;
       }
+      //time format
+      var datetime = new Date(message.sent_at)
+      message.sent_at = datetime.getHours() + '.' + datetime.getMinutes();
+      // scroll down when receive a new message
+      var h = $('#messenger-chat')[0].scrollHeight;
+      $('#messenger-chat').animate({ scrollTop: h }, 300);
       // separatly clissify it to the right box
       s.GlobalMessages[messageGroup].push(message);
     });

@@ -9,16 +9,15 @@
   .message-wrapper
     float: right
     clear: both
-    max-width: 45%
+    max-width: 50%
   
     .message
-      max-width: 100%
+      max-width: 88%
       font-size: 1.2em
       word-break: break-all
       overflow-wrap: break-word
-      hyphens: auto;
       white-space: pre
-      display:inline
+      display: inline
       padding: 10px 10px
       margin-bottom: 30px
       background-color: #C8F7C5
@@ -38,10 +37,17 @@
     float: left
 
     .avatar
+      width: 50px
+      height: 50px
       border-radius: 100%
+      object-fit: cover
+      object-position: center
+      vertical-align: middle
+      transition: opacity .5s ease
+      &:hover
+        opacity: 0.6
 
     .message
-      vertical-align: middle
       background-color: white
       margin-left: 20px
 
@@ -59,7 +65,7 @@
   textarea.type-box
     box-sizing: border-box
     font-size: 1.2em
-    width: 67%
+    width: 60%
     height: auto
     border-collapse: collapse
     border: none
@@ -67,6 +73,6 @@
     resize: none
 
   #send-button
-    position: fixed
+    position: absolute
     bottom: 13px
-    right: 425px
+    right: 400px
