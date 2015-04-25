@@ -489,8 +489,9 @@ io.on('connection', function(socket){
 				if(unreadResults = 'unexpected') {
 					//Failed to function properly
 					returnObj.success = false;
+					err_msg = msg;
 				} else {
-					//mikoto 
+					//mikotodesu~
 					returnObj.success = true;
 					returnObj.unread_msg = unreadResults;
 				}

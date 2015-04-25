@@ -27,23 +27,23 @@ MessageSchema.statics.getunreadmsg = function (data, userObj, callback) {
 					//find message before given last_seen
 					Message.find({sent_at : { $gte : res }}).sort({ send_at : -1 }, function (msg, resData) {
 						if(resData) {
-							console.log('unread message get !!');
+							console.log(msg, 'unread message get !!');
 							console.log(resData);
 							callback(resData);
 						} else {
 							console.log('no unread message');
-							callback([]);
+							callback('ok', []);
 						}
 					});
 				} else {
 					console.log('daed : cannot find last_seen associated with user : ' + userObj.username + ' group : ' + group_name);
-					callback([]);
+					callback(ret, []);
 				}
 			});
 
 		} else {
 			console.log('dead : cannot find group_id');
-			callback([]);
+			callback(err, []);
 		}
 	});
 }
