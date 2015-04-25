@@ -5,6 +5,7 @@ angular.module('app', [
   'angular-velocity',
   'ui.router',
   'btford.socket-io',
+  'angularFileUpload',
   // Routing
   'routing',
   // Directives

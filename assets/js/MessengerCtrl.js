@@ -8,6 +8,7 @@ angular.module('MessengerCtrl', [])
   , $timeout
   , socket
   , $state
+  , $stateParams
   , User
   , Group
   , groups) {
@@ -213,7 +214,9 @@ angular.module('MessengerCtrl', [])
         });
       };
 
-      s.Leave = function (group_name) {
+      s.Leave = function () {
+        var group_name = $stateParams.groupName;
+        console.log('leaving from the group .. ', group_name);
         // clear errors
         s.err.leave = {};
         // validate

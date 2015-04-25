@@ -1,0 +1,54 @@
+======================================================================================================
+
+require :
+```sh
+	$ sudo apt-get update
+	$ sudo apt-get upgrade
+	$ sudo apt-get install git vim build-essential wget apparmor
+```
+
+[MongoDB](http://www.mongodb.com/)
+```sh
+	$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+	$ echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+	$ sudo apt-get update
+	$ sudo apt-get install -y mongodb-org
+```
+
+[Redis](http://redis.io/)
+```sh
+	$ sudo apt-get install tcl
+	$ wget http://download.redis.io/releases/redis-3.0.0.tar.gz
+	$ tar xzf redis-3.0.0.tar.gz
+	$ cd redis-*
+	$ make
+	$ make test	# optional
+	$ sudo make install
+```
+
+[Nodejs](https://nodejs.org/) w/ npm
+```sh
+	$ wget http://nodejs.org/dist/v0.12.2/node-v0.12.2-linux-x64.tar.gz
+	$ sudo tar -C /usr --strip-components 1 -xzf node-v0.12.2-linux-x64.tar.gz
+```
+
+[Docker](https://www.docker.com/)
+```sh
+	$ wget -qO- https://get.docker.com/ | sh
+	$ sudo docker run hello-world  	# for test (optional)
+```
+
+[Docker-compose](https://docs.docker.com/compose/)
+```sh
+	$ sudo -i
+	$ curl -L https://github.com/docker/compose/releases/download/1.2.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+	$ chmod +x /usr/local/bin/docker-compose
+	$ exit
+```
+
+defaults :
+```sh
+	ssh	: port 22
+	mongodb	: port 27017
+	app.js 	: port 8888
+```

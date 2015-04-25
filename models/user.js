@@ -12,6 +12,29 @@ var UserSchema = new mongoose.Schema({
 	password : String
 });
 
+UserSchema.methods.leave = function leave(group_name,callback){
+	console.log( this.username+" Call Obj-Method leave");
+	Group.findOne({group_name : group_name},function(err,results){
+		if(results){
+			//result = true => have group_name = group_name (proposed)
+			GroupMember.findOneAndRemove({group_id : mongoose.Types.ObjectId(results._id)},function(actionResult){
+				console.log(actionResult);
+				if(!actionResult){
+					console.log("error finding group to leave")
+					callback(err,'error_finding_group');
+				}else{
+					console.log('leaveing su');
+					callback('okay','leaving_success');
+				}
+			});
+		}else{
+			//no group_name = leaving nothing
+			 callback(err,'no_group_name');
+		}
+	});
+
+}
+
 UserSchema.methods.get_groups = function get_groups (callback){
 	console.log("get in getgroup");
 	var groupList = [];
@@ -54,7 +77,7 @@ UserSchema.methods.getInGroup = function getInGroup (group_name,callback) {
 			callback('already_exists');
 		}
 		else{
-			//unhandled , another error which not handle
+			//unhandled , another error which is not handle
 			callback('error');
 		}
 	});
@@ -95,14 +118,10 @@ UserSchema.pre("save", function(next) {
 			//Another Error
 			next(err);
 		} else if(results) {
-            //IF USER IS ALREADY CREATED
-
-			//next(new Error("User Already Exists :" + results.username));
+      //username is already created
 			next(new Error("duplicated_username"));
-
 		} else {
-			//DIDNT FIND ANYTHING GO AHEAD AND ADD NEW ROOM
-			//NO ERROR INPUT TO NEXT
+			//normal case
 			next();
 		}
 	});
