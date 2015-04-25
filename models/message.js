@@ -1,5 +1,8 @@
 var mongoose = require("mongoose");
 
+var GroupMember	= require("../models/group_member").GroupMember
+var Group = require("../models/group").Group
+
 var MessageSchema = new mongoose.Schema({
   content: String,
   username: String,
