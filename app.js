@@ -493,10 +493,10 @@ io.on('connection', function(socket){
 				} else {
 					//mikoto 
 					returnObj.success = true;
-					unread_msg = unreadResults;
+					returnObj.unread_msg = unreadResults;
 				}
+				socket.emit(data._event, returnObj);
 			});
-			socket.emit(data._event, returnObj);
 			
 		});
 

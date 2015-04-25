@@ -10,6 +10,7 @@ var MessageSchema = new mongoose.Schema({
 
 var Message = mongoose.model('Message', MessageSchema);
 
+//why ??
 MessageSchema.statics.getunreadmsg = function getunreadmsg (data, UserObj, callback) {
 	console.log(UserObj.username + ' is calling get_unread');
 	//find group id
