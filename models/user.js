@@ -20,6 +20,7 @@ UserSchema.methods.pause = function pause(group_name,callback){
 		callback('no group to pause',{success:true});
 	}else{
 	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
+		console.log("THIS IS RESULT : " , this.username);
 		console.log(JSON.stringify(results));
 		callback(err,{success: err ? false : true});
 	});
@@ -36,7 +37,7 @@ UserSchema.methods.leave = function leave(group_name,callback){
 					callback(err,'error_finding_group');
 				}else{
 					console.log('leaving '+group_name+' success');
-					callback('okay','leaving_success');
+					callback('success','leaving_success');
 				}
 			});
 		}else{
@@ -58,8 +59,8 @@ UserSchema.methods.get_groups = function get_groups (callback){
 				callback([]);
 				return;
 			}
-
 			results.forEach(function(item){
+				console.log("TRY TO FIND");
 				Group.find({_id: mongoose.Types.ObjectId(item.group_id)},'group_name',function(err,groupObj){
 					var resolver = {
 						group_name: groupObj[0].group_name,
@@ -112,10 +113,12 @@ UserSchema.statics.register = function(data, callback){
 
 //Login Function
 UserSchema.statics.login = function(data,callback){
-	User.findOne({username : data.username , password : data.password},{'username' :1 , 'disp_name':1}, function(err, results) {
+
+	User.findOne({username : data.username , password : data.password},{'password' : 0}, function(err, results) {
 		if(!results){
 			callback(err,'authen_failed');
 		}else{
+			results.password = undefined;
 			callback(results,'authen_success');
 		}
 	});

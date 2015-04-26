@@ -101,10 +101,11 @@ app.post('/photo', function (req, res) {
 				async.parallel({
 					// update redis
 					redis: function (finish) {
-						redis_client.set(payload.session_id, UserObjNew, function (err) {
+						redis_client.set(payload.session_id, JSON.stringify(UserObjNew), function (err) {
 							if (err) {
+								console.log('problem with updating UserObj on redis');
 								finish(err, null);
-								return console.log('problem with updating UserObj on redis');
+								return ;
 							}
 							finish();
 						});
@@ -113,18 +114,22 @@ app.post('/photo', function (req, res) {
 					mongo: function (finish) {
 						models.User.findOneAndUpdate(UserObj, UserObjNew, { upsert: true }, function (err, doc) {
 							if (err) {
+								console.log('problem with updating UserObj on mongo');
 								finish(err, null);
-								return console.log('problem with updating UserObj on mongo');
+								return ;
 							}
 							finish();
 						});
 					},
 				}, function (err) {
 					if (err) {
-						throw new Error(err);
+						console.log("cannot update database");
+						callback(err);
 						return;
 					}
+					console.log('successfully create a user with display image.');
 
+					console.log("success !!!");
 					res.json({
 						success: true,
 						UserObj: UserObjNew,
@@ -199,7 +204,19 @@ io.on('connection', function(socket){
 				throw new Error('deprecated');
 			},
 
+			GetSessionId: function (data, callback) {
+				jwt.verify(data._token, secret, function (err, payload) {
+					if (err) {
+						// wrong token
+						callback(err);
+						return console.log(err);
+					}
+					callback(null, payload.session_id);
+				});
+			},
+
 			IsLogin: function (data, callback, emit) {
+				console.log('is login as been called:', data);
 				// default
 				emit = emit || true;
 
@@ -214,11 +231,14 @@ io.on('connection', function(socket){
 						}
 						return console.log(err);
 					}
-
+					console.log('payload:', payload);
 					// use payload to get the information from redis
 					redis_client.get(payload.session_id, function (err, UserObj) {
 						// problem getting this entry,
 						// or the entry is empty
+						console.log('before:');
+						console.log(UserObj);
+						console.log(typeof UserObj);
 						if (err || UserObj === null) {
 							if (emit) {
 								socket.emit(data._event, {
@@ -230,7 +250,7 @@ io.on('connection', function(socket){
 						}
 						// this should return UserObj
 						UserObj = JSON.parse(UserObj);
-						console.log(UserObj);
+						console.log('after:', UserObj);
 						callback(UserObj);
 					});
 				});
@@ -362,6 +382,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.pause', function(data){
+		console.log("SOME1 TRY TO PAUSE");
 		helper.IsLogin(data, function (UserObj) {
 			var res = {};
 			models.User.findOne({username: UserObj.username},function(err,user){
@@ -393,16 +414,18 @@ io.on('connection', function(socket){
 				err_msg: []
 			}
 
-			socket.emit(data._event, returnObj);
+			helper.GetSessionId(data, function (err, session_id) {
 
-			// redis_client.del(data.username + ":token", function(err, res){
-			// 	if (err) {
-			// 		returnObj.success = false;
-			// 		returnObj.err_msg.push('Can not logout. Error occured at redis.');
-			// 		console.log(res);
-			// 		socket.emit(data._event, returnObj);
-			// 	}
-			// });
+				redis_client.del(session_id, function(err, res){
+					if (err) {
+						returnObj.success = false;
+						returnObj.err_msg.push('Can not logout. Error occured at redis.');
+						console.log('cannot logout, Erorr occured at redis');
+					}
+					socket.emit(data._event, returnObj);
+				});
+
+			});
 
 		});
 
@@ -550,8 +573,8 @@ io.on('connection', function(socket){
 */
 			/////////////////////////////////////////DELETE ABOVE IMMEDIATELY
 
-			console.log(data);
-			console.log('calling getunreadmsg');
+			//console.log(data);
+			//console.log('calling getunreadmsg');
 			//Y U NOT FOUND U MOTHERFUCKING SHIT
 			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
 				if(unreadResults == 'unexpected') {

@@ -210,6 +210,7 @@ angular.module('MessengerCtrl', [])
     s.$state = $state;
     // expose User to the view
     s.UserObj = User.GetUserObj();
+    console.log('UserObj:', s.UserObj);
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
@@ -525,7 +526,14 @@ angular.module('RegisterCtrl', [])
               var token = User.GetToken();
               s.StartUpload(token, function () {
                 // redirect to groups
-                $state.go('messenger.groups');
+                User.Login({
+                  username: username,
+                  password: password,
+                })
+                  .then(function (res) {
+                    $state.go('messenger.groups');
+                  });
+
               });
 
             }, function (err) {
@@ -649,6 +657,8 @@ angular.module('User', [])
           token.Set(res._token);
           // save return UserObj
           UserObj.Set(res.UserObj);
+
+          console.log('UserObj !!!: ', res);
 
           deferred.resolve(res.UserObj);
         }
@@ -1163,7 +1173,7 @@ angular.module('routing', [])
 
             r.then(null, function (err) {
               console.log('during resolving chat');
-              throw new Error(err);
+              $state.go('messenger.groups');
             });
 
             return r;

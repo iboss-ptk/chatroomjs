@@ -64,7 +64,14 @@ angular.module('RegisterCtrl', [])
               var token = User.GetToken();
               s.StartUpload(token, function () {
                 // redirect to groups
-                $state.go('messenger.groups');
+                User.Login({
+                  username: username,
+                  password: password,
+                })
+                  .then(function (res) {
+                    $state.go('messenger.groups');
+                  });
+
               });
 
             }, function (err) {

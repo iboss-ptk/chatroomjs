@@ -2,6 +2,7 @@ var mongoose = require("mongoose");
 
 var GroupMember	= require("../models/group_member").GroupMember
 var Group = require("../models/group").Group
+var User = require("../models/user").User
 
 var MessageSchema = new mongoose.Schema({
  	content: String,
@@ -20,15 +21,38 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
 			//find last_seen in group_members
 			GroupMember.findOne({user_id:userObj._id, group_id:results}, 'last_seen', function(ret, res) {
 				if(res) {
-					console.log('last_seen at ' + res)
-					var user_last_seen = new Date(res.last_seen);
-					console.log('user_last_seen ' + user_last_seen);
+					console.log('last_seen at ' + res.last_seen);
 					//find message before given last_seen
 					Message.find({sent_at : { $gte : res.last_seen }}, function (msg, resData) {
 						if(resData) {
-							console.log(msg, 'unread message get !!');
-							console.log(resData);
-							callback('ok', resData);
+							console.log(resData.length + ' unread message get !!');
+							//console.log('messages : ' + resData);
+              var returnData = [];
+              i = 0;
+              resData.forEach(function(item) {
+                User.findOne({username : item.username}, function (rep, userData) {
+                  if(!userData) {
+                    console.log("Dead : How can you not find an exist user !!?");
+                    callback(rep, 'unexpected');
+                  } else {
+                    returnSchema = {
+                      content : item.content,
+                      username : item.username,
+                      group_name : item.group_name,
+                      seq : item.seq,
+                      send_at : item.send_at,
+                      user_id : userData._id,
+                      disp_name : userData.disp_name,
+                      display_image : userData.display_image
+                    };
+                    //console.log(returnSchema);
+                    returnData.push(returnSchema);
+                    i = i + 1;
+                  }
+                });
+              });
+              //console.log("return data : " + returnData);
+							callback('ok', returnData);
 						} else {
 							console.log('error : null');
 							callback(msg, 'unexpected');
