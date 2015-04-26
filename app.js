@@ -364,8 +364,8 @@ io.on('connection', function(socket){
 					results.leave(data.group_name,function(msg,parse){
 						if(msg == 'success'){
 							console.log(UserObj.username+" SUCCESSFULLY LEAVE "+data.group_name );
-								res.success =true;
-								res.err_msg = [msg];
+								res.success = true;
+								//res.err_msg = [msg];
 							}else{
 								res.success = false;
 								res.err_msg = ['no_group_name'];
