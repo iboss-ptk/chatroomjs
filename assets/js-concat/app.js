@@ -231,13 +231,18 @@ angular.module('MessengerCtrl', [])
 
     s.ShowAllGroups = function () {
       // pause the group we're leaving
+      var groupName = s.groupName;
+      if (groupName === null) {
+        // just clicking ....
+        return ;
+      }
       User.Pause({
-        group_name: s.groupName,
+        group_name: groupName,
       })
         .then(function (res) {
-          console.log('pause success:', s.groupName);
+          console.log('pause success:', groupName);
         }, function (err) {
-          console.log('pause fail:', s.groupName);
+          console.log('pause fail:', groupName);
         });
 
       s.groupName = null;
@@ -303,16 +308,40 @@ angular.module('MessengerCtrl', [])
 
     // Logout
     s.Logout = function () {
-      User.Logout()
-        .then(function (res) {
-          // logout success
-          console.log('logout success');
-          // redirect to login
-          $state.go('login');
-        }, function (err) {
-          // logout err
-          console.log('logout fail', err);
-        });
+      // helper function
+      function Logout() {
+        User.Logout()
+          .then(function (res) {
+            // logout success
+            console.log('logout success');
+            // redirect to login
+            $state.go('login');
+          }, function (err) {
+            // logout err
+            console.log('logout fail', err);
+          });
+      }
+
+      // in group ? checking
+      var groupName = s.groupName;
+      if (groupName === null) {
+        // we're not in a group
+        // no need to pause
+        Logout();
+      }
+      else {
+        // pause the group we're leaving
+        User.Pause({
+          group_name: groupName,
+        })
+          .then(function (res) {
+            console.log('pause success:', groupName);
+            Logout();
+          }, function (err) {
+            console.log('pause fail:', groupName);
+            Logout();
+          });
+      }
     };
 
     // this block is of code is all about joining..
