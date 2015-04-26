@@ -35,24 +35,34 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
                     console.log("Dead : How can you not find an exist user !!?");
                     callback(rep, 'unexpected');
                   } else {
+                    delete userData.password;
+
                     returnSchema = {
                       content : item.content,
                       username : item.username,
-                      group_name : item.group_name,
+                      // group_name : item.group_name,
+                      GroupObj: {
+                        group_name: item.group_name,
+                      },
                       seq : item.seq,
                       send_at : item.send_at,
-                      user_id : userData._id,
-                      disp_name : userData.disp_name,
-                      display_image : userData.display_image
+                      UserObj: userData,
+                      // user_id : userData._id,
+                      // disp_name : userData.disp_name,
+                      // display_image : userData.display_image
                     };
                     //console.log(returnSchema);
                     returnData.push(returnSchema);
                     i = i + 1;
+                    if(i == resData.length) {
+                      //console.log(returnData)
+                      callback('ok', returnData);
+                    }
                   }
                 });
               });
-              //console.log("return data : " + returnData);
-							callback('ok', returnData);
+              //console.log(returnData);
+							//callback('ok', returnData);
 						} else {
 							console.log('error : null');
 							callback(msg, 'unexpected');
