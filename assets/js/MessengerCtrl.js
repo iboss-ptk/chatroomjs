@@ -335,7 +335,7 @@ angular.module('MessengerCtrl', [])
             // success
             // remove this group from the array
             for (var i = 0; i < s.GroupObjs.length; ++i) {
-              if (s.GroupsObjs[i].group_name === group_name) {
+              if (s.GroupObjs[i].group_name === group_name) {
                 // remove that group from groupslist
                 s.GroupObjs.splice(i, 1);
                 break;
@@ -346,6 +346,8 @@ angular.module('MessengerCtrl', [])
 
             // hide leave modal
             leaveModal.modal('hide');
+
+            $state.go('messenger.groups');
           }, function (err) {
             // fail
             err.forEach(function (each) {

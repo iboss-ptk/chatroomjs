@@ -45,10 +45,11 @@ UserSchema.methods.pause = function pause(group_name,callback){
 
 
 UserSchema.methods.leave = function leave(group_name,callback){
-	console.log( this.username+" Call Obj-Method leave group : " + group_name);
+	var self = this;
+	console.log( self.username+" Call Obj-Method leave group : " + group_name);
 	Group.findOne({group_name : group_name},function(err,results){
 		if(!err){
-			GroupMember.findOneAndRemove({group_id : mongoose.Types.ObjectId(results._id)},function(err,actionResult){
+			GroupMember.findOneAndRemove({group_id : mongoose.Types.ObjectId(results._id), user_id: self._id},function(err,actionResult){
 				if(err){
 					console.log("error finding group to leave")
 					callback(err,'error_finding_group');
