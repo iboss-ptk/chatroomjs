@@ -16,10 +16,14 @@ var UserSchema = new mongoose.Schema({
 UserSchema.methods.pause = function pause(group_name,callback){
 	console.log("SOME1 TRY TO PAUSE");
 	var result = {};
+	if(group_name == null){
+		callback('no group to pause',{success:true});
+	}else{
 	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
 		console.log(JSON.stringify(results));
 		callback(err,{success: err ? false : true});
 	});
+	}
 }
 
 UserSchema.methods.leave = function leave(group_name,callback){
