@@ -48,11 +48,15 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
                     //console.log(returnSchema);
                     returnData.push(returnSchema);
                     i = i + 1;
+                    if(i == resData.length) {
+                      //console.log(returnData)
+                      callback('ok', returnData);
+                    }
                   }
                 });
               });
-              //console.log("return data : " + returnData);
-							callback('ok', returnData);
+              //console.log(returnData);
+							//callback('ok', returnData);
 						} else {
 							console.log('error : null');
 							callback(msg, 'unexpected');
