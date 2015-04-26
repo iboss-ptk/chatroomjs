@@ -384,7 +384,6 @@ io.on('connection', function(socket){
 	socket.on('user.pause', function(data){
 		console.log("SOME1 TRY TO PAUSE");
 		console.log(data);
-		data.group_name = 'aroom';
 		helper.IsLogin(data, function (UserObj) {
 			var res = {};
 			models.User.findOne({username: UserObj.username},function(err,user){
