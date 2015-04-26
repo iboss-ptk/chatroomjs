@@ -264,6 +264,7 @@ angular.module('MessengerCtrl', [])
     // and classify them to the right place
     socket.on('message.receive', function (message) {
       console.log('got this message: ', message);
+     
       var messageGroup = message.GroupObj.group_name;
       // if the messageGroup is not recognized
       if (!s.GlobalMessages[messageGroup]) {
@@ -287,11 +288,11 @@ angular.module('MessengerCtrl', [])
         // we will not count this
         return ;
       }
+     // show notification
+      notify(message);
       console.log('notification count!');
       // count notification
       s.NotificationCount[messageGroup] += 1;
-      // show notification
-      notify(message);
     });
 
     // emit notification
@@ -300,14 +301,15 @@ angular.module('MessengerCtrl', [])
         // $('#notification').fadeOut(500);
         $('#notification').queue(function(){
           $(this).html(
+            '<a href="/#/chat/'+ message.GroupObj.group_name +'">'+
             '<img class="avatar" src="/display_images/'+ message.UserObj.display_image +'">'+
             '<div class="content">'+
             '<b>'+message.UserObj.disp_name+'</b> says to '+ message.GroupObj.group_name+
             ':<br> '+message.content.substring(0, 24)+
-            '</div>'
+            '</div></a>'
           ).dequeue();
         });
-        $('#notification').fadeTo(500, 0.8, 'swing').delay(2000).fadeOut(500);
+        $('#notification').fadeTo(500, 0.8, 'swing').delay(2000).fadeTo(500, 0);
       });
     }
 

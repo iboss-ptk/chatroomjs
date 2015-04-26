@@ -152,9 +152,12 @@
   display: none;
   border-radius: 20px;
   -webkit-transition: opacity .5s ease;
-          transition: opacity .5s ease; }
+          transition: opacity .5s ease;
+  z-index: 9999; }
   #notification:hover {
     opacity: 0.6; }
+  #notification a {
+    color: black; }
   #notification .content {
     height: 70%;
     width: 140px;
