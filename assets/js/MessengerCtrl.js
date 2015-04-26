@@ -110,7 +110,7 @@ angular.module('MessengerCtrl', [])
             '<img class="avatar" src="/display_images/'+ message.UserObj.display_image +'">'+
             '<div class="content">'+
             '<b>'+message.UserObj.disp_name+'</b> says to '+ message.GroupObj.group_name+
-            ':<br> '+message.content.substring(0, 24)+
+            ':<br> '+message.content.substring(0, 24)+'..'+
             '</div></a>'
           ).dequeue();
         });
