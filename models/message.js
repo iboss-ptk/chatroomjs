@@ -48,7 +48,7 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
                         group_name: item.group_name,
                       },
                       seq : item.seq,
-                      send_at : item.send_at,
+                      sent_at : item.sent_at,
                       UserObj: userData,
                       // user_id : userData._id,
                       // disp_name : userData.disp_name,
