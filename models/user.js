@@ -9,7 +9,8 @@ var UserSchema = new mongoose.Schema({
 		index: true
 	},
 	disp_name : String ,
-	password : String
+	password : String,
+	display_image : String
 });
 
 UserSchema.methods.pause = function pause(group_name,callback){
