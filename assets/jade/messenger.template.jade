@@ -88,7 +88,7 @@ div#messenger-wrapper.ui.grid
     div#main-nav.nav.column.ui.vertical.menu
 
       a.teal.item(
-        ui-sref="messenger.groups"
+        ng-click="ShowAllGroups()"
         ng-class="{ active: $state.current.name === 'messenger.groups' }")
         h3
           i.list.icon

@@ -26,6 +26,8 @@ angular.module('ChatCtrl', [])
     // we get 'messages' from the resolving state in routing.js
 
     s.Messages = s.GlobalMessages[s.groupName] = messages;
+    // clear notification count in this group
+    s.NotificationCount[s.groupName] = 0;
 
     for (var i = messages.length - 1; i >= 0; i--) {
       var datetime = new Date(messages[i].sent_at)
