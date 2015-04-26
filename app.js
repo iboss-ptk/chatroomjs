@@ -573,8 +573,8 @@ io.on('connection', function(socket){
 */
 			/////////////////////////////////////////DELETE ABOVE IMMEDIATELY
 
-			console.log(data);
-			console.log('calling getunreadmsg');
+			//console.log(data);
+			//console.log('calling getunreadmsg');
 			//Y U NOT FOUND U MOTHERFUCKING SHIT
 			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
 				if(unreadResults == 'unexpected') {

@@ -20,6 +20,7 @@ UserSchema.methods.pause = function pause(group_name,callback){
 		callback('no group to pause',{success:true});
 	}else{
 	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
+		console.log("THIS IS RESULT : " , this.username);
 		console.log(JSON.stringify(results));
 		callback(err,{success: err ? false : true});
 	});
@@ -112,9 +113,7 @@ UserSchema.statics.register = function(data, callback){
 
 //Login Function
 UserSchema.statics.login = function(data,callback){
-	User.findOne({username : data.username , password : data.password}, function(err, results) {
-
-		results.password = undefined;
+	User.findOne({username : data.username , password : data.password},{'password' : 0}, function(err, results) {
 		if(!results){
 			callback(err,'authen_failed');
 		}else{
