@@ -113,11 +113,10 @@ UserSchema.statics.register = function(data, callback){
 //Login Function
 UserSchema.statics.login = function(data,callback){
 	User.findOne({username : data.username , password : data.password}, function(err, results) {
-
-		results.password = undefined;
 		if(!results){
 			callback(err,'authen_failed');
 		}else{
+			results.password = undefined;
 			callback(results,'authen_success');
 		}
 	});
