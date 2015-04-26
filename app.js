@@ -124,6 +124,7 @@ app.post('/photo', function (req, res) {
 						throw new Error(err);
 						return;
 					}
+					console.log('successfully create a user with display image.');
 
 					res.json({
 						success: true,
@@ -197,6 +198,17 @@ io.on('connection', function(socket){
 
 			Set: function (obj) {
 				throw new Error('deprecated');
+			},
+
+			GetSessionId: function (data, callback) {
+				jwt.verify(data._token, secret, function (err, payload) {
+					if (err) {
+						// wrong token
+						callback(err);
+						return console.log(err);
+					}
+					callback(null, payload.session_id);
+				});
 			},
 
 			IsLogin: function (data, callback, emit) {
@@ -392,16 +404,18 @@ io.on('connection', function(socket){
 				err_msg: []
 			}
 
-			socket.emit(data._event, returnObj);
+			helper.GetSessionId(function (err, session_id) {
 
-			// redis_client.del(data.username + ":token", function(err, res){
-			// 	if (err) {
-			// 		returnObj.success = false;
-			// 		returnObj.err_msg.push('Can not logout. Error occured at redis.');
-			// 		console.log(res);
-			// 		socket.emit(data._event, returnObj);
-			// 	}
-			// });
+				redis_client.del(session_id, function(err, res){
+					if (err) {
+						returnObj.success = false;
+						returnObj.err_msg.push('Can not logout. Error occured at redis.');
+						console.log('cannot logout, Erorr occured at redis');
+					}
+					socket.emit(data._event, returnObj);
+				});
+
+			});
 
 		});
 
