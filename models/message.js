@@ -27,41 +27,41 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
 						if(resData) {
 							console.log(resData.length + ' unread message get !!');
 							//console.log('messages : ' + resData);
-              var returnData = [];
-              i = 0;
-              resData.forEach(function(item) {
-                User.findOne({username : item.username}, function (rep, userData) {
-                  if(!userData) {
-                    console.log("Dead : How can you not find an exist user !!?");
-                    callback(rep, 'unexpected');
-                  } else {
-                    delete userData.password;
-
-                    returnSchema = {
-                      content : item.content,
-                      username : item.username,
-                      // group_name : item.group_name,
-                      GroupObj: {
-                        group_name: item.group_name,
-                      },
-                      seq : item.seq,
-                      sent_at : item.sent_at,
-                      UserObj: userData,
-                      // user_id : userData._id,
-                      // disp_name : userData.disp_name,
-                      // display_image : userData.display_image
-                    };
-                    //console.log(returnSchema);
-                    returnData.push(returnSchema);
-                    i = i + 1;
-                    if(i == resData.length) {
-                      //console.log(returnData)
-                      callback('ok', returnData);
-                    }
-                  }
-                });
-              });
-              //console.log(returnData);
+							if(resData.length == 0) {
+								callback('ok', resData);
+							}
+							var returnData = [];
+							i = 0;
+							resData.forEach(function(item) {
+								User.findOne({username : item.username}, {'password':0}, function (rep, userData) {
+									console.log(userData);
+									if(!userData) {
+										console.log("Dead : How can you not find an exist user !!?");
+										callback(rep, 'unexpected');
+									} else {
+										returnSchema = {
+											content : item.content,
+											username : item.username,
+										//	group_name : item.group_name,
+											GroupObj: { group_name: item.group_name },
+											seq : item.seq,
+											sent_at : item.sent_at,
+											UserObj: userData,
+										//	user_id : userData._id,
+										//	disp_name : userData.disp_name,
+										//	display_image : userData.display_image
+										};
+										//console.log(returnSchema);
+										returnData.push(returnSchema);
+										i = i + 1;
+									if(i == resData.length) {
+											//console.log(returnData)
+											callback('ok', returnData);
+										}
+									}
+								});
+							});
+							//console.log(returnData);
 							//callback('ok', returnData);
 						} else {
 							console.log('error : null');
