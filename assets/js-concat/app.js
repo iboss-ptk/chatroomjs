@@ -24,7 +24,13 @@ angular.module('ChatCtrl', [])
     s.User = User.GetUserObj();
     // all the messages in this chat
     // we get 'messages' from the resolving state in routing.js
+
     s.Messages = s.GlobalMessages[s.groupName] = messages;
+
+    for (var i = messages.length - 1; i >= 0; i--) {
+      var datetime = new Date(messages[i].sent_at)
+      messages[i].sent_at = datetime.getHours() + '.' + datetime.getMinutes();
+    };
 
     s.Send = function () {
       //do not send if no content
@@ -171,6 +177,7 @@ angular.module('Message', [])
       req._token = User.GetToken();
       Caller.Call('message.get_unread', req, function (res) {
         if (res.success === true) {
+          console.log(res.unread_msg);
           deferred.resolve(res.unread_msg);
         }
         else {

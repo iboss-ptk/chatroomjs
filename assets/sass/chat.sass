@@ -1,17 +1,23 @@
 @import "bourbon/bourbon"
 
+.messenger-list
+  overflow: hidden
+
 #group-label
   position: absolute
   top: 0
   left: 0
   color: white
-  background-color: black
   padding: 10px 20px
+  z-index: 9999
+  width: 100%
+  text-align: center
+  background-color: rgba(#000, 0.7)
 
 #messenger-chat
   padding: 50px 50px
   padding-bottom: 70px
-  overflow: scroll
+  overflow: auto
   height: 100%
 
   .message-wrapper
