@@ -30,7 +30,9 @@ First, you have to clone this repo into your computer.
 Then install the dependencies.
 ```sh 
    $ cd chatroomjs
+   $ sudo npm install -g gulp && sudo npm install -g bower
    $ sudo npm install
+   $ bower install
 ```
 We might need to run docker command on the host os because it's easier to manage. If you're not on Linux, you need to run the following commands.
 ```sh 
