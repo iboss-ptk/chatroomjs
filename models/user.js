@@ -58,8 +58,8 @@ UserSchema.methods.get_groups = function get_groups (callback){
 				callback([]);
 				return;
 			}
-
 			results.forEach(function(item){
+				console.log("TRY TO FIND");
 				Group.find({_id: mongoose.Types.ObjectId(item.group_id)},'group_name',function(err,groupObj){
 					var resolver = {
 						group_name: groupObj[0].group_name,
@@ -112,7 +112,9 @@ UserSchema.statics.register = function(data, callback){
 
 //Login Function
 UserSchema.statics.login = function(data,callback){
-	User.findOne({username : data.username , password : data.password},{'username' :1 , 'disp_name':1}, function(err, results) {
+	User.findOne({username : data.username , password : data.password}, function(err, results) {
+
+		results.password = undefined;
 		if(!results){
 			callback(err,'authen_failed');
 		}else{

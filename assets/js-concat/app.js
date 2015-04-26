@@ -644,6 +644,8 @@ angular.module('User', [])
           // save return UserObj
           UserObj.Set(res.UserObj);
 
+          console.log('UserObj !!!: ', res);
+
           deferred.resolve(res.UserObj);
         }
         else {
