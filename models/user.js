@@ -19,8 +19,8 @@ UserSchema.methods.pause = function pause(group_name,callback){
 	var group_id;
 	var self=this;
 
-	if(group_name == null){
-		callback(err,{success:true});
+	if(group_name === null){
+		callback('just register',{success:true});
 	}
 
 	//Resolve Group_Name into Group-ID
