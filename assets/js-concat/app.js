@@ -26,6 +26,8 @@ angular.module('ChatCtrl', [])
     // we get 'messages' from the resolving state in routing.js
 
     s.Messages = s.GlobalMessages[s.groupName] = messages;
+    // clear notification count in this group
+    s.NotificationCount[s.groupName] = 0;
 
     for (var i = messages.length - 1; i >= 0; i--) {
       var datetime = new Date(messages[i].sent_at)
@@ -214,15 +216,41 @@ angular.module('MessengerCtrl', [])
     console.log('UserObj:', s.UserObj);
     // expose User's messages
     s.GlobalMessages = {};
+    s.NotificationCount = {};
     // expose User's groups
     s.GroupObjs = groups;
     // s.GroupObjs = [];
     // all errors in this page are here
     s.err = {};
+    // joining group, default null
+    s.groupName = null;
 
     s.SetGroup = function (group) {
       s.groupName = group;
     };
+
+    s.ShowAllGroups = function () {
+      // pause the group we're leaving
+      User.Pause({
+        group_name: s.groupName,
+      })
+        .then(function (res) {
+          console.log('pause success:', s.groupName);
+        }, function (err) {
+          console.log('pause fail:', s.groupName);
+        });
+
+      s.groupName = null;
+      $state.go('messenger.groups');
+    };
+
+    // Init global messages according to Group list
+    (function () {
+      s.GroupObjs.forEach(function (group) {
+        s.GlobalMessages[group.group_name] = [];
+        s.NotificationCount[group.group_name] = 0;
+      });
+    }());
 
     // Let's say that when user come
     console.log('got into messenger ctrl');
@@ -230,6 +258,7 @@ angular.module('MessengerCtrl', [])
     // listen to all incoming messages
     // and classify them to the right place
     socket.on('message.receive', function (message) {
+      console.log('got this message: ', message);
       var messageGroup = message.GroupObj.group_name;
       // if the messageGroup is not recognized
       if (!s.GlobalMessages[messageGroup]) {
@@ -240,11 +269,37 @@ angular.module('MessengerCtrl', [])
       var datetime = new Date(message.sent_at)
       message.sent_at = datetime.getHours() + '.' + datetime.getMinutes();
       // scroll down when receive a new message
-      var h = $('#messenger-chat')[0].scrollHeight;
-      $('#messenger-chat').animate({ scrollTop: h }, 300);
+      if (s.groupName !== null) {
+        // do this only when we're in a group
+        var h = $('#messenger-chat')[0].scrollHeight;
+        $('#messenger-chat').animate({ scrollTop: h }, 300);
+      }
       // separatly clissify it to the right box
       s.GlobalMessages[messageGroup].push(message);
+      // incr notification count
+      // check if the message is the one in the group we're watching
+      if (messageGroup === s.groupName) {
+        // we will not count this
+        return ;
+      }
+      console.log('notification count!');
+      // count notification
+      s.NotificationCount[messageGroup] += 1;
+      // show notification
+      notify(message);
     });
+
+    // emit notification
+    function notify(message){
+      $timeout(function(){
+        console.log("notify");
+        $('body').append('<div id="notification"><div>');
+        $('#notification').fadeIn(500);
+        setTimeout(function(){
+          $('#notification').fadeOut(500)
+        }, 3000);
+      });
+    }
 
     // Logout
     s.Logout = function () {
@@ -1134,22 +1189,23 @@ angular.module('routing', [])
             // if the user is not member, go to 'login' state
             no: 'login' }
         ],
-        resolve: {
-          pauseAll: function (User) {
-            console.log('pause all groups');
-            // pause all groups
-            var r = User.Pause({
-              group_name: null,
-            });
+        // we will pause it separately
+        // resolve: {
+        //   pauseAll: function (User) {
+        //     console.log('pause all groups');
+        //     // pause all groups
+        //     var r = User.Pause({
+        //       group_name: null,
+        //     });
 
-            r.then(null, function (err) {
-              console.log('during resolving groups');
-              throw new Error(err);
-            });
+        //     r.then(null, function (err) {
+        //       console.log('during resolving groups');
+        //       throw new Error(err);
+        //     });
 
-            return r;
-          },
-        },
+        //     return r;
+        //   },
+        // },
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',

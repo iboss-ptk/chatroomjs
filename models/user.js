@@ -14,18 +14,35 @@ var UserSchema = new mongoose.Schema({
 });
 
 UserSchema.methods.pause = function pause(group_name,callback){
-	console.log("SOME1 TRY TO PAUSE");
+	console.log(this.username+" is trying to pause from group : "+group_name);
 	var result = {};
+	var group_id;
+	var self=this;
+
 	if(group_name == null){
-		callback('no group to pause',{success:true});
-	}else{
-	GroupMember.findOneAndUpdate({user_id:this._id},{last_seen:Date.now()},function(err,results){
-		console.log("THIS IS RESULT : " , this.username);
-		console.log(JSON.stringify(results));
-		callback(err,{success: err ? false : true});
-	});
+		callback(err,{success:true});
 	}
+
+	//Resolve Group_Name into Group-ID
+	Group.findOne({group_name:group_name},function(err,group){
+		if(!err){
+			group_id = group._id;
+			//console.log('the group id is : ',group_id);
+			//console.log('the user id is : ',self._id);
+			//console.log('Time is',Date.now());
+			GroupMember.findOneAndUpdate({user_id:self._id,group_id:mongoose.Types.ObjectId(group_id)},{last_seen:Date.now()},function(err,results){
+				console.log("RESULT OF PAUSING : ")
+				console.log(results);
+				//console.log(JSON.stringify(results));
+				callback(err,{success: err ? false : true});
+				});
+		}
+	});
+
+
+
 }
+
 
 UserSchema.methods.leave = function leave(group_name,callback){
 	console.log( this.username+" Call Obj-Method leave group : " + group_name);
