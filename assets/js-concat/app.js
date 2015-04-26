@@ -265,7 +265,7 @@ angular.module('MessengerCtrl', [])
     // and classify them to the right place
     socket.on('message.receive', function (message) {
       console.log('got this message: ', message);
-     
+
       var messageGroup = message.GroupObj.group_name;
       // if the messageGroup is not recognized
       if (!s.GlobalMessages[messageGroup]) {
@@ -392,6 +392,8 @@ angular.module('MessengerCtrl', [])
             // success
             // make a new group list
             s.GroupObjs.push(GroupObj);
+            s.GlobalMessages[group_name] = [];
+            s.NotificationCount[group_name] = 0;
             console.log('pushed the group: ', GroupObj);
             // hide modal
             joinModal.modal('hide');
