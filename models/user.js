@@ -36,7 +36,7 @@ UserSchema.methods.leave = function leave(group_name,callback){
 					callback(err,'error_finding_group');
 				}else{
 					console.log('leaving '+group_name+' success');
-					callback('okay','leaving_success');
+					callback('success','leaving_success');
 				}
 			});
 		}else{

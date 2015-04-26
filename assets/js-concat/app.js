@@ -1166,7 +1166,7 @@ angular.module('routing', [])
 
             r.then(null, function (err) {
               console.log('during resolving chat');
-              throw new Error(err);
+              $state.go('messenger.groups');
             });
 
             return r;
