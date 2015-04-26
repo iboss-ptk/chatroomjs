@@ -519,7 +519,14 @@ angular.module('RegisterCtrl', [])
               var token = User.GetToken();
               s.StartUpload(token, function () {
                 // redirect to groups
-                $state.go('messenger.groups');
+                User.Login({
+                  username: username,
+                  password: password,
+                })
+                  .then(function (res) {
+                    $state.go('messenger.groups');
+                  });
+
               });
 
             }, function (err) {
@@ -1159,7 +1166,7 @@ angular.module('routing', [])
 
             r.then(null, function (err) {
               console.log('during resolving chat');
-              throw new Error(err);
+              $state.go('messenger.groups');
             });
 
             return r;

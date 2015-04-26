@@ -110,8 +110,8 @@ div#messenger-wrapper.ui.grid
           i.remove.icon
           | Leave
 
-      div.avatar-wrapper
-        img.avatar(ng-src="assets/display_images/{{UserObj.display_image}}")
+      div.avatar-wrapper(style="text-align: center")
+        img.avatar(ng-src="display_images/{{UserObj.display_image}}")
 
         div.name
           a(href="" popup).browse.item

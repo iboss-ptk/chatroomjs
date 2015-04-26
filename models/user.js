@@ -37,7 +37,7 @@ UserSchema.methods.leave = function leave(group_name,callback){
 					callback(err,'error_finding_group');
 				}else{
 					console.log('leaving '+group_name+' success');
-					callback('okay','leaving_success');
+					callback('success','leaving_success');
 				}
 			});
 		}else{
@@ -113,10 +113,12 @@ UserSchema.statics.register = function(data, callback){
 
 //Login Function
 UserSchema.statics.login = function(data,callback){
+
 	User.findOne({username : data.username , password : data.password},{'password' : 0}, function(err, results) {
 		if(!results){
 			callback(err,'authen_failed');
 		}else{
+			results.password = undefined;
 			callback(results,'authen_success');
 		}
 	});

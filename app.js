@@ -414,7 +414,7 @@ io.on('connection', function(socket){
 				err_msg: []
 			}
 
-			helper.GetSessionId(function (err, session_id) {
+			helper.GetSessionId(data, function (err, session_id) {
 
 				redis_client.del(session_id, function(err, res){
 					if (err) {
