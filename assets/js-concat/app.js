@@ -297,12 +297,17 @@ angular.module('MessengerCtrl', [])
     // emit notification
     function notify(message){
       $timeout(function(){
-        console.log("notify");
-        $('body').append('<div id="notification"><div>');
-        $('#notification').fadeIn(500);
-        setTimeout(function(){
-          $('#notification').fadeOut(500)
-        }, 3000);
+        // $('#notification').fadeOut(500);
+        $('#notification').queue(function(){
+          $(this).html(
+            '<img class="avatar" src="/display_images/'+ message.UserObj.display_image +'">'+
+            '<div class="content">'+
+            '<b>'+message.UserObj.disp_name+'</b> says to '+ message.GroupObj.group_name+
+            ':<br> '+message.content.substring(0, 24)+
+            '</div>'
+          ).dequeue();
+        });
+        $('#notification').fadeTo(500, 0.8, 'swing').delay(2000).fadeOut(500);
       });
     }
 
@@ -835,27 +840,18 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      // first, tell the server to pause this user
-      self.Pause({
-        group_name: null,
-      })
-        .then(function () {
-          console.log('The user has been paused.');
-          // second, do the logout
-          Caller.Call('user.logout', req, function (res) {
-            if (res.success === true) {
-              // clear token
-              token.Set(null);
-              // clear UserObj
-              UserObj.Unset();
-              deferred.resolve();
-            }
-            else {
-              deferred.reject(res.err_msg);
-            }
-          });
-        });
-
+      Caller.Call('user.logout', req, function (res) {
+        if (res.success === true) {
+          // clear token
+          token.Set(null);
+          // clear UserObj
+          UserObj.Unset();
+          deferred.resolve();
+        }
+        else {
+          deferred.reject(res.err_msg);
+        }
+      });
       return deferred.promise;
     },
 
