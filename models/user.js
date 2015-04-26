@@ -21,11 +21,11 @@ UserSchema.methods.pause = function pause(group_name,callback){
 
 	if(group_name === null){
 		callback('just register',{success:true});
-	}
+	}else{
 
 	//Resolve Group_Name into Group-ID
 	Group.findOne({group_name:group_name},function(err,group){
-		if(!err){
+		if(!group){
 			group_id = group._id;
 			//console.log('the group id is : ',group_id);
 			//console.log('the user id is : ',self._id);
@@ -38,7 +38,7 @@ UserSchema.methods.pause = function pause(group_name,callback){
 				});
 		}
 	});
-
+	}
 
 
 }
