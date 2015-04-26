@@ -58,12 +58,17 @@ angular.module('MessengerCtrl', [])
     // emit notification
     function notify(message){
       $timeout(function(){
-        console.log("notify");
-        $('body').append('<div id="notification"><div>');
-        $('#notification').fadeIn(500);
-        setTimeout(function(){
-          $('#notification').fadeOut(500)
-        }, 3000);
+        // $('#notification').fadeOut(500);
+        $('#notification').queue(function(){
+          $(this).html(
+            '<img class="avatar" src="/display_images/'+ message.UserObj.display_image +'">'+
+            '<div class="content">'+
+            '<b>'+message.UserObj.disp_name+'</b> says to '+ message.GroupObj.group_name+
+            ':<br> '+message.content.substring(0, 24)+
+            '</div>'
+          ).dequeue();
+        });
+        $('#notification').fadeTo(500, 0.8, 'swing').delay(2000).fadeOut(500);
       });
     }
 

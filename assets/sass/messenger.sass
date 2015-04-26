@@ -2,14 +2,33 @@
 
 #notification
   position: fixed
-  top: 20px
+  top: 50px
   left: 20px
-  width: 400px
-  height: 150px
-  background-color: black
+  width: 330px
+  height: 100px
+  background-color: #FFFFFF
   overflow: auto
   padding: 20px 20px
   display: none
+  border-radius: 20px
+  transition: opacity .5s ease
+  &:hover
+    opacity: 0.6
+
+  .content
+    height: 70%
+    width: 140px
+    margin-left: 60px
+    position: absolute
+    top: 15px
+
+  .avatar
+      width: 50px
+      height: 50px
+      border-radius: 100%
+      object-fit: cover
+      object-position: center
+      vertical-align: middle
 
 body
   background-image: url("/img/background/blurred_bg.jpg")
