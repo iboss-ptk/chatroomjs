@@ -383,6 +383,7 @@ io.on('connection', function(socket){
 
 	socket.on('user.pause', function(data){
 		console.log("SOME1 TRY TO PAUSE");
+		console.log(data);
 		helper.IsLogin(data, function (UserObj) {
 			var res = {};
 			models.User.findOne({username: UserObj.username},function(err,user){
@@ -543,38 +544,6 @@ io.on('connection', function(socket){
 				err_msg: null
 			};
 
-			//////CLICK NOT TO JOIN ROOM BUT LEAVE
-			////// THIS CODE IS FOR TESTING
-			////// THE SAME ONE IMPLEMENTED ABOVEE
-			//////////////AFTER YOU TRY IT
-			////////LEAVE GROUP CODE - FOR TESTING////////////DELETE IT IMMEDIATELY
-			//leave code here
-/*
-			models.User.findOne(UserObj,function(err,results){
-				console.log("SOME1 ASK TO LEAVE");
-				if(results){
-					//leave the user
-					results.leave(data.group_name,function(msg,parse){
-						if(msg == 'success'){
-								res.success =true;
-								res.err_msg = [msg];
-							}else{
-								res.success = false;
-								res.err_msg = ['no_group_name'];
-							}
-							socket.emit(data._event, res);
-					});
-				}else{
-					res.success = false;
-					res.err_msg = ['no_user'];
-					socket.emit(data._event, res);
-				}
-			});
-*/
-			/////////////////////////////////////////DELETE ABOVE IMMEDIATELY
-
-			//console.log(data);
-			//console.log('calling getunreadmsg');
 			//Y U NOT FOUND U MOTHERFUCKING SHIT
 			models.Message.getunreadmsg(data, UserObj , function(msg, unreadResults) {
 				if(unreadResults == 'unexpected') {

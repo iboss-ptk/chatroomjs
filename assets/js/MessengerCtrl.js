@@ -21,15 +21,46 @@ angular.module('MessengerCtrl', [])
     console.log('UserObj:', s.UserObj);
     // expose User's messages
     s.GlobalMessages = {};
+    s.NotificationCount = {};
     // expose User's groups
     s.GroupObjs = groups;
     // s.GroupObjs = [];
     // all errors in this page are here
     s.err = {};
+    // joining group, default null
+    s.groupName = null;
 
     s.SetGroup = function (group) {
       s.groupName = group;
     };
+
+    s.ShowAllGroups = function () {
+      // pause the group we're leaving
+      var groupName = s.groupName;
+      if (groupName === null) {
+        // just clicking ....
+        return ;
+      }
+      User.Pause({
+        group_name: groupName,
+      })
+        .then(function (res) {
+          console.log('pause success:', groupName);
+        }, function (err) {
+          console.log('pause fail:', groupName);
+        });
+
+      s.groupName = null;
+      $state.go('messenger.groups');
+    };
+
+    // Init global messages according to Group list
+    (function () {
+      s.GroupObjs.forEach(function (group) {
+        s.GlobalMessages[group.group_name] = [];
+        s.NotificationCount[group.group_name] = 0;
+      });
+    }());
 
     // Let's say that when user come
     console.log('got into messenger ctrl');
@@ -37,6 +68,7 @@ angular.module('MessengerCtrl', [])
     // listen to all incoming messages
     // and classify them to the right place
     socket.on('message.receive', function (message) {
+      console.log('got this message: ', message);
       var messageGroup = message.GroupObj.group_name;
       // if the messageGroup is not recognized
       if (!s.GlobalMessages[messageGroup]) {
@@ -47,11 +79,23 @@ angular.module('MessengerCtrl', [])
       var datetime = new Date(message.sent_at)
       message.sent_at = datetime.getHours() + '.' + datetime.getMinutes();
       // scroll down when receive a new message
-      var h = $('#messenger-chat')[0].scrollHeight;
-      $('#messenger-chat').animate({ scrollTop: h }, 300);
+      if (s.groupName !== null) {
+        // do this only when we're in a group
+        var h = $('#messenger-chat')[0].scrollHeight;
+        $('#messenger-chat').animate({ scrollTop: h }, 300);
+      }
       // separatly clissify it to the right box
       s.GlobalMessages[messageGroup].push(message);
-
+      // incr notification count
+      // check if the message is the one in the group we're watching
+      if (messageGroup === s.groupName) {
+        // we will not count this
+        return ;
+      }
+      console.log('notification count!');
+      // count notification
+      s.NotificationCount[messageGroup] += 1;
+      // show notification
       notify(message);
     });
 
@@ -74,16 +118,40 @@ angular.module('MessengerCtrl', [])
 
     // Logout
     s.Logout = function () {
-      User.Logout()
-        .then(function (res) {
-          // logout success
-          console.log('logout success');
-          // redirect to login
-          $state.go('login');
-        }, function (err) {
-          // logout err
-          console.log('logout fail', err);
-        });
+      // helper function
+      function Logout() {
+        User.Logout()
+          .then(function (res) {
+            // logout success
+            console.log('logout success');
+            // redirect to login
+            $state.go('login');
+          }, function (err) {
+            // logout err
+            console.log('logout fail', err);
+          });
+      }
+
+      // in group ? checking
+      var groupName = s.groupName;
+      if (groupName === null) {
+        // we're not in a group
+        // no need to pause
+        Logout();
+      }
+      else {
+        // pause the group we're leaving
+        User.Pause({
+          group_name: groupName,
+        })
+          .then(function (res) {
+            console.log('pause success:', groupName);
+            Logout();
+          }, function (err) {
+            console.log('pause fail:', groupName);
+            Logout();
+          });
+      }
     };
 
     // this block is of code is all about joining..

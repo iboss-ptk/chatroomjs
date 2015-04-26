@@ -192,27 +192,18 @@ angular.module('User', [])
         _token: token.Get(),
       };
 
-      // first, tell the server to pause this user
-      self.Pause({
-        group_name: null,
-      })
-        .then(function () {
-          console.log('The user has been paused.');
-          // second, do the logout
-          Caller.Call('user.logout', req, function (res) {
-            if (res.success === true) {
-              // clear token
-              token.Set(null);
-              // clear UserObj
-              UserObj.Unset();
-              deferred.resolve();
-            }
-            else {
-              deferred.reject(res.err_msg);
-            }
-          });
-        });
-
+      Caller.Call('user.logout', req, function (res) {
+        if (res.success === true) {
+          // clear token
+          token.Set(null);
+          // clear UserObj
+          UserObj.Unset();
+          deferred.resolve();
+        }
+        else {
+          deferred.reject(res.err_msg);
+        }
+      });
       return deferred.promise;
     },
 

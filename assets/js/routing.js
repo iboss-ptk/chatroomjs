@@ -56,22 +56,23 @@ angular.module('routing', [])
             // if the user is not member, go to 'login' state
             no: 'login' }
         ],
-        resolve: {
-          pauseAll: function (User) {
-            console.log('pause all groups');
-            // pause all groups
-            var r = User.Pause({
-              group_name: null,
-            });
+        // we will pause it separately
+        // resolve: {
+        //   pauseAll: function (User) {
+        //     console.log('pause all groups');
+        //     // pause all groups
+        //     var r = User.Pause({
+        //       group_name: null,
+        //     });
 
-            r.then(null, function (err) {
-              console.log('during resolving groups');
-              throw new Error(err);
-            });
+        //     r.then(null, function (err) {
+        //       console.log('during resolving groups');
+        //       throw new Error(err);
+        //     });
 
-            return r;
-          },
-        },
+        //     return r;
+        //   },
+        // },
       })
       .state('messenger.chat', {
         url: '/chat/:groupName',
