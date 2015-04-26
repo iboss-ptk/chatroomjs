@@ -34,7 +34,7 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
 							i = 0;
 							resData.forEach(function(item) {
 								User.findOne({username : item.username}, {'password':0}, function (rep, userData) {
-									console.log(userData);
+									//console.log(userData);
 									if(!userData) {
 										console.log("Dead : How can you not find an exist user !!?");
 										callback(rep, 'unexpected');
