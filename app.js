@@ -103,8 +103,9 @@ app.post('/photo', function (req, res) {
 					redis: function (finish) {
 						redis_client.set(payload.session_id, UserObjNew, function (err) {
 							if (err) {
+								console.log('problem with updating UserObj on redis');
 								finish(err, null);
-								return console.log('problem with updating UserObj on redis');
+								return ;
 							}
 							finish();
 						});
@@ -113,18 +114,21 @@ app.post('/photo', function (req, res) {
 					mongo: function (finish) {
 						models.User.findOneAndUpdate(UserObj, UserObjNew, { upsert: true }, function (err, doc) {
 							if (err) {
+								console.log('problem with updating UserObj on mongo');
 								finish(err, null);
-								return console.log('problem with updating UserObj on mongo');
+								return ;
 							}
 							finish();
 						});
 					},
 				}, function (err) {
 					if (err) {
-						throw new Error(err);
+						console.log("cannot update database");
+						callback(err);
 						return;
 					}
 
+					console.log("success !!!");
 					res.json({
 						success: true,
 						UserObj: UserObjNew,
@@ -362,6 +366,7 @@ io.on('connection', function(socket){
 	});
 
 	socket.on('user.pause', function(data){
+		console.log("SOME1 TRY TO PAUSE");
 		helper.IsLogin(data, function (UserObj) {
 			var res = {};
 			models.User.findOne({username: UserObj.username},function(err,user){
