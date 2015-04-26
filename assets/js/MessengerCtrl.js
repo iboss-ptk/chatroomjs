@@ -51,7 +51,21 @@ angular.module('MessengerCtrl', [])
       $('#messenger-chat').animate({ scrollTop: h }, 300);
       // separatly clissify it to the right box
       s.GlobalMessages[messageGroup].push(message);
+
+      notify(message);
     });
+
+    // emit notification
+    function notify(message){
+      $timeout(function(){
+        console.log("notify");
+        $('body').append('<div id="notification"><div>');
+        $('#notification').fadeIn(500);
+        setTimeout(function(){
+          $('#notification').fadeOut(500)
+        }, 3000);
+      });
+    }
 
     // Logout
     s.Logout = function () {
