@@ -27,6 +27,7 @@ angular.module('Message', [])
       Caller.Call('message.get_unread', req, function (res) {
         console.log('unread:', res);
         if (res.success === true) {
+          console.log(res.unread_msg);
           deferred.resolve(res.unread_msg);
         }
         else {

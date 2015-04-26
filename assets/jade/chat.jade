@@ -1,35 +1,32 @@
-div.animated.fadeIn
+#group-label.animated.fadeIn(
+	ng-bind="groupName")
 
-	#group-label
-		| Groupp
+#messenger-chat
+	.message-wrapper.animated.fadeIn(
+		ng-repeat="message in Messages"
+		ng-class="{ 'other-message': message.UserObj.username !== User.username }")
+		img.ui.avatar(
+			ng-if="message.UserObj.username !== User.username"
+			data-title="{{message.UserObj.disp_name}}"
+			ng-src="/display_images/{{message.UserObj.display_image}}")
 
-	#messenger-chat
-		.message-wrapper(
-			ng-repeat="message in Messages"
-			ng-class="{ 'other-message': message.UserObj.username !== User.username }")
+		.sent-time(
+			ng-bind="message.sent_at"
+			ng-if="message.UserObj.username == User.username")
 
-			img.ui.avatar(
-				ng-if="message.UserObj.username !== User.username"
-				data-title="{{message.UserObj.disp_name}}"
-				src="https://scontent-kul.xx.fbcdn.net/hphotos-xfp1/v/t1.0-9/s526x395/10422369_819813851401895_5121571274047494089_n.png?oh=848633c904018e90d3b27800818f1c84&oe=5597A7B1")
+		.message(ng-bind="message.content")
+		.sent-time(
+			ng-bind="message.sent_at"
+			ng-if="message.UserObj.username !== User.username")
 
-			.sent-time(
-				ng-bind="message.sent_at"
-				ng-if="message.UserObj.username == User.username")
-
-			.message(ng-bind="message.content")
-			.sent-time(
-				ng-bind="message.sent_at"
-				ng-if="message.UserObj.username !== User.username")
-
-	#message-type-box
-		form(ng-submit="Send()")
-			textarea.type-box(
-				ng-enter="Send()"
-				ng-model="content")
-			button#send-button.ui.teal.button(
-				type="submit")
-				| Send
+#message-type-box.animated.fadeIn
+	form(ng-submit="Send()")
+		textarea.type-box(
+			ng-enter="Send()"
+			ng-model="content")
+		button#send-button.ui.teal.button(
+			type="submit")
+			| Send
 
 script.
 	$('body').on('mouseover', '.avatar', function() {
