@@ -36,16 +36,17 @@ angular.module('ChatCtrl', [])
 
     s.Send = function () {
       //do not send if no content
+      var text = s.content;
       if($.trim(s.content) == '') return;
+      s.content = '';
       console.log('sending ...', s.content);
       Message.Send({
         group_name: s.groupName,
-        content: s.content,
+        content: text,
       })
         .then(function (res) {
           // sending done!
           // do nothing perhaps.
-          s.content = '';
           console.log('sending done');
         }, function (err) {
           console.log('err', err);
