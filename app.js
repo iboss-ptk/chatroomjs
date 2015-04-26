@@ -299,6 +299,7 @@ io.on('connection', function(socket){
 					//GOT USER OBJ => get him in da group
 					results.getInGroup(data.group_name,function(returnMessage){
 						res.err_msg = [returnMessage];
+						console.log(res.err_msg);
 						res.GroupObj = {
 							group_name: data.group_name,
 						};
