@@ -22,15 +22,15 @@ UserSchema.methods.pause = function pause(group_name,callback){
 	if(group_name === null){
 		callback('just register',{success:true});
 	}else{
-
+		//console.log('else part');
 	//Resolve Group_Name into Group-ID
 	Group.findOne({group_name:group_name},function(err,group){
-		if(!group){
-			group_id = group._id;
+		if(group){
+			//console.log(group);
 			//console.log('the group id is : ',group_id);
 			//console.log('the user id is : ',self._id);
 			//console.log('Time is',Date.now());
-			GroupMember.findOneAndUpdate({user_id:self._id,group_id:mongoose.Types.ObjectId(group_id)},{last_seen:Date.now()},function(err,results){
+			GroupMember.findOneAndUpdate({user_id:self._id,group_id:group._id},{last_seen:Date.now()},function(err,results){
 				console.log("RESULT OF PAUSING : ")
 				console.log(results);
 				//console.log(JSON.stringify(results));
