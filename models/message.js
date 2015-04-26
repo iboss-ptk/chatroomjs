@@ -27,6 +27,9 @@ MessageSchema.statics.getunreadmsg = function (data, userObj ,callback) {
 						if(resData) {
 							console.log(resData.length + ' unread message get !!');
 							//console.log('messages : ' + resData);
+              if(resData.length == 0) {
+                callback('ok', resData);
+              }
               var returnData = [];
               i = 0;
               resData.forEach(function(item) {
