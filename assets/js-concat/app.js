@@ -203,6 +203,7 @@ angular.module('MessengerCtrl', [])
     s.$state = $state;
     // expose User to the view
     s.UserObj = User.GetUserObj();
+    console.log('UserObj:', s.UserObj);
     // expose User's messages
     s.GlobalMessages = {};
     // expose User's groups
