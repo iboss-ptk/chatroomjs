@@ -170,6 +170,7 @@ angular.module('Message', [])
       // append _token to the request
       req._token = User.GetToken();
       Caller.Call('message.get_unread', req, function (res) {
+        console.log('unread:', res);
         if (res.success === true) {
           deferred.resolve(res.unread_msg);
         }
