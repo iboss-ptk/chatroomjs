@@ -6,6 +6,7 @@
         | {{group.group_name.substr(0,1).toUpperCase()}}
       div.text(ng-bind="group.group_name.substr(0,23)")
       div.floating.ui.red.label(
-        ng-bind="NotificationCount[group.group_name]")
+        ng-bind="NotificationCount[group.group_name]"
+        ng-show="NotificationCount[group.group_name] > 0")
 
 
