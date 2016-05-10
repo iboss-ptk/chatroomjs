@@ -21,7 +21,7 @@
     "angular-socket-io": "~0.7.0",
     "angular-ui-router": "~0.2.13",
     "bootstrap": "~3.3.4",
-    "semantic": "~1.12.0",
+    "semantic": "~1.11.8",
     "jshashes": "~1.0.5",
     "animate.css": "~3.2.6",
     "velocity": "~1.2.2",
